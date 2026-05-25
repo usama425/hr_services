@@ -557,7 +557,7 @@ def generate_invoices(project,due_date,customer,invoice_type,employees,month_nam
 				si.custom_location = lc
 
 				for s_emp in slted_emps:
-					mp_cost = manpower_cost_calculation(emp["employee"],emp["salary_slip"])
+					mp_cost = manpower_cost_calculation(s_emp["employee"],s_emp["salary_slip"])
 					si_item = create_manpower_item(month_name,year,my_in_arabic,emp_id=s_emp["employee"],mp_qty=1,mp_cost=mp_cost)
 					si.append("items", si_item)
 
