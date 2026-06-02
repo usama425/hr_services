@@ -16,8 +16,11 @@ class RequestForPayment(Document):
 				new_doc.posting_date = self.date
 				new_doc.company = self.company
 				for it in self.items:
+					account_for_jv = frappe.db.get_value("Item",{"name":it.item},"account_for_jv")
+					if not account_for_jv:
+						frappe.throw(_(f"Account for JV is not set on Item <b>{it.item}</b>. Please set it on the Item master before approving."))
 					row = new_doc.append("accounts",{})
-					row.account = frappe.db.get_value("Item",{"name":it.item},"account_for_jv")
+					row.account = account_for_jv
 					row.debit_in_account_currency = it.amount
 					row.reference_type = "Request For Payment"
 					row.reference_name = self.name
@@ -27,7 +30,7 @@ class RequestForPayment(Document):
 					row.credit_in_account_currency = it.amount
 
 				#new_doc.custom_request_for_payment = self.name
-				new_doc.user_remark = f"{self.expense_type} of Client {self.project_name} from Request for Payment "		
+				new_doc.user_remark = f"{self.expense_type} of Client {self.project_name} from Request for Payment "
 				new_doc.save(ignore_permissions=True)
 				copy_attachments(self, new_doc)
 				#new_doc.submit()
@@ -94,6 +97,7 @@ class RequestForPayment(Document):
 			new_doc.remarks = f"{self.expense_type} approved by Request For Payment"
 			new_doc.save(ignore_permissions=True)
 			new_doc.submit()
+			frappe.db.commit()
 			copy_attachments(self, new_doc)
 
 			#creating sales invoices on the list of invoices after the approval of request of payment
@@ -110,6 +114,9 @@ class RequestForPayment(Document):
 						si.is_pos = 0
 
 						pur_doc = frappe.get_doc("Purchase Invoice",inv.purchase_invoice)
+						#mirror return flag so negative SI grand total is allowed
+						if pur_doc.is_return:
+							si.is_return = 1
 						#getting the tax rate if tax applied on invoice
 						tax_rate = 0
 						if pur_doc.taxes:
@@ -138,7 +145,14 @@ class RequestForPayment(Document):
 
 						#si.custom_request_for_payment = self.name
 						si.remarks = f"{self.expense_type} from Request for Payment"
-						si.save(ignore_permissions=True)
+						try:
+							si.save(ignore_permissions=True)
+						except frappe.exceptions.ValidationError as e:
+							if "Grand Total" in str(e) and ">= 0.0" in str(e):
+								si.is_return = 1
+								si.save(ignore_permissions=True)
+							else:
+								raise
 						#copy_attachments(self, si)
 		elif self.expense_type == "Payment For Part Timer":
 			#creating journal entry on the approval of request of payment
@@ -278,16 +292,22 @@ class RequestForPayment(Document):
 				new_doc.posting_date = self.date
 				new_doc.company = self.company
 				for it in self.items:
+					account_for_jv = frappe.db.get_value("Item",{"name":it.item},"account_for_jv")
+					if not account_for_jv:
+						frappe.throw(_(f"Account for JV is not set on Item <b>{it.item}</b>. Please set it on the Item master before approving."))
 					row = new_doc.append("accounts",{})
-					row.account = frappe.db.get_value("Item",{"name":it.item},"account_for_jv")
+					row.account = account_for_jv
 					row.debit_in_account_currency = it.amount
 					row.reference_type = "Request For Payment"
 					row.reference_name = self.name
 
 				#adjustment rows for the loans
 				for ad in self.advances:
+					disbursement_account = frappe.db.get_value("Loan Type",{"name":ad.advance_type},"disbursement_account")
+					if not disbursement_account:
+						frappe.throw(_(f"Disbursement Account is not set on Loan Type <b>{ad.advance_type}</b>. Please set it before approving."))
 					row = new_doc.append("accounts",{})
-					row.account = frappe.db.get_value("Loan Type",{"name":ad.advance_type},"disbursement_account")
+					row.account = disbursement_account
 					row.debit_in_account_currency = ad.advance_amount
 					row.reference_type = "Request For Payment"
 					row.reference_name = self.name

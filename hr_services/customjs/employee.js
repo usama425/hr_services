@@ -157,27 +157,16 @@ frappe.ui.form.on('Employee', {
             }
         }
 
-        //limit on iban must be 24. if bank is alinma then add amount no with limit 14
-        if(frm.doc.bank_name){
-            // Regular expression to check for any letter (a-z, A-Z)
-            const letterRegex = /[a-zA-Z]/;
-
-            // Test the IBAN string against the regular expression
-            let letterExist = letterRegex.test(frm.doc.iban);
-            
-            if(frm.doc.bank_name == "INMA" && (frm.doc.iban.length != 14 || letterExist)){
+        // Alinma: Account No without spaces. All other banks: IBAN without spaces.
+        if(frm.doc.bank_name && frm.doc.iban){
+            if(frm.doc.iban.includes(" ")){
+                let msg = frm.doc.bank_name == "INMA"
+                    ? __("Put Account No Without Space")
+                    : __("Put IBAN Without Space");
                 frappe.msgprint({
                     title: __("Error"),
                     indicator: "red",
-                    message: __("Enter a valid Account No"),
-                });
-                frappe.validated = false;
-            }
-            else if(frm.doc.bank_name != "INMA" && (frm.doc.iban.length != 24 || !letterExist)){
-                frappe.msgprint({
-                    title: __("Error"),
-                    indicator: "red",
-                    message: __("Enter a valid IBAN"),
+                    message: msg,
                 });
                 frappe.validated = false;
             }
