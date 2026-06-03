@@ -150,6 +150,12 @@ doc_events = {
     "Contract": {
         "before_insert": "hr_services.custompy.contract.check_job_offer",
         "on_update": "hr_services.custompy.contract.validate_after_save"
+    },
+    "Payroll Entry": {
+        # The "Create Salary Slips" workflow action only submits the PE; this
+        # actually builds the Salary Slips when it reaches "Slips Created".
+        # Lives here (not in the HRMS core) so it survives Frappe Cloud rebuilds.
+        "on_submit": "hr_services.custompy.payroll_entry.create_slips_on_submit"
     }
 }
 
