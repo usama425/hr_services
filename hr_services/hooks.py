@@ -155,7 +155,10 @@ doc_events = {
         # The "Create Salary Slips" workflow action only submits the PE; this
         # actually builds the Salary Slips when it reaches "Slips Created".
         # Lives here (not in the HRMS core) so it survives Frappe Cloud rebuilds.
-        "on_submit": "hr_services.custompy.payroll_entry.create_slips_on_submit"
+        "on_submit": "hr_services.custompy.payroll_entry.create_slips_on_submit",
+        # On 'Approved by FM' (a post-submit workflow transition), auto-create
+        # the client Sales Invoice via the existing generator.
+        "on_update_after_submit": "hr_services.custompy.payroll_entry.auto_generate_invoice_on_approval"
     }
 }
 

@@ -6,6 +6,95 @@ import json
 from hrms.payroll.doctype.payroll_entry.payroll_entry import PayrollEntry,get_existing_salary_slips
 
 
+ARABIC_MONTHS = {
+	1: "يناير", 2: "فبراير", 3: "مارس", 4: "أبريل", 5: "مايو", 6: "يونيو",
+	7: "يوليو", 8: "أغسطس", 9: "سبتمبر", 10: "أكتوبر", 11: "نوفمبر", 12: "ديسمبر",
+}
+
+
+def auto_generate_invoice_on_approval(doc, method=None):
+	"""When a Payroll Entry reaches 'Approved by FM', auto-create the client
+	Sales Invoice(s) by reusing the existing Payroll Invoices Generator logic
+	(routed by the project's invoice_type). Never blocks the approval.
+
+	PO-management projects (project.custom_allow_po_management) are skipped —
+	they need per-employee working days entered manually."""
+	if doc.get("workflow_state") != "Approved by FM":
+		return
+	if not doc.get("projects"):
+		return
+	try:
+		_auto_generate_invoice(doc)
+	except Exception:
+		frappe.log_error(
+			title=f"Auto Sales Invoice failed: {doc.name}",
+			message=frappe.get_traceback(),
+		)
+
+
+def _auto_generate_invoice(doc):
+	from frappe.utils import getdate, flt
+	from hr_services.hr_services.doctype.payroll_invoices_generator.payroll_invoices_generator import (
+		get_employees, generate_invoices,
+	)
+
+	project = doc.projects
+	p = frappe.db.get_value(
+		"Project", project,
+		["customer", "invoice_type", "custom_allow_po_management"],
+		as_dict=True) or {}
+	invoice_type, customer = p.get("invoice_type"), p.get("customer")
+	if not invoice_type or not customer:
+		frappe.log_error(
+			title=f"Auto Sales Invoice skipped: {doc.name}",
+			message=f"Project {project} has no invoice_type/customer set.")
+		return
+
+	# Already billed for this Payroll Entry? Don't double-invoice.
+	if frappe.db.exists("Sales Invoice",
+			{"custom_payroll_entry_link": doc.name, "docstatus": ["!=", 2]}):
+		return
+
+	# PO-management projects need manual working days per employee.
+	if p.get("custom_allow_po_management"):
+		frappe.log_error(
+			title=f"Auto Sales Invoice skipped (PO project): {doc.name}",
+			message=(f"Project {project} uses PO Management — create the client "
+					 f"invoice manually (per-employee working days required)."))
+		return
+
+	start, end = getdate(doc.start_date), getdate(doc.end_date)
+	month_name = end.strftime("%B")
+	year = str(end.year)
+	due_date = end
+	my_in_arabic = f"{ARABIC_MONTHS.get(end.month, '')} {year}".strip()
+
+	employees = get_employees(project, start, end, month_name) or []
+	if not employees:
+		return
+	# generate_invoices expects the child-row shape: 'employee' (not 'name').
+	payload = [{
+		"employee": e["name"],
+		"employee_name": e.get("employee_name"),
+		"salary_slip": e.get("salary_slip"),
+	} for e in employees]
+
+	generate_invoices(project, due_date, customer, invoice_type,
+					   json.dumps(payload), month_name, my_in_arabic, year)
+
+	# Check & balance: surface the created invoice total for verification
+	# against the generated Elite sheet's billing total.
+	sis = frappe.get_all(
+		"Sales Invoice",
+		filters={"custom_payroll_entry_link": doc.name, "docstatus": ["!=", 2]},
+		fields=["name", "grand_total"])
+	total = sum(flt(s.grand_total) for s in sis)
+	doc.add_comment("Comment", (
+		f"Auto Sales Invoice: {len(sis)} invoice(s) for {len(payload)} employee(s), "
+		f"grand total {total:,.2f} (incl. VAT). Verify against the Elite sheet "
+		f"billing total."))
+
+
 def create_slips_on_submit(doc, method=None):
 	"""Build Salary Slips when a Payroll Entry reaches the 'Slips Created'
 	workflow state.
@@ -21,13 +110,16 @@ def create_slips_on_submit(doc, method=None):
 	"""
 	if doc.get("workflow_state") != "Slips Created":
 		return
-	if doc.get("salary_slips_created"):
-		return
 	if not doc.get("employees"):
 		return
-	if frappe.db.exists("Salary Slip",
-			{"payroll_entry": doc.name, "docstatus": ["!=", 2]}):
+	# Already-submitted slips for this PE? Leave them alone (don't recreate).
+	if frappe.db.exists("Salary Slip", {"payroll_entry": doc.name, "docstatus": 1}):
 		return
+	# Remove any leftover DRAFT slips (e.g. from a failed/retried attempt) so we
+	# never end up with duplicate slips for the same employee + period.
+	for name in frappe.get_all("Salary Slip",
+			filters={"payroll_entry": doc.name, "docstatus": 0}, pluck="name"):
+		frappe.delete_doc("Salary Slip", name, force=True, ignore_permissions=True)
 	# HRMS method: creates draft Salary Slips for doc.employees (enqueues a
 	# background job when there are many employees) and sets salary_slips_created.
 	doc.create_salary_slips()
