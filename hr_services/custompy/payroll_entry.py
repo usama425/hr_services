@@ -95,35 +95,6 @@ def _auto_generate_invoice(doc):
 		f"billing total."))
 
 
-def create_slips_on_submit(doc, method=None):
-	"""Build Salary Slips when a Payroll Entry reaches the 'Slips Created'
-	workflow state.
-
-	The "Create Salary Slips" workflow action only submits the PE (a Frappe
-	workflow transition changes state/docstatus, it does NOT call HRMS's
-	create_salary_slips). Slip creation used to rely on a manual HRMS core
-	patch that Frappe Cloud wipes on every rebuild — so we trigger it here,
-	from the app, where it survives deploys.
-
-	Guarded so it never double-creates: skips if slips were already created or
-	any non-cancelled slip already exists for this PE.
-	"""
-	if doc.get("workflow_state") != "Slips Created":
-		return
-	if not doc.get("employees"):
-		return
-	# Already-submitted slips for this PE? Leave them alone (don't recreate).
-	if frappe.db.exists("Salary Slip", {"payroll_entry": doc.name, "docstatus": 1}):
-		return
-	# Remove any leftover DRAFT slips (e.g. from a failed/retried attempt) so we
-	# never end up with duplicate slips for the same employee + period.
-	for name in frappe.get_all("Salary Slip",
-			filters={"payroll_entry": doc.name, "docstatus": 0}, pluck="name"):
-		frappe.delete_doc("Salary Slip", name, force=True, ignore_permissions=True)
-	# HRMS method: creates draft Salary Slips for doc.employees (enqueues a
-	# background job when there are many employees) and sets salary_slips_created.
-	doc.create_salary_slips()
-
 @frappe.whitelist()
 def get_totals(self):
 	#loading the frm data
