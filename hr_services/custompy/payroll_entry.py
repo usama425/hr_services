@@ -35,7 +35,7 @@ def auto_generate_invoice_on_approval(doc, method=None):
 def _auto_generate_invoice(doc):
 	from frappe.utils import getdate, flt
 	from hr_services.hr_services.doctype.payroll_invoices_generator.payroll_invoices_generator import (
-		get_employees, generate_invoices,
+		generate_invoices,
 	)
 
 	project = doc.projects
@@ -69,15 +69,21 @@ def _auto_generate_invoice(doc):
 	due_date = end
 	my_in_arabic = f"{ARABIC_MONTHS.get(end.month, '')} {year}".strip()
 
-	employees = get_employees(project, start, end, month_name) or []
-	if not employees:
+	# Scope to THIS Payroll Entry's own submitted, un-invoiced slips (exactly the
+	# employees in the generated sheet) — NOT get_employees(project), which would
+	# also bill other sub-schools/work-locations sharing the same project.
+	slips = frappe.get_all(
+		"Salary Slip",
+		filters={"payroll_entry": doc.name, "docstatus": 1, "invoice_created": 0},
+		fields=["name", "employee", "employee_name"])
+	if not slips:
 		return
 	# generate_invoices expects the child-row shape: 'employee' (not 'name').
 	payload = [{
-		"employee": e["name"],
-		"employee_name": e.get("employee_name"),
-		"salary_slip": e.get("salary_slip"),
-	} for e in employees]
+		"employee": s["employee"],
+		"employee_name": s.get("employee_name"),
+		"salary_slip": s["name"],
+	} for s in slips]
 
 	generate_invoices(project, due_date, customer, invoice_type,
 					   json.dumps(payload), month_name, my_in_arabic, year)
