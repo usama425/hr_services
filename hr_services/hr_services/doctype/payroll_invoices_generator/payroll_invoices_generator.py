@@ -4,7 +4,12 @@
 import frappe
 from frappe.model.document import Document
 from frappe import _
+from frappe.utils import flt
 import json
+
+#GOSI is billed on (Basic + Housing) up to this cap; above it the base is fixed.
+#Same rule as the Elite internal sheet (erc_payroll_automation).
+GOSI_BILLING_CAP = 45000
 
 class PayrollInvoicesGenerator(Document):
 	pass
@@ -86,7 +91,7 @@ def generate_invoices(project,due_date,customer,invoice_type,employees,month_nam
 			si_item = create_manpower_item(month_name,year,my_in_arabic,emp_id=emp["employee"],mp_qty=1,mp_cost=mp_cost)
 			si.append("items", si_item)
 
-			gosi_cost = gosi_cost_calculation(emp["employee"])
+			gosi_cost = gosi_cost_calculation(emp["employee"],emp.get("salary_slip"))
 			si_item = create_gosi_item(month_name,year,emp_id=emp["employee"],gosi_qty=1,gosi_cost=gosi_cost)
 			si.append("items", si_item)
 
@@ -113,7 +118,7 @@ def generate_invoices(project,due_date,customer,invoice_type,employees,month_nam
 
 		for emp in emps:
 			total_mp = 0
-			total_mp = manpower_cost_calculation(emp["employee"],emp["salary_slip"]) + gosi_cost_calculation(emp["employee"]) + frappe.db.get_value("Project", {"name":project}, "erc_fee")
+			total_mp = manpower_cost_calculation(emp["employee"],emp["salary_slip"]) + gosi_cost_calculation(emp["employee"],emp.get("salary_slip")) + frappe.db.get_value("Project", {"name":project}, "erc_fee")
 
 			si_item = create_manpower_item(month_name,year,my_in_arabic,emp_id=emp["employee"],mp_qty=1,mp_cost=total_mp)
 			si.append("items", si_item)
@@ -139,7 +144,7 @@ def generate_invoices(project,due_date,customer,invoice_type,employees,month_nam
 		total_mp = 0
 
 		for emp in emps:
-			total_mp = total_mp + manpower_cost_calculation(emp["employee"],emp["salary_slip"]) + gosi_cost_calculation(emp["employee"]) + project_doc.erc_fee + project_doc.bt_charges
+			total_mp = total_mp + manpower_cost_calculation(emp["employee"],emp["salary_slip"]) + gosi_cost_calculation(emp["employee"],emp.get("salary_slip")) + project_doc.erc_fee + project_doc.bt_charges
 		
 		si_item = create_manpower_item(month_name,year,my_in_arabic,mp_qty=1,mp_cost=total_mp)
 		si.append("items", si_item)
@@ -156,6 +161,42 @@ def generate_invoices(project,due_date,customer,invoice_type,employees,month_nam
 				update_salary_slip(emp)
 			status = True
 	
+	elif invoice_type == "One Invoice with Manpower, GOSI, ERC and Bank in separate lines":
+		#RSG + small projects (RSG, Football Academy, ELI, Misk Sports,
+		#Khuzam/Murcia, RSG HQ): ONE invoice with FOUR summary lines —
+		#total Manpower, total GOSI, ERC fee, Bank charges.
+		si = create_si_without_item(customer,due_date,project)
+
+		total_mp = 0
+		total_gosi = 0
+		for emp in emps:
+			total_mp = total_mp + manpower_cost_calculation(emp["employee"],emp["salary_slip"])
+			total_gosi = total_gosi + gosi_cost_calculation(emp["employee"],emp.get("salary_slip"))
+
+		si_item = create_manpower_item(month_name,year,my_in_arabic,mp_qty=1,mp_cost=total_mp)
+		si.append("items", si_item)
+
+		si_item = create_gosi_item(month_name,year,gosi_qty=1,gosi_cost=total_gosi)
+		si.append("items", si_item)
+
+		si_item = create_erc_fee_item(project,month_name,year,erc_fee_qty=len(emps))
+		si.append("items", si_item)
+
+		si_item = create_bank_charges_item(project,month_name,year,bt_qty=len(emps))
+		si.append("items", si_item)
+
+		si_tax = create_vat_tax()
+		si.append("taxes", si_tax)
+
+		si.custom_payroll_entry_link = frappe.db.get_value("Salary Slip", emps[0]["salary_slip"], "payroll_entry")
+		si.remarks = "Payroll Invoice"
+		si.save(ignore_permissions=True)
+
+		if si.name:
+			for emp in emps:
+				update_salary_slip(emp)
+			status = True
+
 	elif invoice_type == "One Invoice with all employees total one line only without gosi and btc":
 		si = create_si_without_item(customer,due_date,project)
 		total_mp = 0
@@ -204,7 +245,7 @@ def generate_invoices(project,due_date,customer,invoice_type,employees,month_nam
 					si_item = create_manpower_item(month_name,year,my_in_arabic,emp_id=emp["employee"],mp_qty=1,mp_cost=mp_cost)
 					si.append("items", si_item)
 
-					gosi_cost = gosi_cost_calculation(emp["employee"])
+					gosi_cost = gosi_cost_calculation(emp["employee"],emp.get("salary_slip"))
 					si_item = create_gosi_item(month_name,year,emp_id=emp["employee"],gosi_qty=1,gosi_cost=gosi_cost)
 					si.append("items", si_item)
 			
@@ -235,7 +276,7 @@ def generate_invoices(project,due_date,customer,invoice_type,employees,month_nam
 			si_item = create_manpower_item(month_name,year,my_in_arabic,emp_id=emp["employee"],mp_qty=1,mp_cost=mp_cost)
 			si.append("items", si_item)
 
-			gosi_cost = gosi_cost_calculation(emp["employee"])
+			gosi_cost = gosi_cost_calculation(emp["employee"],emp.get("salary_slip"))
 			si_item = create_gosi_item(month_name,year,emp_id=emp["employee"],gosi_qty=1,gosi_cost=gosi_cost)
 			si.append("items", si_item)
 
@@ -372,7 +413,7 @@ def generate_invoices(project,due_date,customer,invoice_type,employees,month_nam
 					si_item = create_manpower_item(month_name,year,my_in_arabic,emp_id=emp["employee"],mp_qty=1,mp_cost=manpower)
 					si.append("items", si_item)
 
-					gosi_cost = gosi_cost_calculation(emp["employee"])
+					gosi_cost = gosi_cost_calculation(emp["employee"],emp.get("salary_slip"))
 					si_item = create_gosi_item(month_name,year,emp_id=emp["employee"],gosi_qty=1,gosi_cost=gosi_cost)
 					si.append("items", si_item)
 
@@ -414,7 +455,7 @@ def generate_invoices(project,due_date,customer,invoice_type,employees,month_nam
 					if dp == frappe.db.get_value("Employee", {"name":emp["employee"]}, "department") and lc == frappe.db.get_value("Employee", {"name":emp["employee"]}, "custom_location"):
 						#manpower, gosi, erc fee, and bank transaction charges adding into total_mp
 						project_doc = frappe.get_doc("Project",project)
-						total_mp = total_mp + manpower_cost_calculation(emp["employee"],emp["salary_slip"]) + gosi_cost_calculation(emp["employee"]) + project_doc.erc_fee + project_doc.bt_charges
+						total_mp = total_mp + manpower_cost_calculation(emp["employee"],emp["salary_slip"]) + gosi_cost_calculation(emp["employee"],emp.get("salary_slip")) + project_doc.erc_fee + project_doc.bt_charges
 				if total_mp > 0:
 					si = create_si_without_item(customer,due_date,project)
 
@@ -448,7 +489,7 @@ def generate_invoices(project,due_date,customer,invoice_type,employees,month_nam
 				if dp == frappe.db.get_value("Employee", {"name":emp["employee"]}, "department"):
 					#manpower, gosi, erc fee, and bank transaction charges adding into total_mp
 					project_doc = frappe.get_doc("Project",project)
-					total_mp = total_mp + manpower_cost_calculation(emp["employee"],emp["salary_slip"]) + gosi_cost_calculation(emp["employee"]) + project_doc.erc_fee + project_doc.bt_charges
+					total_mp = total_mp + manpower_cost_calculation(emp["employee"],emp["salary_slip"]) + gosi_cost_calculation(emp["employee"],emp.get("salary_slip")) + project_doc.erc_fee + project_doc.bt_charges
 			if total_mp > 0:
 				si = create_si_without_item(customer,due_date,project)
 
@@ -561,7 +602,7 @@ def generate_invoices(project,due_date,customer,invoice_type,employees,month_nam
 					si_item = create_manpower_item(month_name,year,my_in_arabic,emp_id=s_emp["employee"],mp_qty=1,mp_cost=mp_cost)
 					si.append("items", si_item)
 
-					gosi_cost = gosi_cost_calculation(s_emp["employee"])
+					gosi_cost = gosi_cost_calculation(s_emp["employee"],s_emp.get("salary_slip"))
 					si_item = create_gosi_item(month_name,year,emp_id=s_emp["employee"],gosi_qty=1,gosi_cost=gosi_cost)
 					si.append("items", si_item)
 
@@ -710,7 +751,7 @@ def generate_invoices(project,due_date,customer,invoice_type,employees,month_nam
 		si = create_si_without_item(customer,due_date,project)
 
 		for emp in emps:
-			gosi_cost = gosi_cost_calculation(emp["employee"])
+			gosi_cost = gosi_cost_calculation(emp["employee"],emp.get("salary_slip"))
 			si_item = create_gosi_item(month_name,year,emp_id=emp["employee"],gosi_qty=1,gosi_cost=gosi_cost)
 			si.append("items", si_item)
 
@@ -787,14 +828,34 @@ def create_manpower_item_for_wdays(emp,month_name,year,my_in_arabic,emp_working_
 	return si_item
 
 @frappe.whitelist()
-def gosi_cost_calculation(emp_id):
+def gosi_cost_calculation(emp_id,salary_slip_id=None):
+	#Same rules as the Elite internal sheet (erc_payroll_automation):
+	#  - Saudis are billed 11.75% ONLY when registered in GOSI (added_to_gosi).
+	#  - Non-Saudis always get the 2% employer occupational-hazard share.
+	#  - Base = Basic + Housing, capped at 45,000 SAR.
+	#  - New joiners (first payroll) are billed on worked days only; existing
+	#    employees stay on the full contract month.
 	employee_doc = frappe.get_doc("Employee",emp_id)
-	if employee_doc.nationality == "Saudi Arabia":
-		gosi_cost = (employee_doc.basic_salary + employee_doc.housing_allowance) * 0.1175
-	else:
-		gosi_cost = (employee_doc.basic_salary + employee_doc.housing_allowance) * 0.02
+	is_saudi = employee_doc.nationality == "Saudi Arabia"
 
-	return gosi_cost	
+	if is_saudi and not employee_doc.added_to_gosi:
+		return 0
+
+	base = flt(employee_doc.basic_salary) + flt(employee_doc.housing_allowance)
+
+	#New joiner proration by worked days (from the salary slip, when given)
+	if salary_slip_id:
+		slip = frappe.db.get_value("Salary Slip", salary_slip_id,
+			["start_date", "payment_days", "total_working_days"], as_dict=True)
+		if slip and slip.start_date and not frappe.db.exists("Salary Slip",
+				{"employee": emp_id, "docstatus": 1, "end_date": ["<", slip.start_date]}):
+			if flt(slip.total_working_days) > 0 and flt(slip.payment_days) < flt(slip.total_working_days):
+				base = base * flt(slip.payment_days) / flt(slip.total_working_days)
+
+	rate = 0.1175 if is_saudi else 0.02
+	gosi_cost = round(min(base, GOSI_BILLING_CAP) * rate, 2)
+
+	return gosi_cost
 
 @frappe.whitelist()
 def create_gosi_item(month_name,year,emp_id=None,gosi_qty=None,gosi_cost=None):
