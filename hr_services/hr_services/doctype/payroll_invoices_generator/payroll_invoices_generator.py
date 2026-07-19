@@ -476,6 +476,67 @@ def generate_invoices(project,due_date,customer,invoice_type,employees,month_nam
 								update_salary_slip(emp)
 						status = True
 
+	elif invoice_type == "One Invoice dept under loc wise with Manpower, GOSI, ERC and Bank in separate lines":
+		#RSG (Riyadh Schools Platform, PROJ-0022) format: same dept-under-location
+		#split as "...total dept under loc wise one line only", but each invoice
+		#shows FOUR lines — total Manpower, total GOSI, ERC fee and Bank charges —
+		#instead of one lump sum. Covers RSG (Main), Football Academy, ELA,
+		#Misk Sport, Khuzam, Head Office (HO), etc. via Employee.custom_location.
+		dept_list = []
+		loc_list = []
+		for emp in emps:
+			dept = frappe.db.get_value("Employee", {"name":emp["employee"]}, "department")
+			loc = frappe.db.get_value("Employee", {"name":emp["employee"]}, "custom_location")
+			if dept not in dept_list:
+				dept_list.append(dept)
+			if loc not in loc_list:
+				loc_list.append(loc)
+
+		for dp in dept_list:
+			for lc in loc_list:
+				group = []
+				for emp in emps:
+					if dp == frappe.db.get_value("Employee", {"name":emp["employee"]}, "department") and lc == frappe.db.get_value("Employee", {"name":emp["employee"]}, "custom_location"):
+						group.append(emp)
+				if not group:
+					continue
+
+				total_mp = 0
+				total_gosi = 0
+				for emp in group:
+					total_mp = total_mp + manpower_cost_calculation(emp["employee"],emp["salary_slip"])
+					total_gosi = total_gosi + gosi_cost_calculation(emp["employee"],emp.get("salary_slip"))
+
+				if total_mp == 0 and total_gosi == 0:
+					continue
+
+				si = create_si_without_item(customer,due_date,project)
+
+				si_item = create_manpower_item(month_name,year,my_in_arabic,mp_qty=1,mp_cost=total_mp)
+				si_item.item_name = f"{dp} - {lc}"
+				si.append("items", si_item)
+
+				si_item = create_gosi_item(month_name,year,gosi_qty=1,gosi_cost=total_gosi)
+				si.append("items", si_item)
+
+				si_item = create_erc_fee_item(project,month_name,year,erc_fee_qty=len(group))
+				si.append("items", si_item)
+
+				si_item = create_bank_charges_item(project,month_name,year,bt_qty=len(group))
+				si.append("items", si_item)
+
+				si_tax = create_vat_tax()
+				si.append("taxes", si_tax)
+
+				si.custom_payroll_entry_link = frappe.db.get_value("Salary Slip", emps[0]["salary_slip"], "payroll_entry")
+				si.remarks = "Payroll Invoice"
+				si.save(ignore_permissions=True)
+
+				if si.name:
+					for emp in group:
+						update_salary_slip(emp)
+					status = True
+
 	elif invoice_type == "One Invoice with dept wise all employees total one line only":
 		dept_list = []
 		for emp in emps:
