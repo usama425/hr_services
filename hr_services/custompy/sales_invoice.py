@@ -43,6 +43,106 @@ def copy_attachments(source_doc, target_doc):
 		file_copy.insert()
 
 
+@frappe.whitelist()
+def merge_attachments_to_invoice(invoice, file_names):
+	"""Merge selected attachments (PDFs and/or images) of the Request For Payment(s)
+	linked to this Sales Invoice into a single PDF, and attach it to the invoice.
+
+	The source files live on the linked RFP (resolved via the invoice item rows'
+	custom_rfp); the merged PDF is attached back to the Sales Invoice. Non-destructive:
+	the individual RFP attachments are kept. Only a previously auto-generated merged
+	file (matched by prefix) is replaced, so re-running updates rather than duplicates.
+	"""
+	import json
+	from io import BytesIO
+	from PyPDF2 import PdfReader, PdfWriter
+	from PIL import Image
+	from frappe.utils.pdf import get_file_data_from_writer
+	from frappe.utils.file_manager import save_file
+
+	if not frappe.has_permission("Sales Invoice", "write", doc=invoice):
+		frappe.throw(_("Not permitted to modify Sales Invoice {0}").format(invoice), frappe.PermissionError)
+
+	if isinstance(file_names, str):
+		file_names = json.loads(file_names)
+	if not file_names:
+		frappe.throw(_("No attachments selected."))
+
+	# Source files come from the Request For Payment(s) linked to this invoice,
+	# resolved via the item rows' custom_rfp. The merged PDF is attached to the invoice.
+	linked_rfps = set(frappe.get_all(
+		"Sales Invoice Item",
+		filters={"parent": invoice, "custom_rfp": ["is", "set"]},
+		pluck="custom_rfp",
+	))
+	if not linked_rfps:
+		frappe.throw(_("Sales Invoice {0} is not linked to any Request For Payment.").format(invoice))
+
+	image_ext = ("png", "jpg", "jpeg", "gif", "bmp", "tiff", "tif", "webp")
+	writer = PdfWriter()
+	merged_count = 0
+	skipped = []
+
+	for name in file_names:
+		f = frappe.get_doc("File", name)
+		# Only merge files that belong to the linked Request For Payment(s).
+		if not (f.attached_to_doctype == "Request For Payment" and f.attached_to_name in linked_rfps):
+			skipped.append([f.file_name or name, _("not an attachment of the linked Request For Payment")])
+			continue
+		ext = (f.file_name or f.file_url or "").rsplit(".", 1)[-1].lower()
+		try:
+			content = f.get_content()
+			if isinstance(content, str):
+				# A binary file that got decoded to str; re-read the raw bytes from disk.
+				with open(f.get_full_path(), "rb") as fh:
+					content = fh.read()
+			if ext == "pdf":
+				reader = PdfReader(BytesIO(content))
+				if reader.is_encrypted:
+					reader.decrypt("")
+				writer.append_pages_from_reader(reader)
+				merged_count += 1
+			elif ext in image_ext:
+				buf = BytesIO()
+				Image.open(BytesIO(content)).convert("RGB").save(buf, format="PDF")
+				writer.append_pages_from_reader(PdfReader(BytesIO(buf.getvalue())))
+				merged_count += 1
+			else:
+				skipped.append([f.file_name or name, _("unsupported type")])
+		except Exception as e:
+			skipped.append([f.file_name or name, str(e)])
+
+	if merged_count < 2:
+		frappe.throw(_("Select at least two PDF or image attachments to merge (merged {0}).").format(merged_count))
+
+	merged_bytes = get_file_data_from_writer(writer)
+
+	# Replace any prior auto-generated merged file so repeated merges do not accumulate.
+	# Match by prefix: Frappe may append a content-hash suffix before the extension
+	# (e.g. "<base>-merged<hash>.pdf") when a same-named file already exists.
+	merged_prefix = "{0}-merged".format(invoice.replace("/", "-"))
+	merged_name = merged_prefix + ".pdf"
+	for old in frappe.get_all(
+		"File",
+		filters={
+			"attached_to_doctype": "Sales Invoice",
+			"attached_to_name": invoice,
+			"file_name": ["like", merged_prefix + "%"],
+		},
+		pluck="name",
+	):
+		frappe.delete_doc("File", old, ignore_permissions=True)
+
+	new_file = save_file(merged_name, merged_bytes, "Sales Invoice", invoice, is_private=1)
+
+	return {
+		"file_url": new_file.file_url,
+		"file_name": new_file.file_name,
+		"merged": merged_count,
+		"skipped": skipped,
+	}
+
+
 #get outstanding total from sales invoice for number card
 @frappe.whitelist()
 def get_customers_outstanding():
