@@ -61,7 +61,8 @@ frappe.ui.form.on('Payroll Invoices Generator', {
                     project: project,
                     start_date: frm.doc.ms_date,
                     end_date: frm.doc.me_date,
-                    month_name: frm.doc.month_name
+                    month_name: frm.doc.month_name,
+                    year: frm.doc.year
                 },
                 freeze: true,
                 freeze_message: "Getting Employees...",

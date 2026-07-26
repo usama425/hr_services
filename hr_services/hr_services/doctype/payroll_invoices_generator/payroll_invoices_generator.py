@@ -4,7 +4,7 @@
 import frappe
 from frappe.model.document import Document
 from frappe import _
-from frappe.utils import flt
+from frappe.utils import flt, getdate
 import json
 
 #GOSI is billed on (Basic + Housing) up to this cap; above it the base is fixed.
@@ -15,13 +15,31 @@ class PayrollInvoicesGenerator(Document):
 	pass
 
 @frappe.whitelist()
-def get_employees(project,start_date,end_date,month_name):
+def get_employees(project,start_date,end_date,month_name,year=None):
 	employees = frappe.get_all('Employee', filters={'status': 'Active', 'project':project}, fields=['name','employee_name'])
+
+	# Payroll Processed stores only month_name (e.g. "July") with no year, so the de-dup
+	# below must be scoped to the payroll year — otherwise an employee processed for July
+	# of an earlier year is wrongly excluded from the current July run. Records are created
+	# in their processing year (naming series PAY-PR-.YY.-), so we bound on `creation`.
+	eff_year = None
+	if year:
+		eff_year = int(year)
+	elif start_date:
+		eff_year = getdate(start_date).year
 
 	filtered_employees = []
 	if project == "PROJ-0007" or project == "PROJ-0004": #if project equal to Alhokair or Nomac NMES
 		for employee in employees:
-			if not frappe.db.exists("Payroll Processed",{"employee": employee["name"],"month_name":month_name,"project": project}):
+			pp_filters = [
+				["employee", "=", employee["name"]],
+				["month_name", "=", month_name],
+				["project", "=", project],
+			]
+			if eff_year:
+				pp_filters.append(["creation", ">=", f"{eff_year}-01-01 00:00:00"])
+				pp_filters.append(["creation", "<", f"{eff_year + 1}-01-01 00:00:00"])
+			if not frappe.db.get_value("Payroll Processed", pp_filters, "name"):
 				filtered_employees.append(employee)
 	else:
 		for employee in employees:
