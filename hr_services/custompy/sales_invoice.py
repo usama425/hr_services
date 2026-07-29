@@ -44,13 +44,14 @@ def copy_attachments(source_doc, target_doc):
 
 
 @frappe.whitelist()
-def merge_attachments_to_invoice(invoice, file_names, include_print=1):
+def merge_attachments_to_invoice(invoice, file_names, include_print=1, print_format=None):
 	"""Merge selected attachments (PDFs and/or images) of the Request For Payment(s)
 	linked to this Sales Invoice into a single PDF, and attach it to the invoice.
 
-	When include_print is set, the Sales Invoice print format (the default format the
-	Print button uses) is rendered and placed as the first page(s), on top of the RFP
-	attachments. The source files live on the linked RFP (resolved via the invoice item
+	When include_print is set, the Sales Invoice print format is rendered and placed as
+	the first page(s), on top of the RFP attachments. print_format selects which format
+	to use; when blank it falls back to the default (the one the Print button uses). The
+	source files live on the linked RFP (resolved via the invoice item
 	rows' custom_rfp); the merged PDF is attached back to the Sales Invoice.
 	Non-destructive: the individual RFP attachments are kept. Only a previously
 	auto-generated merged file (matched by prefix) is replaced, so re-running updates
@@ -87,11 +88,15 @@ def merge_attachments_to_invoice(invoice, file_names, include_print=1):
 	merged_count = 0
 	skipped = []
 
-	# Put the Sales Invoice print format (the Print button's default format) on top.
+	# Put the Sales Invoice print format on top. print_format lets the caller choose
+	# which format; when blank/invalid it falls back to the default (the Print button's).
 	print_added = False
 	if cint(include_print):
+		pf = print_format or None
+		if pf and not frappe.db.exists("Print Format", {"name": pf, "doc_type": "Sales Invoice"}):
+			pf = None
 		try:
-			invoice_pdf = frappe.get_print("Sales Invoice", invoice, as_pdf=True)
+			invoice_pdf = frappe.get_print("Sales Invoice", invoice, print_format=pf, as_pdf=True)
 			writer.append_pages_from_reader(PdfReader(BytesIO(invoice_pdf)))
 			print_added = True
 		except Exception as e:

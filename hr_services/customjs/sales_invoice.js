@@ -67,12 +67,21 @@ function get_linked_rfps(frm){
 function open_merge_attachments_dialog(frm, rfps){
 	const mergeable = ['pdf','png','jpg','jpeg','gif','bmp','tiff','tif','webp'];
 	const multi = rfps.length > 1;
-	frappe.db.get_list('File', {
+	const filesPromise = frappe.db.get_list('File', {
 		filters: { attached_to_doctype: 'Request For Payment', attached_to_name: ['in', rfps] },
 		fields: ['name','file_name','file_url','attached_to_name'],
 		order_by: 'attached_to_name asc, creation asc',
 		limit: 200,
-	}).then(function(files){
+	});
+	const pfPromise = frappe.db.get_list('Print Format', {
+		filters: { doc_type: 'Sales Invoice', disabled: 0 },
+		fields: ['name'],
+		order_by: 'name asc',
+		limit: 100,
+	});
+	Promise.all([filesPromise, pfPromise]).then(function(res){
+		const files = res[0] || [];
+		const printFormats = (res[1] || []).map(function(p){ return p.name; });
 		const items = (files || []).filter(function(f){
 			const nm = (f.file_name || f.file_url || '').toLowerCase();
 			return mergeable.indexOf(nm.split('.').pop()) !== -1;
@@ -98,9 +107,15 @@ function open_merge_attachments_dialog(frm, rfps){
 			+ '</label></div>'
 			+ '<div class="merge-file-list" style="max-height:320px;overflow:auto;">' + rows + '</div>'
 			+ '</div>';
+		const pfOptions = [{ label: __('Default (Print button format)'), value: '' }].concat(
+			printFormats.map(function(n){ return { label: n, value: n }; })
+		);
 		const d = new frappe.ui.Dialog({
 			title: __('Merge RFP Attachments into one PDF'),
-			fields: [{ fieldtype: 'HTML', fieldname: 'files_html', options: html }],
+			fields: [
+				{ fieldtype: 'Select', fieldname: 'print_format', label: __('Print format (top page)'), options: pfOptions, default: '' },
+				{ fieldtype: 'HTML', fieldname: 'files_html', options: html }
+			],
 			primary_action_label: __('Merge'),
 			primary_action: function(){
 				const selected = [];
@@ -113,7 +128,7 @@ function open_merge_attachments_dialog(frm, rfps){
 				}
 				frappe.call({
 					method: 'hr_services.custompy.sales_invoice.merge_attachments_to_invoice',
-					args: { invoice: frm.doc.name, file_names: JSON.stringify(selected), include_print: (d.$wrapper.find('.merge-include-print').prop('checked') ? 1 : 0) },
+					args: { invoice: frm.doc.name, file_names: JSON.stringify(selected), include_print: (d.$wrapper.find('.merge-include-print').prop('checked') ? 1 : 0), print_format: (d.get_value('print_format') || '') },
 					freeze: true,
 					freeze_message: __('Merging attachments…'),
 					callback: function(r){
