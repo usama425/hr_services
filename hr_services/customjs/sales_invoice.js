@@ -90,6 +90,9 @@ function open_merge_attachments_dialog(frm, rfps){
 				+ label + '</label></div>';
 		}).join('');
 		const html = '<div>'
+			+ '<div style="margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border-color,#d1d8dd);"><label>'
+			+ '<input type="checkbox" class="merge-include-print" checked> <b>' + __('Put Sales Invoice print format on top') + '</b>'
+			+ '</label></div>'
 			+ '<div style="margin-bottom:8px;"><label>'
 			+ '<input type="checkbox" class="merge-select-all" checked> <b>' + __('Select all') + '</b>'
 			+ '</label></div>'
@@ -104,19 +107,21 @@ function open_merge_attachments_dialog(frm, rfps){
 				d.$wrapper.find('.merge-file:checked').each(function(){
 					selected.push($(this).attr('data-name'));
 				});
-				if(selected.length < 2){
+				if(selected.length < (d.$wrapper.find('.merge-include-print').prop('checked') ? 1 : 2)){
 					frappe.msgprint(__('Please select at least two attachments to merge.'));
 					return;
 				}
 				frappe.call({
 					method: 'hr_services.custompy.sales_invoice.merge_attachments_to_invoice',
-					args: { invoice: frm.doc.name, file_names: JSON.stringify(selected) },
+					args: { invoice: frm.doc.name, file_names: JSON.stringify(selected), include_print: (d.$wrapper.find('.merge-include-print').prop('checked') ? 1 : 0) },
 					freeze: true,
 					freeze_message: __('Merging attachments…'),
 					callback: function(r){
 						if(!r.message){ return; }
 						d.hide();
-						let msg = __('Merged {0} attachment(s) into {1}.', [r.message.merged, r.message.file_name]);
+						let msg = r.message.print_included
+								? __('Merged Sales Invoice print + {0} attachment(s) into {1}.', [r.message.merged, r.message.file_name])
+								: __('Merged {0} attachment(s) into {1}.', [r.message.merged, r.message.file_name]);
 						if(r.message.skipped && r.message.skipped.length){
 							const sk = r.message.skipped.map(function(s){
 								return Array.isArray(s) ? (s[0] + ' — ' + s[1]) : s;

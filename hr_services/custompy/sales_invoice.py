@@ -44,19 +44,23 @@ def copy_attachments(source_doc, target_doc):
 
 
 @frappe.whitelist()
-def merge_attachments_to_invoice(invoice, file_names):
+def merge_attachments_to_invoice(invoice, file_names, include_print=1):
 	"""Merge selected attachments (PDFs and/or images) of the Request For Payment(s)
 	linked to this Sales Invoice into a single PDF, and attach it to the invoice.
 
-	The source files live on the linked RFP (resolved via the invoice item rows'
-	custom_rfp); the merged PDF is attached back to the Sales Invoice. Non-destructive:
-	the individual RFP attachments are kept. Only a previously auto-generated merged
-	file (matched by prefix) is replaced, so re-running updates rather than duplicates.
+	When include_print is set, the Sales Invoice print format (the default format the
+	Print button uses) is rendered and placed as the first page(s), on top of the RFP
+	attachments. The source files live on the linked RFP (resolved via the invoice item
+	rows' custom_rfp); the merged PDF is attached back to the Sales Invoice.
+	Non-destructive: the individual RFP attachments are kept. Only a previously
+	auto-generated merged file (matched by prefix) is replaced, so re-running updates
+	rather than duplicates.
 	"""
 	import json
 	from io import BytesIO
 	from PyPDF2 import PdfReader, PdfWriter
 	from PIL import Image
+	from frappe.utils import cint
 	from frappe.utils.pdf import get_file_data_from_writer
 	from frappe.utils.file_manager import save_file
 
@@ -82,6 +86,16 @@ def merge_attachments_to_invoice(invoice, file_names):
 	writer = PdfWriter()
 	merged_count = 0
 	skipped = []
+
+	# Put the Sales Invoice print format (the Print button's default format) on top.
+	print_added = False
+	if cint(include_print):
+		try:
+			invoice_pdf = frappe.get_print("Sales Invoice", invoice, as_pdf=True)
+			writer.append_pages_from_reader(PdfReader(BytesIO(invoice_pdf)))
+			print_added = True
+		except Exception as e:
+			skipped.append([_("Sales Invoice print format"), str(e)])
 
 	for name in file_names:
 		f = frappe.get_doc("File", name)
@@ -112,8 +126,9 @@ def merge_attachments_to_invoice(invoice, file_names):
 		except Exception as e:
 			skipped.append([f.file_name or name, str(e)])
 
-	if merged_count < 2:
-		frappe.throw(_("Select at least two PDF or image attachments to merge (merged {0}).").format(merged_count))
+	min_attachments = 1 if print_added else 2
+	if merged_count < min_attachments:
+		frappe.throw(_("Select at least {0} PDF or image attachment(s) to merge (merged {1}).").format(min_attachments, merged_count))
 
 	merged_bytes = get_file_data_from_writer(writer)
 
@@ -139,6 +154,7 @@ def merge_attachments_to_invoice(invoice, file_names):
 		"file_url": new_file.file_url,
 		"file_name": new_file.file_name,
 		"merged": merged_count,
+		"print_included": print_added,
 		"skipped": skipped,
 	}
 
