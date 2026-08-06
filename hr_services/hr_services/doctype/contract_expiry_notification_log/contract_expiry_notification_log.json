@@ -1,0 +1,132 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "autoname": "CEN-.#####",
+ "creation": "2026-08-06 09:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "employee",
+  "employee_name",
+  "project",
+  "column_break_emp",
+  "contract_end_date",
+  "days_remaining",
+  "notified_on",
+  "section_result",
+  "status",
+  "subject",
+  "recipients",
+  "error_message"
+ ],
+ "fields": [
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Employee",
+   "options": "Employee",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fetch_from": "employee.employee_name",
+   "fieldname": "employee_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Employee Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "options": "Project",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_emp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "The contract end date this notification was about. A change to this date starts a fresh notification cycle.",
+   "fieldname": "contract_end_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Contract End Date",
+   "reqd": 1
+  },
+  {
+   "description": "Negative when the contract had already expired.",
+   "fieldname": "days_remaining",
+   "fieldtype": "Int",
+   "label": "Days Remaining",
+   "read_only": 1
+  },
+  {
+   "fieldname": "notified_on",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Notified On",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_result",
+   "fieldtype": "Section Break",
+   "label": "Result"
+  },
+  {
+   "default": "Sent",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Sent\nFailed",
+   "read_only": 1
+  },
+  {
+   "fieldname": "subject",
+   "fieldtype": "Data",
+   "label": "Subject",
+   "read_only": 1
+  },
+  {
+   "fieldname": "recipients",
+   "fieldtype": "Small Text",
+   "label": "Recipients",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.status=='Failed'",
+   "fieldname": "error_message",
+   "fieldtype": "Small Text",
+   "label": "Error Message",
+   "read_only": 1
+  }
+ ],
+ "in_create": 1,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-08-06 09:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "HR Services",
+ "name": "Contract Expiry Notification Log",
+ "naming_rule": "Expression (Old Style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Administrator"
+  }
+ ],
+ "sort_field": "notified_on",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 0
+}
