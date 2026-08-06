@@ -113,12 +113,14 @@ doctype_js = {"Employee" : "customjs/employee.js",
 #	"Event": "frappe.desk.doctype.event.event.get_permission_query_conditions",
 # }
 #
-# The contract expiry doctypes are Administrator-only. The role permission in each
-# doctype JSON grants the "Administrator" role alone, and this hook additionally
+# The expiry notification doctypes are Administrator-only. The role permission in
+# each doctype JSON grants the "Administrator" role alone, and this hook additionally
 # checks the session user, so assigning that role to somebody else is not enough.
 has_permission = {
-    "Contract Expiry Notification Settings": "hr_services.permissions.contract_expiry.only_administrator",
-    "Contract Expiry Notification Log": "hr_services.permissions.contract_expiry.only_administrator",
+    "Contract Expiry Notification Settings": "hr_services.permissions.notification_access.only_administrator",
+    "Contract Expiry Notification Log": "hr_services.permissions.notification_access.only_administrator",
+    "PO Expiry Notification Settings": "hr_services.permissions.notification_access.only_administrator",
+    "PO Expiry Notification Log": "hr_services.permissions.notification_access.only_administrator",
 }
 
 # DocType Class
@@ -179,10 +181,12 @@ scheduler_events = {
         "0 6 22 * *": [
             "hr_services.cron_auto_email.probation_period_ended.send_email"
         ],
-        # 09:00 Asia/Riyadh: warn about contracts ending within the notice window.
-        # Everything configurable lives in Contract Expiry Notification Settings.
+        # 09:00 Asia/Riyadh: expiry warnings. Everything configurable for each one
+        # lives in its own Settings doctype, so no code change is needed to adjust
+        # recipients, templates or the notice window.
         "0 9 * * *": [
-            "hr_services.cron_auto_email.contract_expiry_notification.send_contract_expiry_notifications"
+            "hr_services.cron_auto_email.contract_expiry_notification.send_contract_expiry_notifications",
+            "hr_services.cron_auto_email.po_expiry_notification.send_po_expiry_notifications"
         ],
     },
 	"daily": [

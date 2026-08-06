@@ -8,10 +8,10 @@ from frappe.model.document import Document
 from hr_services.permissions.notification_access import throw_unless_administrator
 
 
-class ContractExpiryNotificationSettings(Document):
+class POExpiryNotificationSettings(Document):
 	def onload(self):
 		"""Show the built-in defaults in the form when a template was never filled in."""
-		from hr_services.cron_auto_email.contract_expiry_notification import apply_template_defaults
+		from hr_services.cron_auto_email.po_expiry_notification import apply_template_defaults
 
 		apply_template_defaults(self)
 
@@ -26,7 +26,7 @@ class ContractExpiryNotificationSettings(Document):
 		if self.repeat_after_days is not None and self.repeat_after_days < 1:
 			frappe.throw(_("Repeat Reminder After (Days) must be at least 1."))
 
-		from hr_services.cron_auto_email.contract_expiry_notification import parse_recipients
+		from hr_services.cron_auto_email.po_expiry_notification import parse_recipients
 
 		if not parse_recipients(self.recipients):
 			frappe.throw(_("At least one recipient email address is required."))
