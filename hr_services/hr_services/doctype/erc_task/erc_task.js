@@ -1,25 +1,24 @@
 // Copyright (c) 2026, Elite Resources and contributors
 // For license information, please see license.txt
 
-const INTERNAL_USER_FILTERS = {
-	enabled: 1,
-	user_type: 'System User',
-	name: ['like', '%@eliteresources.co']
-};
+// Read on the User doctype is locked down on this site, so a plain filtered link
+// search returns only the caller. Both pickers go through a server query that
+// reads the internal directory directly.
+const INTERNAL_USER_QUERY =
+	'hr_services.hr_services.doctype.erc_task.erc_task.internal_user_query';
 
 frappe.ui.form.on('ERC Task', {
 	setup: function (frm) {
-		// Both of these are Table MultiSelect fields, so the query goes on the parent
-		// fieldname - see the note below.
+		// Both are Table MultiSelect fields. Their control extends ControlLink and has
+		// no `.grid`, so the three-argument child-table form of set_query throws and
+		// takes the whole form render down with it - the query goes on the parent
+		// fieldname instead.
 		frm.set_query('assignees', function () {
-			return { filters: INTERNAL_USER_FILTERS };
+			return { query: INTERNAL_USER_QUERY };
 		});
 
-		// A Table MultiSelect control extends ControlLink and has no `.grid`, so the
-		// three-argument child-table form of set_query throws and takes the whole form
-		// render down with it. Set the query on the parent field instead.
 		frm.set_query('cc_users', function () {
-			return { filters: INTERNAL_USER_FILTERS };
+			return { query: INTERNAL_USER_QUERY };
 		});
 
 		frm.set_query('reference_doctype', function () {
@@ -97,7 +96,12 @@ function reassign_dialog(frm) {
 				reqd: 1,
 				default: current,
 				get_data: function (txt) {
-					return frappe.db.get_link_options('User', txt, INTERNAL_USER_FILTERS);
+					return frappe.call({
+						method: 'hr_services.hr_services.doctype.erc_task.erc_task.internal_user_options',
+						args: { txt: txt }
+					}).then(function (r) {
+						return r.message || [];
+					});
 				}
 			},
 			{

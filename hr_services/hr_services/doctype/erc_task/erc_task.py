@@ -7,6 +7,59 @@ from frappe.model.document import Document
 from frappe.utils import cint, flt, now_datetime
 
 TERMINAL_STATUSES = ("Completed", "Cancelled")
+INTERNAL_DOMAIN = "@eliteresources.co"
+
+
+def _internal_users(txt=None, start=0, page_len=50):
+	"""Enabled colleagues on the company domain.
+
+	Read on the User doctype is locked down on this site - a Custom DocPerm takes
+	it away from System Manager and grants it to a custom Admin role - so the
+	default link search returns only the caller and nobody could pick a colleague.
+	Anyone internal must be able to assign to, and CC, anyone else internal, so
+	this reads the directory directly. It exposes only the login and full name of
+	enabled staff on the company domain, which every colleague can already see in
+	the address book.
+	"""
+	if frappe.session.user in ("Guest", ""):
+		frappe.throw(_("Not permitted."), frappe.PermissionError)
+
+	pattern = f"%{txt or ''}%"
+
+	return frappe.db.sql(
+		"""
+		select name, full_name
+		from `tabUser`
+		where enabled = 1
+			and user_type = 'System User'
+			and name like %(domain)s
+			and (name like %(txt)s or ifnull(full_name, '') like %(txt)s)
+		order by full_name asc, name asc
+		limit %(start)s, %(page_len)s
+		""",
+		{
+			"domain": f"%{INTERNAL_DOMAIN}",
+			"txt": pattern,
+			"start": cint(start),
+			"page_len": cint(page_len) or 50,
+		},
+	)
+
+
+@frappe.whitelist()
+@frappe.validate_and_sanitize_search_inputs
+def internal_user_query(doctype, txt, searchfield, start, page_len, filters):
+	"""Link-search backing the Assigned To and CC pickers."""
+	return _internal_users(txt, start, page_len)
+
+
+@frappe.whitelist()
+def internal_user_options(txt=None):
+	"""Same directory, shaped for the MultiSelectPills control in the reassign dialog."""
+	return [
+		{"value": name, "description": full_name or name}
+		for name, full_name in _internal_users(txt, 0, 50)
+	]
 
 
 class ERCTask(Document):
