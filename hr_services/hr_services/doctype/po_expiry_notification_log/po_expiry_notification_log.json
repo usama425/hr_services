@@ -7,13 +7,19 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "po",
+  "po_no",
+  "po_type",
+  "column_break_po",
+  "po_units",
+  "used_units",
+  "remaining_units",
+  "section_employee",
   "employee",
   "employee_name",
+  "column_break_emp",
   "project",
   "employment_type",
-  "column_break_emp",
-  "po_expiry_date",
-  "days_remaining",
   "notified_on",
   "section_result",
   "status",
@@ -24,9 +30,61 @@
  ],
  "fields": [
   {
-   "fieldname": "employee",
+   "description": "The PO Management record this notification was about. Each PO is emailed once only, so this is what stops a repeat.",
+   "fieldname": "po",
    "fieldtype": "Link",
    "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "PO Record",
+   "options": "PO Management",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "po_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "PO No",
+   "read_only": 1
+  },
+  {
+   "fieldname": "po_type",
+   "fieldtype": "Data",
+   "label": "PO Type",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_po",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "po_units",
+   "fieldtype": "Float",
+   "label": "PO Units",
+   "read_only": 1
+  },
+  {
+   "fieldname": "used_units",
+   "fieldtype": "Float",
+   "label": "Used Units",
+   "read_only": 1
+  },
+  {
+   "description": "Remaining units at the moment the alert was sent.",
+   "fieldname": "remaining_units",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Remaining Units",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_employee",
+   "fieldtype": "Section Break",
+   "label": "Employee"
+  },
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
    "in_standard_filter": 1,
    "label": "Employee",
    "options": "Employee",
@@ -42,6 +100,10 @@
    "read_only": 1
   },
   {
+   "fieldname": "column_break_emp",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "project",
    "fieldtype": "Link",
    "label": "Project",
@@ -53,25 +115,6 @@
    "fieldtype": "Link",
    "label": "Employment Type",
    "options": "Employment Type",
-   "read_only": 1
-  },
-  {
-   "fieldname": "column_break_emp",
-   "fieldtype": "Column Break"
-  },
-  {
-   "description": "The PO expiry date this notification was about. A change to this date starts a fresh notification cycle.",
-   "fieldname": "po_expiry_date",
-   "fieldtype": "Date",
-   "in_list_view": 1,
-   "label": "PO Expiry Date",
-   "reqd": 1
-  },
-  {
-   "description": "Negative when the PO had already expired.",
-   "fieldname": "days_remaining",
-   "fieldtype": "Int",
-   "label": "Days Remaining",
    "read_only": 1
   },
   {
@@ -125,7 +168,7 @@
  "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-08-06 12:00:00.000000",
+ "modified": "2026-08-06 14:00:00.000000",
  "modified_by": "Administrator",
  "module": "HR Services",
  "name": "PO Expiry Notification Log",

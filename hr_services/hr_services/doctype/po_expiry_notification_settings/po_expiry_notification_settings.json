@@ -14,18 +14,13 @@
   "project",
   "employment_type",
   "column_break_scope",
-  "notice_days",
-  "repeat_after_days",
-  "section_expiry",
-  "po_expiry_date",
-  "column_break_expiry",
-  "roll_forward_annually",
+  "remaining_units_threshold",
   "section_recipients",
   "recipients",
   "cc_recipients",
   "section_templates",
   "subject_template",
-  "expired_subject_template",
+  "exhausted_subject_template",
   "message_template"
  ],
  "fields": [
@@ -80,43 +75,11 @@
   },
   {
    "default": "95",
-   "description": "Notify when the PO expiry date is this many days away or less.",
-   "fieldname": "notice_days",
-   "fieldtype": "Int",
-   "label": "Notice Days",
+   "description": "Alert when a submitted, Active PO Management record has this many Remaining Units left or fewer. Each PO is emailed once only.",
+   "fieldname": "remaining_units_threshold",
+   "fieldtype": "Float",
+   "label": "Remaining Units Threshold",
    "reqd": 1
-  },
-  {
-   "default": "3",
-   "description": "After the first email, remind again every this many days while inside the window.",
-   "fieldname": "repeat_after_days",
-   "fieldtype": "Int",
-   "label": "Repeat Reminder After (Days)",
-   "reqd": 1
-  },
-  {
-   "fieldname": "section_expiry",
-   "fieldtype": "Section Break",
-   "label": "PO Expiry Date"
-  },
-  {
-   "default": "2026-12-31",
-   "description": "The PO expiry date, the same for every employee in scope.",
-   "fieldname": "po_expiry_date",
-   "fieldtype": "Date",
-   "label": "PO Expiry Date",
-   "reqd": 1
-  },
-  {
-   "fieldname": "column_break_expiry",
-   "fieldtype": "Column Break"
-  },
-  {
-   "default": "1",
-   "description": "Keep the same day and month but move to the next year once the date has passed, so 31 December rolls forward automatically every year.",
-   "fieldname": "roll_forward_annually",
-   "fieldtype": "Check",
-   "label": "Roll Forward Every Year"
   },
   {
    "fieldname": "section_recipients",
@@ -131,13 +94,13 @@
    "reqd": 1
   },
   {
-   "description": "Copied on every email. One per line, or comma separated.",
+   "description": "Optional. Copied on every email. One per line, or comma separated.",
    "fieldname": "cc_recipients",
    "fieldtype": "Small Text",
    "label": "CC"
   },
   {
-   "description": "Jinja templates. Available variables: employee, employee_name, designation, department, employment_type, project, project_name, date_of_joining, po_expiry_date, days_remaining, days_overdue, is_overdue, employee_link.",
+   "description": "Jinja templates. Available variables: employee, employee_name, designation, department, employment_type, project, project_name, po, po_no, po_type, po_units, used_units, remaining_units, is_exhausted, employee_link, po_link.",
    "fieldname": "section_templates",
    "fieldtype": "Section Break",
    "label": "Email Templates"
@@ -145,12 +108,12 @@
   {
    "fieldname": "subject_template",
    "fieldtype": "Data",
-   "label": "Subject (Expiring Soon)"
+   "label": "Subject (Running Low)"
   },
   {
-   "fieldname": "expired_subject_template",
+   "fieldname": "exhausted_subject_template",
    "fieldtype": "Data",
-   "label": "Subject (Already Expired)"
+   "label": "Subject (Fully Consumed)"
   },
   {
    "fieldname": "message_template",
@@ -161,7 +124,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-08-06 12:00:00.000000",
+ "modified": "2026-08-06 14:00:00.000000",
  "modified_by": "Administrator",
  "module": "HR Services",
  "name": "PO Expiry Notification Settings",

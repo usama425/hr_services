@@ -3,12 +3,11 @@
 
 frappe.ui.form.on('PO Expiry Notification Settings', {
 	refresh: function (frm) {
-		frm.add_custom_button(__('Preview Recipients List'), function () {
+		frm.add_custom_button(__('Preview PO List'), function () {
 			frappe.call({
 				method: 'hr_services.cron_auto_email.po_expiry_notification.preview_po_expiry_notifications',
-				args: { ignore_window: 1 },
 				freeze: true,
-				freeze_message: __('Checking employees...'),
+				freeze_message: __('Checking purchase orders...'),
 				callback: function (r) {
 					show_preview(r.message || {});
 				}
@@ -16,26 +15,11 @@ frappe.ui.form.on('PO Expiry Notification Settings', {
 		});
 
 		frm.add_custom_button(__('Send Now'), function () {
-			const d = new frappe.ui.Dialog({
-				title: __('Send PO Expiry Notifications'),
-				fields: [
-					{
-						fieldtype: 'HTML',
-						options: `<p>${__('This sends real emails to the configured recipients.')}</p>`
-					},
-					{
-						fieldname: 'ignore_window',
-						fieldtype: 'Check',
-						label: __('Ignore the notice window (send even if the PO expiry is further away than the notice days)'),
-						default: 0
-					}
-				],
-				primary_action_label: __('Send'),
-				primary_action: function (values) {
-					d.hide();
+			frappe.confirm(
+				__('This sends real emails for any PO at or below the threshold that has not been emailed yet. Continue?'),
+				function () {
 					frappe.call({
 						method: 'hr_services.cron_auto_email.po_expiry_notification.send_po_expiry_notifications_now',
-						args: { ignore_window: values.ignore_window ? 1 : 0 },
 						freeze: true,
 						freeze_message: __('Sending notifications...'),
 						callback: function (r) {
@@ -43,15 +27,14 @@ frappe.ui.form.on('PO Expiry Notification Settings', {
 							frappe.msgprint({
 								title: __('Done'),
 								indicator: 'green',
-								message: __('Sent: {0} &nbsp; Skipped: {1} &nbsp; Failed: {2}',
+								message: __('Sent: {0} &nbsp; Already notified: {1} &nbsp; Failed: {2}',
 									[res.sent || 0, res.skipped || 0, res.failed || 0])
 							});
 							frm.reload_doc();
 						}
 					});
 				}
-			});
-			d.show();
+			);
 		});
 	}
 });
@@ -66,40 +49,42 @@ function show_preview(data) {
 		return;
 	}
 
-	const rows = data.employees || [];
-	const header = `<p>${__('PO expiry date')}: <b>${frappe.utils.escape_html(data.po_expiry_date || '')}</b>
-		&nbsp;(${data.days_remaining} ${__('days remaining')})<br>
-		${__('To')}: <b>${frappe.utils.escape_html((data.recipients || []).join(', '))}</b><br>
-		${__('CC')}: <b>${frappe.utils.escape_html((data.cc || []).join(', '))}</b></p>`;
+	const rows = data.pos || [];
+	const header = `<p>${__('Threshold')}: <b>${data.threshold} ${__('remaining units or fewer')}</b><br>
+		${__('To')}: <b>${frappe.utils.escape_html((data.recipients || []).join(', '))}</b>
+		${(data.cc || []).length ? `<br>${__('CC')}: <b>${frappe.utils.escape_html((data.cc || []).join(', '))}</b>` : ''}</p>`;
 
 	if (!rows.length) {
 		frappe.msgprint({
 			title: __('Nothing Due'),
 			indicator: 'blue',
-			message: header + `<p>${frappe.utils.escape_html(data.reason || __('No employee is due right now.'))}</p>`
+			message: header + `<p>${frappe.utils.escape_html(data.reason || __('No PO is due right now.'))}</p>`
 		});
 		return;
 	}
 
 	let html = header + `<table class="table table-bordered" style="font-size:12px;">
 		<thead><tr>
-			<th>${__('Employee')}</th><th>${__('Name')}</th>
-			<th>${__('Type')}</th><th>${__('Reason')}</th>
+			<th>${__('PO')}</th><th>${__('PO No')}</th><th>${__('Employee')}</th>
+			<th>${__('Units')}</th><th>${__('Used')}</th><th>${__('Remaining')}</th>
 		</tr></thead><tbody>`;
 
 	rows.forEach(function (row) {
+		const style = row.is_exhausted ? 'style="color:#c0392b;font-weight:bold;"' : '';
 		html += `<tr>
-			<td>${frappe.utils.escape_html(row.employee)}</td>
-			<td>${frappe.utils.escape_html(row.employee_name || '')}</td>
-			<td>${frappe.utils.escape_html(row.employment_type || '')}</td>
-			<td>${frappe.utils.escape_html(row.reason || '')}</td>
+			<td>${frappe.utils.escape_html(row.po)}</td>
+			<td>${frappe.utils.escape_html(row.po_no || '')}</td>
+			<td>${frappe.utils.escape_html(row.employee_name || row.employee)}</td>
+			<td>${row.po_units}</td>
+			<td>${row.used_units}</td>
+			<td ${style}>${row.remaining_units}</td>
 		</tr>`;
 	});
 
 	html += '</tbody></table>';
 
 	frappe.msgprint({
-		title: __('{0} employee(s) would be emailed', [rows.length]),
+		title: __('{0} PO(s) would be emailed', [rows.length]),
 		indicator: 'blue',
 		message: html,
 		wide: true

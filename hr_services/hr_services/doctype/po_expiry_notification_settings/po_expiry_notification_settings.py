@@ -4,6 +4,7 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
+from frappe.utils import flt
 
 from hr_services.permissions.notification_access import throw_unless_administrator
 
@@ -20,11 +21,8 @@ class POExpiryNotificationSettings(Document):
 		# has_permission hook; this also covers direct API writes.
 		throw_unless_administrator()
 
-		if self.notice_days is not None and self.notice_days < 1:
-			frappe.throw(_("Notice Days must be at least 1."))
-
-		if self.repeat_after_days is not None and self.repeat_after_days < 1:
-			frappe.throw(_("Repeat Reminder After (Days) must be at least 1."))
+		if flt(self.remaining_units_threshold) <= 0:
+			frappe.throw(_("Remaining Units Threshold must be greater than zero."))
 
 		from hr_services.cron_auto_email.po_expiry_notification import parse_recipients
 
