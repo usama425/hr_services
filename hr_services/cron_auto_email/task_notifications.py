@@ -23,9 +23,31 @@ SETTINGS_DOCTYPE = "ERC Task Settings"
 TASK_DOCTYPE = "ERC Task"
 OPEN_STATUSES = ("Open", "In Progress")
 
+DEFAULT_ASSIGNMENT_SUBJECT = "New task assigned to you: {{ subject }}"
 DEFAULT_DUE_SUBJECT = "Task due today: {{ subject }}"
 DEFAULT_REMINDER_SUBJECT = "Task due in {{ days_remaining }} day(s): {{ subject }}"
 DEFAULT_COMPLETION_SUBJECT = "Task completed: {{ subject }}"
+
+DEFAULT_ASSIGNMENT_MESSAGE = """<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#1f272e;">
+	<div style="background:#eef4fb;border-left:4px solid #2490ef;padding:10px 14px;margin-bottom:16px;">
+		<b>You have been assigned a task{% if assigned_by_name %} by {{ assigned_by_name }}{% endif %}.</b>
+	</div>
+	<table cellpadding="8" cellspacing="0" border="0"
+		style="border-collapse:collapse;width:100%;max-width:640px;">
+		<tr style="background:#f4f5f6;"><td width="35%"><b>Task</b></td><td>{{ subject }}</td></tr>
+		<tr><td><b>Due Date</b></td><td><b>{{ due_date }}</b></td></tr>
+		<tr style="background:#f4f5f6;"><td><b>Priority</b></td><td>{{ priority }}</td></tr>
+		<tr><td><b>Assigned To</b></td><td>{{ assigned_to_name or assigned_to }}</td></tr>
+		{% if checklist_total %}
+		<tr style="background:#f4f5f6;"><td><b>Checklist</b></td><td>{{ checklist_total }} item(s)</td></tr>
+		{% endif %}
+		{% if reference_name %}
+		<tr><td><b>Related Record</b></td><td>{{ reference_doctype }}: {{ reference_name }}</td></tr>
+		{% endif %}
+	</table>
+	{% if description %}<div style="margin-top:16px;">{{ description }}</div>{% endif %}
+	<p style="margin-top:18px;">{{ task_link }}</p>
+</div>"""
 
 DEFAULT_MESSAGE = """<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#1f272e;">
 	{% if days_remaining <= 0 %}
@@ -76,6 +98,8 @@ DEFAULT_COMPLETION_MESSAGE = """<div style="font-family:Arial,Helvetica,sans-ser
 def apply_template_defaults(settings):
 	"""Fill blank template fields with the built-in defaults (in memory)."""
 	pairs = (
+		("assignment_subject_template", DEFAULT_ASSIGNMENT_SUBJECT),
+		("assignment_message_template", DEFAULT_ASSIGNMENT_MESSAGE),
 		("due_subject_template", DEFAULT_DUE_SUBJECT),
 		("reminder_subject_template", DEFAULT_REMINDER_SUBJECT),
 		("completion_subject_template", DEFAULT_COMPLETION_SUBJECT),
@@ -140,6 +164,7 @@ def build_context(task):
 		"progress": task.progress,
 		"checklist_done": done,
 		"checklist_total": total,
+		"description": task.description,
 		"reference_doctype": task.reference_doctype,
 		"reference_name": task.reference_name,
 		"completed_by": task.completed_by,
@@ -236,6 +261,39 @@ def send_due_and_reminder_emails():
 	frappe.db.commit()
 
 	return {"enabled": True, "reason": "", "due": due_sent, "reminders": reminder_sent, "failed": failed}
+
+
+def send_assignment_email(task, recipients):
+	"""Tell people a task has just landed on them.
+
+	Fired when a task is created and when someone is added to an existing one, so
+	nobody waits until the due date to find out. The person doing the assigning is
+	dropped from the list - they already know.
+	"""
+	try:
+		settings = get_settings()
+		enabled, _reason = check_enabled(settings)
+
+		if not enabled or not settings.notify_on_assignment:
+			return False
+
+		recipients = [u for u in recipients if u and u != frappe.session.user]
+
+		return send_task_email(
+			task,
+			settings,
+			settings.assignment_subject_template,
+			settings.assignment_message_template,
+			recipients,
+		)
+
+	except Exception:
+		# Never let a notification failure block saving the task.
+		frappe.log_error(
+			title=f"Task assignment notification failed: {task.name}",
+			message=frappe.get_traceback(),
+		)
+		return False
 
 
 def send_completion_email(task):

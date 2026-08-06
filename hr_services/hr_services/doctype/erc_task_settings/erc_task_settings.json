@@ -11,14 +11,17 @@
   "column_break_status",
   "last_run_on",
   "section_notify",
+  "notify_on_assignment",
   "notify_on_due_date",
   "notify_on_completion",
   "section_doctypes",
   "allowed_doctypes",
   "section_templates",
+  "assignment_subject_template",
   "due_subject_template",
   "reminder_subject_template",
   "completion_subject_template",
+  "assignment_message_template",
   "message_template",
   "completion_message_template"
  ],
@@ -107,6 +110,23 @@
    "fieldname": "completion_message_template",
    "fieldtype": "Text Editor",
    "label": "Message Body (Completed)"
+  },
+  {
+   "default": "1",
+   "description": "Email a person as soon as a task is assigned to them, so nothing waits until the due date.",
+   "fieldname": "notify_on_assignment",
+   "fieldtype": "Check",
+   "label": "Notify On Assignment"
+  },
+  {
+   "fieldname": "assignment_subject_template",
+   "fieldtype": "Data",
+   "label": "Subject (Newly Assigned)"
+  },
+  {
+   "fieldname": "assignment_message_template",
+   "fieldtype": "Text Editor",
+   "label": "Message Body (Newly Assigned)"
   }
  ],
  "index_web_pages_for_search": 1,

@@ -108,7 +108,11 @@ class ERCTask(Document):
 		]
 		self.assignee_names = ", ".join(names)
 
+	def after_insert(self):
+		self.notify_assignees(self.get_assignees())
+
 	def on_update(self):
+		self.notify_newly_added_assignees()
 		self.notify_on_completion()
 
 	# --- checklist ------------------------------------------------------------
@@ -198,6 +202,25 @@ class ERCTask(Document):
 		)
 
 	# --- notification ---------------------------------------------------------
+
+	def notify_assignees(self, users):
+		"""Tell people a task has landed on them."""
+		if not users:
+			return
+
+		from hr_services.cron_auto_email.task_notifications import send_assignment_email
+
+		send_assignment_email(self, users)
+
+	def notify_newly_added_assignees(self):
+		"""Only the people just added get the email, not everyone already on it."""
+		before = self.get_doc_before_save()
+
+		if not before:
+			return
+
+		was = {row.user for row in (before.get("assignees") or []) if row.user}
+		self.notify_assignees([user for user in self.get_assignees() if user not in was])
 
 	def notify_on_completion(self):
 		before = self.get_doc_before_save()
