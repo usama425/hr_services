@@ -29,9 +29,14 @@ def get_permission_query_conditions(user=None):
 	escaped = frappe.db.escape(user)
 
 	return f"""(
-		`tabERC Task`.assigned_to = {escaped}
-		or `tabERC Task`.assigned_by = {escaped}
+		`tabERC Task`.assigned_by = {escaped}
 		or `tabERC Task`.owner = {escaped}
+		or exists (
+			select 1 from `tabERC Task Assignee` a
+			where a.parent = `tabERC Task`.name
+				and a.parenttype = 'ERC Task'
+				and a.user = {escaped}
+		)
 		or exists (
 			select 1 from `tabERC Task CC` cc
 			where cc.parent = `tabERC Task`.name
@@ -54,7 +59,9 @@ def has_permission(doc, ptype=None, user=None):
 	if ptype == "create" or not doc.get("name"):
 		return True
 
-	if user in (doc.get("assigned_to"), doc.get("assigned_by"), doc.get("owner")):
+	if user in (doc.get("assigned_by"), doc.get("owner")):
 		return True
 
-	return any(row.user == user for row in (doc.get("cc_users") or []))
+	involved = (doc.get("assignees") or []) + (doc.get("cc_users") or [])
+
+	return any(row.user == user for row in involved)

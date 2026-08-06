@@ -15,11 +15,45 @@ class ERCTask(Document):
 			self.assigned_by = frappe.session.user
 
 	def validate(self):
+		self.validate_assignees()
+		self.set_assignee_names()
 		self.stamp_checklist()
 		self.set_progress()
 		self.sync_status_with_checklist()
 		self.set_completion_stamps()
 		self.record_reassignment()
+
+	# --- assignees ------------------------------------------------------------
+
+	def get_assignees(self):
+		"""The users responsible for this task, de-duplicated, order preserved."""
+		seen, users = set(), []
+
+		for row in self.assignees or []:
+			if row.user and row.user not in seen:
+				seen.add(row.user)
+				users.append(row.user)
+
+		return users
+
+	def validate_assignees(self):
+		users = self.get_assignees()
+
+		if not users:
+			frappe.throw(_("Assign this task to at least one person."))
+
+		# Collapse any duplicate rows the picker may have allowed.
+		if len(users) != len(self.assignees or []):
+			self.set("assignees", [])
+			for user in users:
+				self.append("assignees", {"user": user})
+
+	def set_assignee_names(self):
+		"""Readable list for the list view and reports."""
+		names = [
+			frappe.db.get_value("User", user, "full_name") or user for user in self.get_assignees()
+		]
+		self.assignee_names = ", ".join(names)
 
 	def on_update(self):
 		self.notify_on_completion()
@@ -85,18 +119,25 @@ class ERCTask(Document):
 	# --- reassignment ---------------------------------------------------------
 
 	def record_reassignment(self):
+		"""Log any change to the assignee list, in or out."""
 		if self.is_new():
 			return
 
 		before = self.get_doc_before_save()
-		if not before or before.assigned_to == self.assigned_to:
+		if not before:
+			return
+
+		was = [row.user for row in (before.get("assignees") or []) if row.user]
+		now = self.get_assignees()
+
+		if set(was) == set(now):
 			return
 
 		self.append(
 			"reassignments",
 			{
-				"from_user": before.assigned_to,
-				"to_user": self.assigned_to,
+				"from_assignees": ", ".join(was),
+				"to_assignees": ", ".join(now),
 				"reassigned_by": frappe.session.user,
 				"reassigned_on": now_datetime(),
 				"reason": self.flags.reassign_reason or "",
@@ -117,10 +158,24 @@ class ERCTask(Document):
 
 
 @frappe.whitelist()
-def set_reassign_reason(task, reason):
-	"""Store the reason alongside the assignee change made from the form."""
+def reassign(task, assignees, reason=None):
+	"""Replace the assignee list in one step, so the trail records a single change."""
+	if isinstance(assignees, str):
+		assignees = frappe.parse_json(assignees)
+
+	assignees = [u for u in (assignees or []) if u]
+
+	if not assignees:
+		frappe.throw(_("Assign this task to at least one person."))
+
 	doc = frappe.get_doc("ERC Task", task)
-	doc.flags.reassign_reason = reason
+	doc.check_permission("write")
+
+	doc.set("assignees", [])
+	for user in assignees:
+		doc.append("assignees", {"user": user})
+
+	doc.flags.reassign_reason = reason or ""
 	doc.save()
 
 	return doc.name

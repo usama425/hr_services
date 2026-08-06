@@ -2,7 +2,7 @@
 // For license information, please see license.txt
 
 frappe.listview_settings['ERC Task'] = {
-	add_fields: ['status', 'due_date', 'assigned_to', 'assigned_by', 'priority', 'progress'],
+	add_fields: ['status', 'due_date', 'assignee_names', 'assigned_by', 'priority', 'progress'],
 
 	get_indicator: function (doc) {
 		const today = frappe.datetime.get_today();
@@ -37,8 +37,9 @@ frappe.listview_settings['ERC Task'] = {
 
 		const views = [
 			{
+				// Assignees live in a child table, so the filter targets that doctype.
 				label: __('My Tasks'),
-				filters: [['ERC Task', 'assigned_to', '=', me]]
+				filters: [['ERC Task Assignee', 'user', '=', me]]
 			},
 			{
 				label: __('My Assigned Tasks'),

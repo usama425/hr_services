@@ -13,8 +13,8 @@
   "status",
   "priority",
   "section_people",
-  "assigned_to",
-  "assigned_to_name",
+  "assignees",
+  "assignee_names",
   "assigned_by",
   "column_break_people",
   "due_date",
@@ -85,24 +85,6 @@
    "fieldname": "section_people",
    "fieldtype": "Section Break",
    "label": "Assignment"
-  },
-  {
-   "description": "Who has to do this. Only internal @eliteresources.co logins are listed.",
-   "fieldname": "assigned_to",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Assigned To",
-   "options": "User",
-   "reqd": 1,
-   "search_index": 1
-  },
-  {
-   "fetch_from": "assigned_to.full_name",
-   "fieldname": "assigned_to_name",
-   "fieldtype": "Data",
-   "label": "Assigned To Name",
-   "read_only": 1
   },
   {
    "fieldname": "assigned_by",
@@ -261,6 +243,21 @@
    "hidden": 1,
    "label": "Reminder Email Sent On",
    "read_only": 1
+  },
+  {
+   "description": "Everyone responsible for this task. All of them get the due-date email and see it under My Tasks.",
+   "fieldname": "assignees",
+   "fieldtype": "Table MultiSelect",
+   "label": "Assigned To",
+   "options": "ERC Task Assignee",
+   "reqd": 1
+  },
+  {
+   "fieldname": "assignee_names",
+   "fieldtype": "Small Text",
+   "label": "Assigned To",
+   "in_list_view": 1,
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -296,7 +293,7 @@
    "write": 1
   }
  ],
- "search_fields": "subject,assigned_to,status,due_date",
+ "search_fields": "subject,status,due_date",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],

@@ -9,13 +9,15 @@ const INTERNAL_USER_FILTERS = {
 
 frappe.ui.form.on('ERC Task', {
 	setup: function (frm) {
-		frm.set_query('assigned_to', function () {
+		// Both of these are Table MultiSelect fields, so the query goes on the parent
+		// fieldname - see the note below.
+		frm.set_query('assignees', function () {
 			return { filters: INTERNAL_USER_FILTERS };
 		});
 
-		// cc_users is a Table MultiSelect. Its control extends ControlLink and has no
-		// `.grid`, so the three-argument child-table form of set_query throws and takes
-		// the whole form render down with it. Set the query on the parent field instead.
+		// A Table MultiSelect control extends ControlLink and has no `.grid`, so the
+		// three-argument child-table form of set_query throws and takes the whole form
+		// render down with it. Set the query on the parent field instead.
 		frm.set_query('cc_users', function () {
 			return { filters: INTERNAL_USER_FILTERS };
 		});
@@ -83,16 +85,20 @@ function show_progress(frm) {
 }
 
 function reassign_dialog(frm) {
+	const current = (frm.doc.assignees || []).map((r) => r.user);
+
 	const d = new frappe.ui.Dialog({
 		title: __('Reassign Task'),
 		fields: [
 			{
-				fieldname: 'assigned_to',
-				fieldtype: 'Link',
-				label: __('Reassign To'),
-				options: 'User',
+				fieldname: 'assignees',
+				fieldtype: 'MultiSelectPills',
+				label: __('Assign To'),
 				reqd: 1,
-				get_query: () => ({ filters: INTERNAL_USER_FILTERS })
+				default: current,
+				get_data: function (txt) {
+					return frappe.db.get_link_options('User', txt, INTERNAL_USER_FILTERS);
+				}
 			},
 			{
 				fieldname: 'reason',
@@ -103,17 +109,19 @@ function reassign_dialog(frm) {
 		],
 		primary_action_label: __('Reassign'),
 		primary_action: function (values) {
-			if (values.assigned_to === frm.doc.assigned_to) {
-				frappe.msgprint(__('That is already the assignee.'));
+			const chosen = values.assignees || [];
+
+			if (!chosen.length) {
+				frappe.msgprint(__('Pick at least one person.'));
 				return;
 			}
 
 			d.hide();
-			frm.set_value('assigned_to', values.assigned_to);
 			frappe.call({
-				method: 'hr_services.hr_services.doctype.erc_task.erc_task.set_reassign_reason',
-				args: { task: frm.doc.name, reason: values.reason },
+				method: 'hr_services.hr_services.doctype.erc_task.erc_task.reassign',
+				args: { task: frm.doc.name, assignees: chosen, reason: values.reason },
 				freeze: true,
+				freeze_message: __('Reassigning...'),
 				callback: () => frm.reload_doc()
 			});
 		}

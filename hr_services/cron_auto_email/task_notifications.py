@@ -115,6 +115,11 @@ def get_cc(task):
 	return [row.user for row in (task.get("cc_users") or []) if row.user]
 
 
+def get_assignees(task):
+	"""Everyone responsible for the task - all of them are emailed."""
+	return [row.user for row in (task.get("assignees") or []) if row.user]
+
+
 def build_context(task):
 	total = len(task.get("checklist") or [])
 	done = sum(1 for row in (task.get("checklist") or []) if cint(row.completed))
@@ -122,8 +127,8 @@ def build_context(task):
 	return {
 		"task": task.name,
 		"subject": task.subject,
-		"assigned_to": task.assigned_to,
-		"assigned_to_name": task.assigned_to_name,
+		"assigned_to": ", ".join(get_assignees(task)),
+		"assigned_to_name": task.assignee_names,
 		"assigned_by": task.assigned_by,
 		"assigned_by_name": frappe.db.get_value("User", task.assigned_by, "full_name")
 		if task.assigned_by
@@ -208,7 +213,7 @@ def send_due_and_reminder_emails():
 			)
 
 			if send_task_email(
-				task, settings, subject_template, settings.message_template, [task.assigned_to]
+				task, settings, subject_template, settings.message_template, get_assignees(task)
 			):
 				field = "due_email_sent_on" if is_due_today else "reminder_email_sent_on"
 				frappe.db.set_value(TASK_DOCTYPE, task.name, field, today, update_modified=False)

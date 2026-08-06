@@ -4,13 +4,55 @@
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
- "field_order": ["from_user", "to_user", "reassigned_by", "reassigned_on", "reason"],
+ "field_order": [
+  "from_assignees",
+  "to_assignees",
+  "reassigned_by",
+  "reassigned_on",
+  "reason"
+ ],
  "fields": [
-  {"columns": 2, "fieldname": "from_user", "fieldtype": "Link", "in_list_view": 1, "label": "From", "options": "User", "read_only": 1},
-  {"columns": 2, "fieldname": "to_user", "fieldtype": "Link", "in_list_view": 1, "label": "To", "options": "User", "read_only": 1},
-  {"columns": 2, "fieldname": "reassigned_by", "fieldtype": "Link", "in_list_view": 1, "label": "By", "options": "User", "read_only": 1},
-  {"columns": 2, "fieldname": "reassigned_on", "fieldtype": "Datetime", "in_list_view": 1, "label": "On", "read_only": 1},
-  {"columns": 3, "fieldname": "reason", "fieldtype": "Data", "in_list_view": 1, "label": "Reason", "read_only": 1}
+  {
+   "columns": 3,
+   "fieldname": "from_assignees",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "From",
+   "read_only": 1
+  },
+  {
+   "columns": 3,
+   "fieldname": "to_assignees",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "To",
+   "read_only": 1
+  },
+  {
+   "columns": 2,
+   "fieldname": "reassigned_by",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "By",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "columns": 2,
+   "fieldname": "reassigned_on",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "On",
+   "read_only": 1
+  },
+  {
+   "columns": 2,
+   "fieldname": "reason",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Reason",
+   "read_only": 1
+  }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
