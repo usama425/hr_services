@@ -13,7 +13,10 @@ frappe.ui.form.on('ERC Task', {
 			return { filters: INTERNAL_USER_FILTERS };
 		});
 
-		frm.set_query('user', 'cc_users', function () {
+		// cc_users is a Table MultiSelect. Its control extends ControlLink and has no
+		// `.grid`, so the three-argument child-table form of set_query throws and takes
+		// the whole form render down with it. Set the query on the parent field instead.
+		frm.set_query('cc_users', function () {
 			return { filters: INTERNAL_USER_FILTERS };
 		});
 
