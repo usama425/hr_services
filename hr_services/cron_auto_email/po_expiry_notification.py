@@ -65,10 +65,6 @@ DEFAULT_MESSAGE = """<div style="font-family:Arial,Helvetica,sans-serif;font-siz
 		<tr style="background:#f4f5f6;"><td><b>Remaining Units</b></td><td><b>{{ remaining_units }}</b></td></tr>
 	</table>
 	<p style="margin-top:18px;">{{ po_link }} &nbsp;|&nbsp; {{ employee_link }}</p>
-	<p style="color:#8d99a6;font-size:12px;margin-top:24px;">
-		Automatic notification from ERP. Sent once per PO. To change recipients or this
-		template, open PO Expiry Notification Settings.
-	</p>
 </div>"""
 
 

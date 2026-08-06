@@ -68,10 +68,6 @@ DEFAULT_MESSAGE = """<div style="font-family:Arial,Helvetica,sans-serif;font-siz
 		<tr><td><b>Days Remaining</b></td><td>{{ days_remaining }}</td></tr>
 	</table>
 	<p style="margin-top:18px;">{{ employee_link }}</p>
-	<p style="color:#8d99a6;font-size:12px;margin-top:24px;">
-		Automatic notification from ERP. To change recipients or this template, open
-		Contract Expiry Notification Settings.
-	</p>
 </div>"""
 
 
