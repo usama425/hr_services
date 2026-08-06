@@ -121,6 +121,13 @@ has_permission = {
     "Contract Expiry Notification Log": "hr_services.permissions.notification_access.only_administrator",
     "PO Expiry Notification Settings": "hr_services.permissions.notification_access.only_administrator",
     "PO Expiry Notification Log": "hr_services.permissions.notification_access.only_administrator",
+    "ERC Task Settings": "hr_services.permissions.notification_access.only_administrator",
+    # A task is visible only to its assignee, its assigner and anyone CC'd.
+    "ERC Task": "hr_services.permissions.erc_task.has_permission",
+}
+
+permission_query_conditions = {
+    "ERC Task": "hr_services.permissions.erc_task.get_permission_query_conditions",
 }
 
 # DocType Class
@@ -186,7 +193,8 @@ scheduler_events = {
         # recipients, templates or the notice window.
         "0 9 * * *": [
             "hr_services.cron_auto_email.contract_expiry_notification.send_contract_expiry_notifications",
-            "hr_services.cron_auto_email.po_expiry_notification.send_po_expiry_notifications"
+            "hr_services.cron_auto_email.po_expiry_notification.send_po_expiry_notifications",
+            "hr_services.cron_auto_email.task_notifications.send_due_and_reminder_emails"
         ],
     },
 	"daily": [

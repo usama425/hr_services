@@ -1,0 +1,305 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "autoname": "naming_series:",
+ "creation": "2026-08-06 15:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "subject",
+  "column_break_head",
+  "status",
+  "priority",
+  "section_people",
+  "assigned_to",
+  "assigned_to_name",
+  "assigned_by",
+  "column_break_people",
+  "due_date",
+  "remind_before_days",
+  "progress",
+  "section_cc",
+  "cc_users",
+  "section_reference",
+  "reference_doctype",
+  "column_break_reference",
+  "reference_name",
+  "section_details",
+  "description",
+  "section_checklist",
+  "checklist",
+  "section_completion",
+  "completed_by",
+  "column_break_completion",
+  "completed_on",
+  "section_history",
+  "reassignments",
+  "section_source",
+  "source_email",
+  "due_email_sent_on",
+  "reminder_email_sent_on"
+ ],
+ "fields": [
+  {
+   "default": "TASK-.YY.-.#####",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "Series",
+   "options": "TASK-.YY.-.#####",
+   "print_hide": 1
+  },
+  {
+   "fieldname": "subject",
+   "fieldtype": "Data",
+   "in_global_search": 1,
+   "in_list_view": 1,
+   "label": "Subject",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_head",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Open",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Open\nIn Progress\nCompleted\nCancelled",
+   "reqd": 1
+  },
+  {
+   "default": "Medium",
+   "fieldname": "priority",
+   "fieldtype": "Select",
+   "in_standard_filter": 1,
+   "label": "Priority",
+   "options": "Low\nMedium\nHigh\nUrgent"
+  },
+  {
+   "fieldname": "section_people",
+   "fieldtype": "Section Break",
+   "label": "Assignment"
+  },
+  {
+   "description": "Who has to do this. Only internal @eliteresources.co logins are listed.",
+   "fieldname": "assigned_to",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Assigned To",
+   "options": "User",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fetch_from": "assigned_to.full_name",
+   "fieldname": "assigned_to_name",
+   "fieldtype": "Data",
+   "label": "Assigned To Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "assigned_by",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Assigned By",
+   "options": "User",
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "column_break_people",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "due_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Due Date",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "default": "0",
+   "description": "Send an extra reminder this many days before the due date. 0 means no early reminder.",
+   "fieldname": "remind_before_days",
+   "fieldtype": "Int",
+   "label": "Remind Before (Days)"
+  },
+  {
+   "description": "Share of checklist items ticked.",
+   "fieldname": "progress",
+   "fieldtype": "Percent",
+   "label": "Progress",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_cc",
+   "fieldtype": "Section Break",
+   "label": "CC"
+  },
+  {
+   "description": "Copied on the emails for this task, and able to see it.",
+   "fieldname": "cc_users",
+   "fieldtype": "Table MultiSelect",
+   "label": "CC",
+   "options": "ERC Task CC"
+  },
+  {
+   "fieldname": "section_reference",
+   "fieldtype": "Section Break",
+   "label": "Related Record"
+  },
+  {
+   "description": "Optional. Which kind of record this task is about.",
+   "fieldname": "reference_doctype",
+   "fieldtype": "Link",
+   "label": "Document Type",
+   "options": "DocType"
+  },
+  {
+   "fieldname": "column_break_reference",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "reference_doctype",
+   "fieldname": "reference_name",
+   "fieldtype": "Dynamic Link",
+   "in_global_search": 1,
+   "label": "Record",
+   "options": "reference_doctype"
+  },
+  {
+   "fieldname": "section_details",
+   "fieldtype": "Section Break",
+   "label": "Details"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Text Editor",
+   "label": "Description"
+  },
+  {
+   "fieldname": "section_checklist",
+   "fieldtype": "Section Break",
+   "label": "Checklist"
+  },
+  {
+   "description": "Tick items as they are done. When every item is ticked the task completes itself.",
+   "fieldname": "checklist",
+   "fieldtype": "Table",
+   "label": "Checklist",
+   "options": "ERC Task Checklist Item"
+  },
+  {
+   "collapsible": 1,
+   "depends_on": "eval:doc.status=='Completed'",
+   "fieldname": "section_completion",
+   "fieldtype": "Section Break",
+   "label": "Completion"
+  },
+  {
+   "fieldname": "completed_by",
+   "fieldtype": "Link",
+   "label": "Completed By",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_completion",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "completed_on",
+   "fieldtype": "Datetime",
+   "label": "Completed On",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "depends_on": "eval:(doc.reassignments || []).length",
+   "fieldname": "section_history",
+   "fieldtype": "Section Break",
+   "label": "Reassignment History"
+  },
+  {
+   "fieldname": "reassignments",
+   "fieldtype": "Table",
+   "label": "Reassignments",
+   "options": "ERC Task Reassignment",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "section_source",
+   "fieldtype": "Section Break",
+   "label": "Source"
+  },
+  {
+   "description": "The original email, when this task was created from Outlook.",
+   "fieldname": "source_email",
+   "fieldtype": "Attach",
+   "label": "Source Email",
+   "read_only": 1
+  },
+  {
+   "fieldname": "due_email_sent_on",
+   "fieldtype": "Date",
+   "hidden": 1,
+   "label": "Due Email Sent On",
+   "read_only": 1
+  },
+  {
+   "fieldname": "reminder_email_sent_on",
+   "fieldtype": "Date",
+   "hidden": 1,
+   "label": "Reminder Email Sent On",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-08-06 15:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "HR Services",
+ "name": "ERC Task",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "ERC Task User",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Administrator",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "search_fields": "subject,assigned_to,status,due_date",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "subject",
+ "track_changes": 1
+}

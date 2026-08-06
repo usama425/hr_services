@@ -1,0 +1,135 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-08-06 15:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "enabled",
+  "restrict_to_site",
+  "column_break_status",
+  "last_run_on",
+  "section_notify",
+  "notify_on_due_date",
+  "notify_on_completion",
+  "section_doctypes",
+  "allowed_doctypes",
+  "section_templates",
+  "due_subject_template",
+  "reminder_subject_template",
+  "completion_subject_template",
+  "message_template",
+  "completion_message_template"
+ ],
+ "fields": [
+  {
+   "default": "0",
+   "description": "Master switch for the daily task emails. The task list itself works regardless.",
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Enabled"
+  },
+  {
+   "description": "Safety gate. If set, emails only go out when the site name matches exactly.",
+   "fieldname": "restrict_to_site",
+   "fieldtype": "Data",
+   "label": "Only Send From Site"
+  },
+  {
+   "fieldname": "column_break_status",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "last_run_on",
+   "fieldtype": "Datetime",
+   "label": "Last Run On",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_notify",
+   "fieldtype": "Section Break",
+   "label": "Notifications"
+  },
+  {
+   "default": "1",
+   "description": "Email the assignee at 9 AM on the due date, and earlier if the task sets Remind Before.",
+   "fieldname": "notify_on_due_date",
+   "fieldtype": "Check",
+   "label": "Notify On Due Date"
+  },
+  {
+   "default": "1",
+   "description": "Email the person who assigned the task when it is completed.",
+   "fieldname": "notify_on_completion",
+   "fieldtype": "Check",
+   "label": "Notify On Completion"
+  },
+  {
+   "fieldname": "section_doctypes",
+   "fieldtype": "Section Break",
+   "label": "Linkable Record Types"
+  },
+  {
+   "description": "Which document types a task can be linked to. Add or remove entries here; no code change needed.",
+   "fieldname": "allowed_doctypes",
+   "fieldtype": "Table MultiSelect",
+   "label": "Allowed Document Types",
+   "options": "ERC Task Allowed Doctype"
+  },
+  {
+   "description": "Jinja templates. Available variables: task, subject, assigned_to, assigned_to_name, assigned_by, due_date, days_remaining, priority, status, progress, reference_doctype, reference_name, checklist_done, checklist_total, task_link.",
+   "fieldname": "section_templates",
+   "fieldtype": "Section Break",
+   "label": "Email Templates"
+  },
+  {
+   "fieldname": "due_subject_template",
+   "fieldtype": "Data",
+   "label": "Subject (Due Today)"
+  },
+  {
+   "fieldname": "reminder_subject_template",
+   "fieldtype": "Data",
+   "label": "Subject (Early Reminder)"
+  },
+  {
+   "fieldname": "completion_subject_template",
+   "fieldtype": "Data",
+   "label": "Subject (Completed)"
+  },
+  {
+   "fieldname": "message_template",
+   "fieldtype": "Text Editor",
+   "label": "Message Body (Due / Reminder)"
+  },
+  {
+   "fieldname": "completion_message_template",
+   "fieldtype": "Text Editor",
+   "label": "Message Body (Completed)"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-08-06 15:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "HR Services",
+ "name": "ERC Task Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "Administrator",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 0,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}
