@@ -3,9 +3,9 @@
 
 """Contract expiry notifications for project employees (Misk by default).
 
-Runs daily at 09:00 Asia/Riyadh via the cron entry in hooks.py. For every active
-employee on the configured project whose contract_end_date falls inside the notice
-window, one email is sent to the configured recipients.
+Runs daily at 09:00 Asia/Riyadh via the cron entry in hooks.py. For every active,
+full-time, Saudi national employee on the configured project whose contract_end_date
+falls inside the notice window, one email is sent to the configured recipients.
 
 Rules:
   * first email as soon as the contract is within `notice_days`
@@ -137,13 +137,15 @@ def check_enabled(settings):
 
 
 def get_due_employees(settings):
-	"""Active employees on the project whose contract is inside the notice window."""
+	"""Active, full-time, Saudi employees on the project whose contract is inside the notice window."""
 	today = getdate(nowdate())
 	window_end = add_days(today, cint(settings.notice_days))
 
 	filters = {
 		"project": settings.project,
 		"status": "Active",
+		"employment_type": "Full-time",
+		"nationality": "Saudi Arabia",
 		"contract_end_date": ["<=", window_end],
 	}
 
