@@ -42,6 +42,7 @@ doctype_js = {"Employee" : "customjs/employee.js",
               "Job Requisition": "customjs/job_requisition.js"
               }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
+doctype_list_js = {"Employee": "customjs/employee_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
 
@@ -137,6 +138,10 @@ permission_query_conditions = {
 # override_doctype_class = {
 #	"ToDo": "custom_app.overrides.CustomToDo"
 # }
+override_doctype_class = {
+    "Employee": "hr_services.overrides.employee_master.CustomEmployeeMaster",
+    "Payroll Entry": "hr_services.overrides.payroll_entry.CustomPayrollEntry",
+}
 
 # Document Events
 # ---------------
@@ -173,7 +178,12 @@ doc_events = {
         #
         # On 'Approved by FM' (a post-submit workflow transition), auto-create
         # the client Sales Invoice via the existing generator.
-        "on_update_after_submit": "hr_services.custompy.payroll_entry.auto_generate_invoice_on_approval"
+        "on_update_after_submit": "hr_services.custompy.payroll_entry.auto_generate_invoice_on_approval",
+        # Under Recruitment employees must never be paid.
+        "validate": "hr_services.custompy.under_recruitment.validate_payroll_entry"
+    },
+    "Salary Slip": {
+        "validate": "hr_services.custompy.under_recruitment.validate_salary_slip"
     }
 }
 
