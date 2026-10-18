@@ -1,0 +1,1068 @@
+{% extends "templates/web.html" %}
+
+{% block page_content %}
+<div class="webpage-content">
+<article class="web-page-content" id="request-detail" style="text-align: Left">
+{% raw %}<style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap');
+    
+    /* Hide default ERPNext header */
+    .navbar, .page-header, .page-head, .web-footer, header {
+        display: none !important;
+    }
+    
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    
+    /* Unified Color System - Light Mode (Default) */
+    :root {
+        --primary-color: #084887;
+        --primary-dark: #063a6b;
+        --primary-light: #0a5ba8;
+        --text-primary: #0f172a;
+        --text-secondary: #64748b;
+        --bg-primary: #ffffff;
+        --bg-secondary: #f8fafc;
+        --bg-tertiary: #f1f5f9;
+        --border-color: #e2e8f0;
+        --success-color: #10b981;
+        --error-color: #ef4444;
+        --warning-color: #f59e0b;
+    }
+    
+    /* Dark Mode */
+    [data-theme="dark"] {
+        --primary-color: #0d6efd;
+        --primary-dark: #084887;
+        --primary-light: #3d8bfd;
+        --text-primary: #ffffff;
+        --text-secondary: #cbd5e1;
+        --bg-primary: #1e293b;
+        --bg-secondary: #334155;
+        --bg-tertiary: #475569;
+        --border-color: rgba(148, 163, 184, 0.3);
+        --success-color: #10b981;
+        --error-color: #ef4444;
+        --warning-color: #f59e0b;
+    }
+    
+    body {
+        font-family: 'Inter', sans-serif;
+        background: var(--bg-secondary);
+        min-height: 100vh;
+        padding: 0;
+        padding-top: 0 !important;
+        transition: background 0.3s ease;
+    }
+    
+    body.rtl {
+        font-family: 'Cairo', sans-serif;
+        direction: rtl;
+    }
+    
+    /* Top Header Bar */
+    .top-header {
+        background: var(--bg-primary);
+        padding: 16px 48px;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+    
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+    
+    .back-button {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        background: transparent;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 500;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+    
+    .back-button:hover {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+    }
+    
+    .page-title-section h1 {
+        font-size: 18px;
+        color: var(--text-primary);
+        font-weight: 600;
+    }
+    
+    .page-title-section p {
+        font-size: 12px;
+        color: var(--text-secondary);
+        margin-top: 2px;
+    }
+    
+    .header-right {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+    
+    .theme-toggle {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 16px;
+        color: var(--text-primary);
+    }
+    
+    .theme-toggle:hover {
+        background: var(--bg-tertiary);
+        transform: scale(1.05);
+    }
+    
+    .lang-switcher {
+        display: flex;
+        gap: 4px;
+        background: var(--bg-secondary);
+        padding: 4px;
+        border-radius: 8px;
+    }
+    
+    .lang-btn {
+        padding: 6px 14px;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        border-radius: 6px;
+        font-weight: 500;
+        font-size: 13px;
+        color: var(--text-secondary);
+        transition: all 0.2s;
+    }
+    
+    .lang-btn.active {
+        background: var(--bg-primary);
+        color: var(--primary-color);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    body.rtl .lang-switcher {
+        direction: rtl;
+    }
+    
+    /* Main Content */
+    .main-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 32px 48px;
+    }
+    
+    /* Loading Overlay */
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.95);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+    }
+    
+    .loading-overlay.hidden {
+        display: none;
+    }
+    
+    .spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid var(--border-color);
+        border-top-color: var(--primary-color);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    .loading-text {
+        margin-top: 16px;
+        color: var(--text-secondary);
+        font-size: 14px;
+    }
+    
+    /* Error State */
+    .error-state {
+        text-align: center;
+        padding: 60px 20px;
+    }
+    
+    .error-state.hidden {
+        display: none;
+    }
+    
+    .error-icon {
+        font-size: 64px;
+        color: var(--error-color);
+        margin-bottom: 16px;
+    }
+    
+    .error-title {
+        font-size: 20px;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+    }
+    
+    .error-message {
+        color: var(--text-secondary);
+        margin-bottom: 24px;
+    }
+    
+    /* Request Header Card */
+    .request-header-card {
+        background: var(--bg-primary);
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 24px;
+        border: 1px solid var(--border-color);
+    }
+    
+    .request-header-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+    
+    .request-id-section h2 {
+        font-size: 24px;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+    }
+    
+    .request-id-section .request-id {
+        font-family: 'Courier New', monospace;
+        color: var(--primary-color);
+        font-weight: 600;
+    }
+    
+    .status-section {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .status-badge {
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        text-transform: capitalize;
+    }
+    
+    .status-approved {
+        background: #d1fae5;
+        color: #065f46;
+    }
+    
+    .status-pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
+    
+    .status-rejected {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+    
+    .status-draft {
+        background: #e5e7eb;
+        color: #374151;
+    }
+    
+    .expense-type-badge {
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    
+    .expense-type-advance {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+    
+    .expense-type-operational {
+        background: #f3e8ff;
+        color: #6b21a8;
+    }
+    
+    /* Info Grid */
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 24px;
+    }
+    
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .info-label {
+        font-size: 12px;
+        color: var(--text-secondary);
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .info-value {
+        font-size: 15px;
+        color: var(--text-primary);
+        font-weight: 600;
+    }
+    
+    .amount-highlight {
+        font-size: 28px;
+        color: var(--primary-color);
+        font-weight: 700;
+    }
+    
+    /* Section Cards */
+    .section-card {
+        background: var(--bg-primary);
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 24px;
+        border: 1px solid var(--border-color);
+    }
+    
+    .section-title {
+        font-size: 18px;
+        color: var(--text-primary);
+        font-weight: 600;
+        margin-bottom: 20px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid var(--border-color);
+    }
+    
+    /* Tables */
+    .detail-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 16px;
+    }
+    
+    .detail-table thead {
+        background: var(--bg-secondary);
+    }
+    
+    .detail-table th {
+        padding: 12px 16px;
+        text-align: left;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 2px solid var(--border-color);
+    }
+    
+    body.rtl .detail-table th {
+        text-align: right;
+    }
+    
+    .detail-table td {
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--border-color);
+        font-size: 14px;
+        color: var(--text-primary);
+    }
+    
+    .detail-table tbody tr:hover {
+        background: var(--bg-secondary);
+    }
+    
+    .detail-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+    
+    /* Attachments */
+    .attachments-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .attachment-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        background: var(--bg-secondary);
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+    }
+    
+    .attachment-icon {
+        width: 40px;
+        height: 40px;
+        background: var(--primary-color);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 18px;
+    }
+    
+    .attachment-info {
+        flex: 1;
+    }
+    
+    .attachment-name {
+        font-size: 14px;
+        color: var(--text-primary);
+        font-weight: 500;
+        margin-bottom: 2px;
+    }
+    
+    .attachment-size {
+        font-size: 12px;
+        color: var(--text-secondary);
+    }
+    
+    .attachment-download {
+        padding: 8px 16px;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 500;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.2s;
+    }
+    
+    .attachment-download:hover {
+        background: var(--primary-dark);
+    }
+    
+    .no-data {
+        text-align: center;
+        padding: 40px;
+        color: var(--text-secondary);
+        font-size: 14px;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .main-container {
+            padding: 20px 16px;
+        }
+        
+        .top-header {
+            padding: 12px 16px;
+        }
+        
+        .request-header-card,
+        .section-card {
+            padding: 16px;
+        }
+        
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .detail-table {
+            font-size: 12px;
+        }
+        
+        .detail-table th,
+        .detail-table td {
+            padding: 8px;
+        }
+    }
+</style>
+
+<!-- Top Header -->
+<div class="top-header">
+    <div class="header-left">
+        <button class="back-button" onclick="goBack()">
+            <i class="fas fa-arrow-left"></i>
+            <span data-en="Back to Requests" data-ar="العودة إلى الطلبات">Back to Requests</span>
+        </button>
+        <div class="page-title-section">
+            <h1 data-en="Request Details" data-ar="تفاصيل الطلب">Request Details</h1>
+            <p data-en="View complete request information" data-ar="عرض معلومات الطلب الكاملة">View complete request information</p>
+        </div>
+    </div>
+    <div class="header-right">
+        <button class="theme-toggle" id="themeToggle" title="Toggle Dark/Light Mode">
+            <i class="fas fa-moon" id="themeIcon"></i>
+        </button>
+        <div class="lang-switcher">
+            <button class="lang-btn active" onclick="switchLanguage('en')">EN</button>
+            <button class="lang-btn" onclick="switchLanguage('ar')">AR</button>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <div class="loading-text" data-en="Loading request details..." data-ar="جاري تحميل تفاصيل الطلب...">Loading request details...</div>
+</div>
+
+<!-- Error State -->
+<div class="error-state hidden" id="errorState">
+    <div class="error-icon">
+        <i class="fas fa-exclamation-circle"></i>
+    </div>
+    <div class="error-title" data-en="Request Not Found" data-ar="الطلب غير موجود">Request Not Found</div>
+    <div class="error-message" data-en="The request you're looking for doesn't exist or you don't have permission to view it." data-ar="الطلب الذي تبحث عنه غير موجود أو ليس لديك صلاحية لعرضه.">The request you're looking for doesn't exist or you don't have permission to view it.</div>
+    <button class="back-button" onclick="goBack()">
+        <i class="fas fa-arrow-left"></i>
+        <span data-en="Back to Requests" data-ar="العودة إلى الطلبات">Back to Requests</span>
+    </button>
+</div>
+
+<!-- Main Content -->
+<div class="main-container hidden" id="mainContent">
+    <!-- Request Header -->
+    <div class="request-header-card">
+        <div class="request-header-top">
+            <div class="request-id-section">
+                <h2>
+                    <span data-en="Request ID:" data-ar="رقم الطلب:">Request ID:</span>
+                    <span class="request-id" id="requestId">-</span>
+                </h2>
+                <div style="margin-top: 8px;">
+                    <span class="expense-type-badge" id="expenseTypeBadge">-</span>
+                </div>
+            </div>
+            <div class="status-section">
+                <span class="status-badge" id="statusBadge">-</span>
+            </div>
+        </div>
+        
+        <div class="info-grid">
+            <div class="info-item">
+                <span class="info-label" data-en="Request Date" data-ar="تاريخ الطلب">Request Date</span>
+                <span class="info-value" id="requestDate">-</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label" data-en="Project" data-ar="المشروع">Project</span>
+                <span class="info-value" id="projectName">-</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label" data-en="Company" data-ar="الشركة">Company</span>
+                <span class="info-value" id="companyName">-</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label" data-en="Total Amount" data-ar="المبلغ الإجمالي">Total Amount</span>
+                <span class="info-value amount-highlight" id="totalAmount">-</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Items Section -->
+    <div class="section-card" id="itemsSection" style="display: none;">
+        <h3 class="section-title" data-en="Items" data-ar="البنود">Items</h3>
+        <table class="detail-table">
+            <thead>
+                <tr>
+                    <th data-en="Item" data-ar="البند">Item</th>
+                    <th data-en="Item Name" data-ar="اسم البند">Item Name</th>
+                    <th data-en="Employee" data-ar="الموظف">Employee</th>
+                    <th data-en="Qty" data-ar="الكمية">Qty</th>
+                    <th data-en="Rate" data-ar="السعر">Rate</th>
+                    <th data-en="Amount" data-ar="المبلغ">Amount</th>
+                    <th data-en="Remarks" data-ar="ملاحظات">Remarks</th>
+                </tr>
+            </thead>
+            <tbody id="itemsTableBody">
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Advances Section -->
+    <div class="section-card" id="advancesSection" style="display: none;">
+        <h3 class="section-title" data-en="Employee Advances" data-ar="سلف الموظفين">Employee Advances</h3>
+        <table class="detail-table">
+            <thead>
+                <tr>
+                    <th data-en="Employee" data-ar="الموظف">Employee</th>
+                    <th data-en="Employee No" data-ar="رقم الموظف">Employee No</th>
+                    <th data-en="Iqama" data-ar="الإقامة">Iqama</th>
+                    <th data-en="Advance Type" data-ar="نوع السلفة">Advance Type</th>
+                    <th data-en="Advance Amount" data-ar="مبلغ السلفة">Advance Amount</th>
+                    <th data-en="Monthly Repayment" data-ar="القسط الشهري">Monthly Repayment</th>
+                    <th data-en="Repayment Start Date" data-ar="تاريخ بدء السداد">Repayment Start Date</th>
+                    <th data-en="Remarks" data-ar="ملاحظات">Remarks</th>
+                </tr>
+            </thead>
+            <tbody id="advancesTableBody">
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Employees Section -->
+    <div class="section-card" id="employeesSection" style="display: none;">
+        <h3 class="section-title" data-en="Employees" data-ar="الموظفين">Employees</h3>
+        <table class="detail-table">
+            <thead>
+                <tr>
+                    <th data-en="Employee" data-ar="الموظف">Employee</th>
+                    <th data-en="Employee No" data-ar="رقم الموظف">Employee No</th>
+                    <th data-en="Iqama" data-ar="الإقامة">Iqama</th>
+                    <th data-en="Working Days" data-ar="أيام العمل">Working Days</th>
+                    <th data-en="Rate" data-ar="السعر">Rate</th>
+                    <th data-en="Amount" data-ar="المبلغ">Amount</th>
+                    <th data-en="PO No" data-ar="رقم أمر الشراء">PO No</th>
+                    <th data-en="Remarks" data-ar="ملاحظات">Remarks</th>
+                </tr>
+            </thead>
+            <tbody id="employeesTableBody">
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Invoices Section -->
+    <div class="section-card" id="invoicesSection" style="display: none;">
+        <h3 class="section-title" data-en="Purchase Invoices" data-ar="فواتير الشراء">Purchase Invoices</h3>
+        <table class="detail-table">
+            <thead>
+                <tr>
+                    <th data-en="Purchase Invoice" data-ar="فاتورة الشراء">Purchase Invoice</th>
+                    <th data-en="Project" data-ar="المشروع">Project</th>
+                    <th data-en="Project Name" data-ar="اسم المشروع">Project Name</th>
+                    <th data-en="Supplier" data-ar="المورد">Supplier</th>
+                    <th data-en="Grand Total" data-ar="الإجمالي">Grand Total</th>
+                    <th data-en="Outstanding Amount" data-ar="المبلغ المستحق">Outstanding Amount</th>
+                    <th data-en="Paid Amount" data-ar="المبلغ المدفوع">Paid Amount</th>
+                    <th data-en="Remarks" data-ar="ملاحظات">Remarks</th>
+                </tr>
+            </thead>
+            <tbody id="invoicesTableBody">
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Attachments Section -->
+    <div class="section-card" id="attachmentsSection" style="display: none;">
+        <h3 class="section-title" data-en="Attachments" data-ar="المرفقات">Attachments</h3>
+        <div class="attachments-list" id="attachmentsList">
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+<script>
+// Theme Toggle Functionality
+(function() {
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const html = document.documentElement;
+    
+    // Get saved theme or default to light
+    const savedTheme = localStorage.getItem('employeePortalTheme') || 'light';
+    html.setAttribute('data-theme', savedTheme);
+    updateThemeIcon(savedTheme);
+    
+    function updateThemeIcon(theme) {
+        if (theme === 'dark') {
+            themeIcon.className = 'fas fa-sun';
+        } else {
+            themeIcon.className = 'fas fa-moon';
+        }
+    }
+    
+    if (themeToggle) {
+        themeToggle.addEventListener('click', function() {
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('employeePortalTheme', newTheme);
+            updateThemeIcon(newTheme);
+        });
+    }
+})();
+
+let currentLang = localStorage.getItem('employeePortalLang') || 'en';
+let requestId = null;
+let requestData = null;
+
+// Get request ID from URL
+function getRequestIdFromURL() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('name') || urlParams.get('id');
+}
+
+// Check authentication
+function checkAuthentication() {
+    frappe.call({
+        method: 'frappe.auth.get_logged_user',
+        callback: function(r) {
+            if (r.message && r.message !== 'Guest') {
+                requestId = getRequestIdFromURL();
+                if (!requestId) {
+                    showError('Request ID is missing from URL');
+                    return;
+                }
+                loadRequestDetails();
+            } else {
+                window.location.href = '/employee-login';
+            }
+        },
+        error: function(err) {
+            console.error('Auth error:', err);
+            window.location.href = '/employee-login';
+        }
+    });
+}
+
+// Load request details
+function loadRequestDetails() {
+    frappe.call({
+        method: 'hr_services.portal.api.get',
+        args: {
+            doctype: 'Request For Payment',
+            name: requestId
+        },
+        callback: function(r) {
+            if (r.message) {
+                requestData = r.message;
+                displayRequestDetails();
+                document.getElementById('loadingOverlay').classList.add('hidden');
+                document.getElementById('mainContent').classList.remove('hidden');
+                applyLanguage(currentLang);
+            } else {
+                showError('Request not found');
+            }
+        },
+        error: function(err) {
+            console.error('Error loading request:', err);
+            showError('Failed to load request details');
+        }
+    });
+}
+
+// Display request details
+function displayRequestDetails() {
+    if (!requestData) return;
+    
+    // Header information
+    document.getElementById('requestId').textContent = requestData.name || '-';
+    document.getElementById('requestDate').textContent = formatDate(requestData.date) || '-';
+    document.getElementById('projectName').textContent = requestData.project_name || '-';
+    document.getElementById('companyName').textContent = requestData.company || '-';
+    document.getElementById('totalAmount').textContent = formatAmount(requestData.total_amount) || '-';
+    
+    // Status badge
+    const statusBadge = document.getElementById('statusBadge');
+    const status = requestData.workflow_state || 'Draft';
+    statusBadge.textContent = status;
+    statusBadge.className = 'status-badge ' + getStatusClass(status);
+    
+    // Expense type badge
+    const expenseTypeBadge = document.getElementById('expenseTypeBadge');
+    expenseTypeBadge.textContent = requestData.expense_type || '-';
+    expenseTypeBadge.className = 'expense-type-badge ' + 
+        (requestData.expense_type === 'Employee Advance' ? 'expense-type-advance' : 'expense-type-operational');
+    
+    // Display items
+    if (requestData.items && requestData.items.length > 0) {
+        displayItems(requestData.items);
+        document.getElementById('itemsSection').style.display = 'block';
+    }
+    
+    // Display advances
+    if (requestData.advances && requestData.advances.length > 0) {
+        displayAdvances(requestData.advances);
+        document.getElementById('advancesSection').style.display = 'block';
+    }
+    
+    // Display employees
+    if (requestData.employees && requestData.employees.length > 0) {
+        displayEmployees(requestData.employees);
+        document.getElementById('employeesSection').style.display = 'block';
+    }
+    
+    // Display invoices
+    if (requestData.invoices && requestData.invoices.length > 0) {
+        displayInvoices(requestData.invoices);
+        document.getElementById('invoicesSection').style.display = 'block';
+    }
+    
+    // Load attachments
+    loadAttachments();
+}
+
+// Display items
+function displayItems(items) {
+    const tbody = document.getElementById('itemsTableBody');
+    tbody.innerHTML = items.map(item => `
+        <tr>
+            <td>${item.item || '-'}</td>
+            <td>${item.item_name || '-'}</td>
+            <td>${item.employee_name || '-'}</td>
+            <td>${item.qty || '-'}</td>
+            <td>${formatAmount(item.rate) || '-'}</td>
+            <td>${formatAmount(item.amount) || '-'}</td>
+            <td>${item.remarks || '-'}</td>
+        </tr>
+    `).join('');
+}
+
+// Display advances
+function displayAdvances(advances) {
+    const tbody = document.getElementById('advancesTableBody');
+    tbody.innerHTML = advances.map(adv => `
+        <tr>
+            <td>${adv.employee_name || '-'}</td>
+            <td>${adv.employee_no || '-'}</td>
+            <td>${adv.iqama || '-'}</td>
+            <td>${adv.advance_type || '-'}</td>
+            <td>${formatAmount(adv.advance_amount) || '-'}</td>
+            <td>${formatAmount(adv.monthly_repay_amount) || '-'}</td>
+            <td>${formatDate(adv.repayment_start_date) || '-'}</td>
+            <td>${adv.remarks || '-'}</td>
+        </tr>
+    `).join('');
+}
+
+// Display employees
+function displayEmployees(employees) {
+    const tbody = document.getElementById('employeesTableBody');
+    tbody.innerHTML = employees.map(emp => `
+        <tr>
+            <td>${emp.employee_name || '-'}</td>
+            <td>${emp.employee_no || '-'}</td>
+            <td>${emp.iqama || '-'}</td>
+            <td>${emp.working_days || '-'}</td>
+            <td>${formatAmount(emp.emp_rate) || '-'}</td>
+            <td>${formatAmount(emp.amount) || '-'}</td>
+            <td>${emp.po_no || '-'}</td>
+            <td>${emp.remarks || '-'}</td>
+        </tr>
+    `).join('');
+}
+
+// Display invoices
+function displayInvoices(invoices) {
+    const tbody = document.getElementById('invoicesTableBody');
+    tbody.innerHTML = invoices.map(inv => `
+        <tr>
+            <td>${inv.purchase_invoice || '-'}</td>
+            <td>${inv.project || '-'}</td>
+            <td>${inv.project_name || '-'}</td>
+            <td>${inv.supplier || '-'}</td>
+            <td>${formatAmount(inv.grand_total) || '-'}</td>
+            <td>${formatAmount(inv.outstanding_amount) || '-'}</td>
+            <td>${formatAmount(inv.paid_amount) || '-'}</td>
+            <td>${inv.remarks || '-'}</td>
+        </tr>
+    `).join('');
+}
+
+// Load attachments
+function loadAttachments() {
+    frappe.call({
+        method: 'hr_services.portal.api.get_list',
+        args: {
+            doctype: 'File',
+            filters: {
+                attached_to_doctype: 'Request For Payment',
+                attached_to_name: requestId
+            },
+            fields: ['name', 'file_name', 'file_size', 'file_url']
+        },
+        callback: function(r) {
+            if (r.message && r.message.length > 0) {
+                displayAttachments(r.message);
+                document.getElementById('attachmentsSection').style.display = 'block';
+            }
+        },
+        error: function(err) {
+            console.error('Error loading attachments:', err);
+        }
+    });
+}
+
+// Display attachments
+function displayAttachments(attachments) {
+    const list = document.getElementById('attachmentsList');
+    list.innerHTML = attachments.map(file => {
+        const fileSize = formatFileSize(file.file_size || 0);
+        const fileUrl = file.file_url || `/api/method/frappe.utils.file_manager.download_file?file=${encodeURIComponent(file.name)}`;
+        const fileIcon = getFileIcon(file.file_name);
+        
+        return `
+            <div class="attachment-item">
+                <div class="attachment-icon">
+                    <i class="${fileIcon}"></i>
+                </div>
+                <div class="attachment-info">
+                    <div class="attachment-name">${file.file_name || file.name}</div>
+                    <div class="attachment-size">${fileSize}</div>
+                </div>
+                <a href="${fileUrl}" target="_blank" class="attachment-download">
+                    <i class="fas fa-download"></i>
+                    <span data-en="Download" data-ar="تحميل">Download</span>
+                </a>
+            </div>
+        `;
+    }).join('');
+}
+
+// Helper functions
+function formatDate(dateString) {
+    if (!dateString) return '-';
+    const date = new Date(dateString);
+    return date.toLocaleDateString(currentLang === 'ar' ? 'ar-SA' : 'en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+}
+
+function formatAmount(amount) {
+    if (!amount && amount !== 0) return '-';
+    return parseFloat(amount).toLocaleString(currentLang === 'ar' ? 'ar-SA' : 'en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+}
+
+function formatFileSize(bytes) {
+    if (!bytes) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+}
+
+function getFileIcon(fileName) {
+    if (!fileName) return 'fas fa-file';
+    const ext = fileName.split('.').pop().toLowerCase();
+    const iconMap = {
+        'pdf': 'fas fa-file-pdf',
+        'doc': 'fas fa-file-word',
+        'docx': 'fas fa-file-word',
+        'xls': 'fas fa-file-excel',
+        'xlsx': 'fas fa-file-excel',
+        'jpg': 'fas fa-file-image',
+        'jpeg': 'fas fa-file-image',
+        'png': 'fas fa-file-image',
+        'gif': 'fas fa-file-image'
+    };
+    return iconMap[ext] || 'fas fa-file';
+}
+
+function getStatusClass(status) {
+    if (!status) return 'status-draft';
+    const statusLower = status.toLowerCase();
+    if (statusLower.includes('approved')) return 'status-approved';
+    if (statusLower.includes('rejected') || statusLower.includes('reject')) return 'status-rejected';
+    if (statusLower.includes('pending') || statusLower.includes('draft')) return 'status-pending';
+    return 'status-draft';
+}
+
+function showError(message) {
+    document.getElementById('loadingOverlay').classList.add('hidden');
+    document.getElementById('errorState').classList.remove('hidden');
+    document.getElementById('mainContent').classList.add('hidden');
+}
+
+function goBack() {
+    window.location.href = '/my-requests';
+}
+
+function switchLanguage(lang) {
+    currentLang = lang;
+    localStorage.setItem('employeePortalLang', lang);
+    
+    // Update active button
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+        if ((lang === 'en' && btn.textContent === 'EN') || (lang === 'ar' && btn.textContent === 'AR')) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+    
+    // Apply language
+    if (lang === 'ar') {
+        document.body.classList.add('rtl');
+    } else {
+        document.body.classList.remove('rtl');
+    }
+    
+    applyLanguage(lang);
+}
+
+function applyLanguage(lang) {
+    document.querySelectorAll('[data-en][data-ar]').forEach(el => {
+        el.textContent = lang === 'ar' ? el.getAttribute('data-ar') : el.getAttribute('data-en');
+    });
+     
+    // Update table headers
+    document.querySelectorAll('.detail-table th[data-en]').forEach(th => {
+        th.textContent = lang === 'ar' ? th.getAttribute('data-ar') : th.getAttribute('data-en');
+    });
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    checkAuthentication();
+    
+    // Apply saved language
+    if (currentLang === 'ar') {
+        document.body.classList.add('rtl');
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            if (btn.textContent === 'AR') btn.classList.add('active');
+            else btn.classList.remove('active');
+        });
+    }
+});
+</script>
+
+{% endraw %}
+</article>
+</div>
+{% endblock %}

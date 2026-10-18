@@ -1,0 +1,911 @@
+{% extends "templates/web.html" %}
+
+{% block page_content %}
+<div class="webpage-content">
+<article class="web-page-content" id="salary-slip-detail" style="text-align: Left">
+{% raw %}<style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap');
+    
+    /* Hide default ERPNext header */
+    .navbar, .page-header, .page-head, .web-footer, header {
+        display: none !important;
+    }
+    
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    
+    /* Unified Color System - Light Mode (Default) */
+    :root {
+        --primary-color: #084887;
+        --primary-dark: #063a6b;
+        --primary-light: #0a5ba8;
+        --text-primary: #0f172a;
+        --text-secondary: #64748b;
+        --bg-primary: #ffffff;
+        --bg-secondary: #f8fafc;
+        --bg-tertiary: #f1f5f9;
+        --border-color: #e2e8f0;
+        --success-color: #10b981;
+        --error-color: #ef4444;
+        --warning-color: #f59e0b;
+    }
+    
+    /* Dark Mode */
+    [data-theme="dark"] {
+        --primary-color: #0d6efd;
+        --primary-dark: #084887;
+        --primary-light: #3d8bfd;
+        --text-primary: #ffffff;
+        --text-secondary: #cbd5e1;
+        --bg-primary: #1e293b;
+        --bg-secondary: #334155;
+        --bg-tertiary: #475569;
+        --border-color: rgba(148, 163, 184, 0.3);
+        --success-color: #10b981;
+        --error-color: #ef4444;
+        --warning-color: #f59e0b;
+    }
+    
+    body {
+        font-family: 'Inter', sans-serif;
+        background: var(--bg-secondary);
+        min-height: 100vh;
+        padding: 0;
+        padding-top: 0 !important;
+        transition: background 0.3s ease;
+    }
+    
+    body.rtl {
+        font-family: 'Cairo', sans-serif;
+        direction: rtl;
+    }
+    
+    /* Top Header Bar */
+    .top-header {
+        background: var(--bg-primary);
+        padding: 16px 48px;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+    
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+    
+    .back-button {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        background: transparent;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 500;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+    
+    .back-button:hover {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+    }
+    
+    .page-title-section h1 {
+        font-size: 18px;
+        color: var(--text-primary);
+        font-weight: 600;
+    }
+    
+    .page-title-section p {
+        font-size: 12px;
+        color: var(--text-secondary);
+        margin-top: 2px;
+    }
+    
+    .header-right {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+    
+    .theme-toggle {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 16px;
+        color: var(--text-primary);
+    }
+    
+    .theme-toggle:hover {
+        background: var(--bg-tertiary);
+        transform: scale(1.05);
+    }
+    
+    .lang-switcher {
+        display: flex;
+        gap: 4px;
+        background: var(--bg-secondary);
+        padding: 4px;
+        border-radius: 8px;
+    }
+    
+    .lang-btn {
+        padding: 6px 14px;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        border-radius: 6px;
+        font-weight: 500;
+        font-size: 13px;
+        color: var(--text-secondary);
+        transition: all 0.2s;
+    }
+    
+    .lang-btn.active {
+        background: var(--bg-primary);
+        color: var(--primary-color);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Main Container */
+    .main-container {
+        max-width: 1200px;
+        margin: 24px auto;
+        padding: 0 24px;
+    }
+    
+    /* Detail Card */
+    .detail-card {
+        background: var(--bg-primary);
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        overflow: hidden;
+        margin-bottom: 24px;
+    }
+    
+    .card-header {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+        padding: 24px;
+        color: white;
+    }
+    
+    .card-header h2 {
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+    
+    .card-header p {
+        font-size: 14px;
+        opacity: 0.9;
+    }
+    
+    .card-body {
+        padding: 24px;
+    }
+    
+    /* Info Sections */
+    .info-section {
+        margin-bottom: 32px;
+    }
+    
+    .info-section:last-child {
+        margin-bottom: 0;
+    }
+    
+    .section-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .section-title i {
+        color: var(--primary-color);
+        font-size: 20px;
+    }
+    
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 16px;
+    }
+    
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    
+    .info-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .info-value {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+    
+    .info-value.amount {
+        font-size: 18px;
+        color: var(--primary-color);
+        font-weight: 700;
+    }
+    
+    .info-value.status {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        width: fit-content;
+    }
+    
+    .info-value.status.submitted {
+        background: rgba(16, 185, 129, 0.15);
+        color: var(--success-color);
+    }
+    
+    .info-value.status.draft {
+        background: rgba(245, 158, 11, 0.15);
+        color: var(--warning-color);
+    }
+    
+    /* Tables */
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 16px;
+    }
+    
+    .data-table thead {
+        background: var(--bg-secondary);
+    }
+    
+    .data-table th {
+        padding: 12px 16px;
+        text-align: left;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-primary);
+        border-bottom: 2px solid var(--border-color);
+    }
+    
+    .data-table td {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border-color);
+        font-size: 14px;
+        color: var(--text-primary);
+    }
+    
+    .data-table tbody tr:hover {
+        background: var(--bg-secondary);
+    }
+    
+    .data-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+    
+    .text-right {
+        text-align: right;
+    }
+    
+    .text-center {
+        text-align: center;
+    }
+    
+    .font-bold {
+        font-weight: 700;
+    }
+    
+    /* Summary Box */
+    .summary-box {
+        background: var(--bg-secondary);
+        border-radius: 12px;
+        padding: 24px;
+        margin-top: 24px;
+        border: 2px solid var(--primary-color);
+    }
+    
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .summary-row:last-child {
+        border-bottom: none;
+        padding-top: 16px;
+        margin-top: 8px;
+        border-top: 2px solid var(--primary-color);
+    }
+    
+    .summary-label {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+    
+    .summary-value {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--primary-color);
+    }
+    
+    .summary-row:last-child .summary-label {
+        font-size: 18px;
+    }
+    
+    .summary-row:last-child .summary-value {
+        font-size: 24px;
+        color: var(--success-color);
+    }
+    
+    /* Loading State */
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.95);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+    }
+    
+    [data-theme="dark"] .loading-overlay {
+        background: rgba(30, 41, 59, 0.95);
+    }
+    
+    .loading-spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid var(--border-color);
+        border-top-color: var(--primary-color);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        margin-bottom: 20px;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    .loading-text {
+        color: var(--text-secondary);
+        font-size: 14px;
+    }
+    
+    /* Action Buttons */
+    .action-buttons {
+        display: flex;
+        gap: 12px;
+        margin-top: 24px;
+        padding-top: 24px;
+        border-top: 1px solid var(--border-color);
+    }
+    
+    .btn {
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+    
+    .btn-primary {
+        background: var(--primary-color);
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(8, 72, 135, 0.3);
+    }
+    
+    .btn-secondary {
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
+    }
+    
+    .btn-secondary:hover {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .top-header {
+            padding: 12px 16px;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .main-container {
+            padding: 12px;
+        }
+        
+        .card-body {
+            padding: 16px;
+        }
+        
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .data-table {
+            font-size: 12px;
+        }
+        
+        .data-table th,
+        .data-table td {
+            padding: 8px;
+        }
+        
+        .summary-row {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+    }
+    
+    /* RTL Support */
+    body.rtl .back-button {
+        flex-direction: row-reverse;
+    }
+    
+    body.rtl .data-table th,
+    body.rtl .data-table td {
+        text-align: right;
+    }
+</style>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-spinner"></div>
+    <div class="loading-text" data-en="Loading salary slip details..." data-ar="جاري تحميل تفاصيل كشف الراتب...">Loading salary slip details...</div>
+</div>
+
+<!-- Main Content -->
+<div id="mainContent" style="display: none;">
+    <!-- Top Header -->
+    <div class="top-header">
+        <div class="header-left">
+            <a href="/my-profile" class="back-button">
+                <i class="fas fa-arrow-left"></i>
+                <span data-en="Back to Profile" data-ar="العودة إلى الملف الشخصي">Back to Profile</span>
+            </a>
+            <div class="page-title-section">
+                <h1 data-en="Salary Slip Details" data-ar="تفاصيل كشف الراتب">Salary Slip Details</h1>
+                <p data-en="View complete salary slip information" data-ar="عرض معلومات كشف الراتب الكاملة">View complete salary slip information</p>
+            </div>
+        </div>
+        
+        <div class="header-right">
+            <button class="theme-toggle" id="themeToggle" title="Toggle Dark/Light Mode">
+                <i class="fas fa-moon" id="themeIcon"></i>
+            </button>
+            <div class="lang-switcher">
+                <button class="lang-btn active">English</button>
+                <button class="lang-btn">العربية</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Salary Slip Header Card -->
+        <div class="detail-card">
+            <div class="card-header">
+                <h2 data-en="Salary Slip" data-ar="كشف الراتب">Salary Slip</h2>
+                <p id="slipId" data-en="Slip ID: Loading..." data-ar="معرف الكشف: جاري التحميل...">Slip ID: Loading...</p>
+            </div>
+            
+            <div class="card-body">
+                <!-- Basic Information -->
+                <div class="info-section">
+                    <div class="section-title">
+                        <i class="fas fa-info-circle"></i>
+                        <span data-en="Basic Information" data-ar="المعلومات الأساسية">Basic Information</span>
+                    </div>
+                    <div class="info-grid" id="basicInfoGrid"></div>
+                </div>
+                
+                <!-- Earnings -->
+                <div class="info-section">
+                    <div class="section-title">
+                        <i class="fas fa-arrow-up"></i>
+                        <span data-en="Earnings" data-ar="الأرباح">Earnings</span>
+                    </div>
+                    <div id="earningsTableContainer"></div>
+                </div>
+                
+                <!-- Deductions -->
+                <div class="info-section">
+                    <div class="section-title">
+                        <i class="fas fa-arrow-down"></i>
+                        <span data-en="Deductions" data-ar="الخصومات">Deductions</span>
+                    </div>
+                    <div id="deductionsTableContainer"></div>
+                </div>
+                
+                <!-- Summary -->
+                <div class="summary-box">
+                    <div class="summary-row">
+                        <span class="summary-label" data-en="Gross Pay" data-ar="الراتب الإجمالي">Gross Pay</span>
+                        <span class="summary-value" id="grossPay">0.00 SAR</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label" data-en="Total Deductions" data-ar="إجمالي الخصومات">Total Deductions</span>
+                        <span class="summary-value" id="totalDeductions">0.00 SAR</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label" data-en="Net Pay" data-ar="صافي الراتب">Net Pay</span>
+                        <span class="summary-value" id="netPay">0.00 SAR</span>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="downloadSalarySlip()">
+                        <i class="fas fa-download"></i>
+                        <span data-en="Download PDF" data-ar="تحميل PDF">Download PDF</span>
+                    </button>
+                    <a href="/my-profile" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i>
+                        <span data-en="Back to Profile" data-ar="العودة إلى الملف الشخصي">Back to Profile</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+<script>
+// Theme Toggle Functionality
+(function() {
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const html = document.documentElement;
+    
+    const savedTheme = localStorage.getItem('employeePortalTheme') || 'light';
+    html.setAttribute('data-theme', savedTheme);
+    updateThemeIcon(savedTheme);
+    
+    function updateThemeIcon(theme) {
+        if (theme === 'dark') {
+            themeIcon.className = 'fas fa-sun';
+        } else {
+            themeIcon.className = 'fas fa-moon';
+        }
+    }
+    
+    if (themeToggle) {
+        themeToggle.addEventListener('click', function() {
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('employeePortalTheme', newTheme);
+            updateThemeIcon(newTheme);
+        });
+    }
+})();
+
+let currentLang = localStorage.getItem('employeePortalLang') || 'en';
+let salarySlipData = null;
+let slipName = null;
+
+// Get slip name from URL
+function getSlipNameFromURL() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('name') || urlParams.get('id');
+}
+
+// Language Switcher
+document.querySelectorAll('.lang-btn').forEach(button => {
+    button.addEventListener('click', function() {
+        const lang = this.textContent.includes('English') ? 'en' : 'ar';
+        currentLang = lang;
+        localStorage.setItem('employeePortalLang', lang);
+        
+        document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+        this.classList.add('active');
+        
+        applyLanguage(lang);
+    });
+});
+
+function applyLanguage(lang) {
+    const body = document.body;
+    const html = document.documentElement;
+    
+    if (lang === 'ar') {
+        body.classList.add('rtl');
+        html.setAttribute('dir', 'rtl');
+    } else {
+        body.classList.remove('rtl');
+        html.setAttribute('dir', 'ltr');
+    }
+    html.setAttribute('lang', lang);
+    
+    document.querySelectorAll('[data-' + lang + ']').forEach(element => {
+        const text = element.getAttribute('data-' + lang);
+        if (text) {
+            if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
+                element.value = text;
+            } else {
+                element.textContent = text;
+            }
+        }
+    });
+}
+
+// Check Authentication and Load Data
+document.addEventListener('DOMContentLoaded', function() {
+    checkAuthentication();
+    applyLanguage(currentLang);
+});
+
+function checkAuthentication() {
+    frappe.call({
+        method: 'frappe.auth.get_logged_user',
+        callback: function(r) {
+            if (r.message && r.message !== 'Guest') {
+                slipName = getSlipNameFromURL();
+                if (slipName) {
+                    loadSalarySlipDetails();
+                } else {
+                    showError('Salary slip ID not found in URL');
+                }
+            } else {
+                window.location.href = '/employee-login';
+            }
+        },
+        error: function() {
+            window.location.href = '/employee-login';
+        }
+    });
+}
+
+function loadSalarySlipDetails() {
+    frappe.call({
+        method: 'hr_services.portal.api.get',
+        args: {
+            doctype: 'Salary Slip',
+            name: slipName
+        },
+        callback: function(r) {
+            if (r.message) {
+                salarySlipData = r.message;
+                displaySalarySlipDetails();
+            } else {
+                showError('Salary slip not found');
+            }
+        },
+        error: function(err) {
+            console.error('Error loading salary slip:', err);
+            showError('Failed to load salary slip details');
+        }
+    });
+}
+
+function displaySalarySlipDetails() {
+    if (!salarySlipData) return;
+    
+    // Update slip ID
+    document.getElementById('slipId').textContent = `Slip ID: ${salarySlipData.name}`;
+    if (currentLang === 'ar') {
+        document.getElementById('slipId').textContent = `معرف الكشف: ${salarySlipData.name}`;
+    }
+    
+    // Basic Information
+    const basicInfo = [
+        { label: { en: 'Employee', ar: 'الموظف' }, value: salarySlipData.employee_name || salarySlipData.employee || '-' },
+        { label: { en: 'Employee Number', ar: 'رقم الموظف' }, value: salarySlipData.employee || '-' },
+        { label: { en: 'Posting Date', ar: 'تاريخ الإصدار' }, value: salarySlipData.posting_date ? new Date(salarySlipData.posting_date).toLocaleDateString() : '-' },
+        { label: { en: 'Status', ar: 'الحالة' }, value: salarySlipData.status || 'Draft', isStatus: true },
+        { label: { en: 'Company', ar: 'الشركة' }, value: salarySlipData.company || '-' },
+        { label: { en: 'Department', ar: 'القسم' }, value: salarySlipData.department || '-' },
+        { label: { en: 'Designation', ar: 'المسمى الوظيفي' }, value: salarySlipData.designation || '-' },
+        { label: { en: 'Payroll Period', ar: 'فترة الراتب' }, value: salarySlipData.start_date && salarySlipData.end_date ? 
+            `${new Date(salarySlipData.start_date).toLocaleDateString()} - ${new Date(salarySlipData.end_date).toLocaleDateString()}` : '-' },
+        { label: { en: 'Working Days', ar: 'أيام العمل' }, value: salarySlipData.working_days || '-' },
+        { label: { en: 'Payment Days', ar: 'أيام الدفع' }, value: salarySlipData.payment_days || '-' },
+    ];
+    
+    const basicInfoGrid = document.getElementById('basicInfoGrid');
+    basicInfoGrid.innerHTML = basicInfo.map(item => {
+        const labelText = currentLang === 'ar' ? item.label.ar : item.label.en;
+        let valueHTML = item.value;
+        
+        if (item.isStatus) {
+            const statusClass = (item.value || '').toLowerCase() === 'submitted' ? 'submitted' : 'draft';
+            valueHTML = `<span class="info-value status ${statusClass}">${item.value}</span>`;
+        }
+        
+        return `
+            <div class="info-item">
+                <div class="info-label">${labelText}</div>
+                <div class="info-value">${valueHTML}</div>
+            </div>
+        `;
+    }).join('');
+    
+    // Earnings Table
+    const earnings = salarySlipData.earnings || [];
+    const earningsContainer = document.getElementById('earningsTableContainer');
+    
+    if (earnings.length > 0) {
+        earningsContainer.innerHTML = `
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th data-en="Component" data-ar="المكون">Component</th>
+                        <th class="text-right" data-en="Amount (SAR)" data-ar="المبلغ (ريال)">Amount (SAR)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${earnings.map(earning => `
+                        <tr>
+                            <td>${earning.salary_component || earning.component || '-'}</td>
+                            <td class="text-right font-bold">${parseFloat(earning.amount || 0).toFixed(2)}</td>
+                        </tr>
+                    `).join('')}
+                    <tr style="background: var(--bg-secondary);">
+                        <td class="font-bold" data-en="Total Earnings" data-ar="إجمالي الأرباح">Total Earnings</td>
+                        <td class="text-right font-bold" style="color: var(--primary-color);">${parseFloat(salarySlipData.gross_pay || 0).toFixed(2)}</td>
+                    </tr>
+                </tbody>
+            </table>
+        `;
+    } else {
+        earningsContainer.innerHTML = `
+            <p style="color: var(--text-secondary); padding: 20px; text-align: center;" data-en="No earnings data available" data-ar="لا توجد بيانات أرباح">No earnings data available</p>
+        `;
+    }
+    
+    // Deductions Table
+    const deductions = salarySlipData.deductions || [];
+    const deductionsContainer = document.getElementById('deductionsTableContainer');
+    
+    if (deductions.length > 0) {
+        deductionsContainer.innerHTML = `
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th data-en="Component" data-ar="المكون">Component</th>
+                        <th class="text-right" data-en="Amount (SAR)" data-ar="المبلغ (ريال)">Amount (SAR)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${deductions.map(deduction => `
+                        <tr>
+                            <td>${deduction.salary_component || deduction.component || '-'}</td>
+                            <td class="text-right font-bold">${parseFloat(deduction.amount || 0).toFixed(2)}</td>
+                        </tr>
+                    `).join('')}
+                    <tr style="background: var(--bg-secondary);">
+                        <td class="font-bold" data-en="Total Deductions" data-ar="إجمالي الخصومات">Total Deductions</td>
+                        <td class="text-right font-bold" style="color: var(--error-color);">${parseFloat(salarySlipData.total_deduction || 0).toFixed(2)}</td>
+                    </tr>
+                </tbody>
+            </table>
+        `;
+    } else {
+        deductionsContainer.innerHTML = `
+            <p style="color: var(--text-secondary); padding: 20px; text-align: center;" data-en="No deductions data available" data-ar="لا توجد بيانات خصومات">No deductions data available</p>
+        `;
+    }
+    
+    // Summary Values
+    document.getElementById('grossPay').textContent = `${parseFloat(salarySlipData.gross_pay || 0).toFixed(2)} SAR`;
+    document.getElementById('totalDeductions').textContent = `${parseFloat(salarySlipData.total_deduction || 0).toFixed(2)} SAR`;
+    document.getElementById('netPay').textContent = `${parseFloat(salarySlipData.net_pay || 0).toFixed(2)} SAR`;
+    
+    // Hide loading, show content
+    document.getElementById('loadingOverlay').style.display = 'none';
+    document.getElementById('mainContent').style.display = 'block';
+    
+    applyLanguage(currentLang);
+}
+
+function downloadSalarySlip() {
+    if (!slipName) {
+        alert(currentLang === 'ar' ? 'معرف كشف الراتب غير موجود' : 'Salary slip ID not found');
+        return;
+    }
+    
+    console.log('Downloading salary slip:', slipName);
+    
+    // Show loading indicator
+    const downloadBtn = event?.target?.closest('.btn') || document.querySelector('.btn-primary');
+    const originalText = downloadBtn.innerHTML;
+    downloadBtn.disabled = true;
+    downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span data-en="Downloading..." data-ar="جاري التحميل...">Downloading...</span>';
+    applyLanguage(currentLang);
+    
+    // Use ERPNext print format API to download PDF
+    // This endpoint triggers a direct PDF download using the "Payslip ERC" print format
+    const downloadUrl = `/api/method/hr_services.portal.api.download_salary_slip?name=${encodeURIComponent(slipName)}`;
+    
+    // Create a temporary link and trigger download
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.download = `Salary_Slip_${slipName}.pdf`;
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Reset button after a delay
+    setTimeout(() => {
+        downloadBtn.disabled = false;
+        downloadBtn.innerHTML = originalText;
+        applyLanguage(currentLang);
+    }, 2000);
+}
+
+function showError(message) {
+    document.getElementById('loadingOverlay').innerHTML = `
+        <div style="text-align: center; color: var(--error-color);">
+            <i class="fas fa-exclamation-triangle" style="font-size: 48px; margin-bottom: 16px;"></i>
+            <p style="font-size: 16px; font-weight: 600;">${message}</p>
+            <a href="/my-profile" class="btn btn-primary" style="margin-top: 20px;">
+                <i class="fas fa-arrow-left"></i>
+                <span data-en="Back to Profile" data-ar="العودة إلى الملف الشخصي">Back to Profile</span>
+            </a>
+        </div>
+    `;
+    applyLanguage(currentLang);
+}
+</script>
+
+{% endraw %}
+</article>
+</div>
+{% endblock %}

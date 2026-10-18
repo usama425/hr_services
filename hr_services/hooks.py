@@ -184,6 +184,12 @@ doc_events = {
     },
     "Salary Slip": {
         "validate": "hr_services.custompy.under_recruitment.validate_salary_slip"
+    },
+    # External (non @eliteresources.co) users are portal-only: no desk roles,
+    # always Website User. Must run on every save because ERPNext re-adds the
+    # "Employee" role whenever the linked Employee record is saved.
+    "User": {
+        "validate": "hr_services.portal.access.enforce_portal_only"
     }
 }
 

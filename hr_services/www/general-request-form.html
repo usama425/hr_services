@@ -1,0 +1,1955 @@
+{% extends "templates/web.html" %}
+
+{% block page_content %}
+<div class="webpage-content">
+<article class="web-page-content" id="general-request-form" style="text-align: Left">
+{% raw %}<style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap');
+    
+    /* Hide default ERPNext header */
+    .navbar, .page-header, .page-head, .web-footer, header {
+        display: none !important;
+    }
+    
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    
+    /* Unified Color System - Light Mode (Default) */
+    :root {
+        --primary-color: #084887;
+        --primary-dark: #063a6b;
+        --primary-light: #0a5ba8;
+        --text-primary: #0f172a;
+        --text-secondary: #64748b;
+        --bg-primary: #ffffff;
+        --bg-secondary: #f8fafc;
+        --bg-tertiary: #f1f5f9;
+        --border-color: #e2e8f0;
+        --success-color: #10b981;
+        --error-color: #ef4444;
+        --warning-color: #f59e0b;
+    }
+    
+    /* Dark Mode */
+    [data-theme="dark"] {
+        --primary-color: #0d6efd;
+        --primary-dark: #084887;
+        --primary-light: #3d8bfd;
+        --text-primary: #ffffff;
+        --text-secondary: #cbd5e1;
+        --bg-primary: #1e293b;
+        --bg-secondary: #334155;
+        --bg-tertiary: #475569;
+        --border-color: rgba(148, 163, 184, 0.3);
+        --success-color: #10b981;
+        --error-color: #ef4444;
+        --warning-color: #f59e0b;
+    }
+    
+    body {
+        font-family: 'Inter', sans-serif;
+        background: var(--bg-secondary);
+        min-height: 100vh;
+        padding: 0;
+        padding-top: 0 !important;
+        transition: background 0.3s ease;
+    }
+    
+    body.rtl {
+        font-family: 'Cairo', sans-serif;
+        direction: rtl;
+    }
+    
+    /* Top Header Bar */
+    .top-header {
+        background: var(--bg-primary);
+        padding: 16px 48px;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+    
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+    
+    .back-button {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        background: transparent;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 500;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+    
+    .back-button:hover {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+    }
+    
+    .page-title-section h1 {
+        font-size: 18px;
+        color: var(--text-primary);
+        font-weight: 600;
+    }
+    
+    .page-title-section p {
+        font-size: 12px;
+        color: var(--text-secondary);
+        margin-top: 2px;
+    }
+    
+    .header-right {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+    
+    .theme-toggle {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 16px;
+        color: var(--text-primary);
+    }
+    
+    .theme-toggle:hover {
+        background: var(--bg-tertiary);
+        transform: scale(1.05);
+    }
+    
+    .lang-switcher {
+        display: flex;
+        gap: 4px;
+        background: var(--bg-secondary);
+        padding: 4px;
+        border-radius: 8px;
+    }
+    
+    .lang-btn {
+        padding: 6px 14px;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        border-radius: 6px;
+        font-weight: 500;
+        font-size: 13px;
+        color: var(--text-secondary);
+        transition: all 0.2s;
+    }
+    
+    .lang-btn.active {
+        background: var(--bg-primary);
+        color: var(--primary-color);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .user-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: var(--primary-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 14px;
+    }
+    
+    /* Main Container */
+    .form-container {
+        max-width: 900px;
+        margin: 24px auto;
+        padding: 0 24px;
+    }
+    
+    .form-card {
+        background: var(--bg-primary);
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        overflow: hidden;
+    }
+    
+    .form-header {
+        padding: 24px;
+        border-bottom: 1px solid var(--border-color);
+        background: var(--bg-secondary);
+    }
+    
+    .form-header h2 {
+        font-size: 20px;
+        color: var(--text-primary);
+        font-weight: 600;
+        margin-bottom: 6px;
+    }
+    
+    .form-header p {
+        font-size: 13px;
+        color: var(--text-secondary);
+    }
+    
+    .form-body {
+        padding: 24px;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+    }
+    
+    .required-mark {
+        color: var(--error-color);
+        margin-left: 4px;
+    }
+    
+    .form-input,
+    .form-select,
+    .form-textarea {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        font-size: 14px;
+        font-family: inherit;
+        transition: all 0.2s;
+    }
+    
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(8, 72, 135, 0.1);
+    }
+    
+    .form-textarea {
+        resize: vertical;
+        min-height: 120px;
+    }
+    
+    .form-input:disabled {
+        background: var(--bg-tertiary);
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+    
+    /* File Upload */
+    .file-upload-area {
+        border: 2px dashed var(--border-color);
+        border-radius: 8px;
+        padding: 24px;
+        text-align: center;
+        background: var(--bg-secondary);
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+    
+    .file-upload-area:hover {
+        border-color: var(--primary-color);
+        background: var(--bg-tertiary);
+    }
+    
+    .file-upload-area.dragover {
+        border-color: var(--primary-color);
+        background: rgba(8, 72, 135, 0.05);
+    }
+    
+    .file-upload-icon {
+        font-size: 32px;
+        color: var(--text-secondary);
+        margin-bottom: 12px;
+    }
+    
+    .file-upload-text {
+        font-size: 14px;
+        color: var(--text-primary);
+        font-weight: 500;
+        margin-bottom: 4px;
+    }
+    
+    .file-upload-hint {
+        font-size: 12px;
+        color: var(--text-secondary);
+    }
+    
+    .file-input {
+        display: none;
+    }
+    
+    .uploaded-files {
+        margin-top: 16px;
+    }
+    
+    .file-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        background: var(--bg-secondary);
+        border-radius: 8px;
+        margin-bottom: 8px;
+    }
+    
+    .file-icon {
+        width: 40px;
+        height: 40px;
+        background: var(--primary-color);
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 18px;
+    }
+    
+    .file-info {
+        flex: 1;
+    }
+    
+    .file-name {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--text-primary);
+    }
+    
+    .file-size {
+        font-size: 11px;
+        color: var(--text-secondary);
+        margin-top: 2px;
+    }
+    
+    .file-remove {
+        background: transparent;
+        border: none;
+        color: var(--error-color);
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 4px;
+        transition: all 0.2s;
+    }
+    
+    .file-remove:hover {
+        background: rgba(239, 68, 68, 0.1);
+    }
+    
+    /* Submit Button */
+    .form-actions {
+        padding: 24px;
+        border-top: 1px solid var(--border-color);
+        background: var(--bg-secondary);
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+    }
+    
+    .btn-submit {
+        padding: 12px 32px;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-submit:hover:not(:disabled) {
+        background: var(--primary-dark);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(8, 72, 135, 0.3);
+    }
+    
+    .btn-submit:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+    
+    .btn-submit.loading {
+        position: relative;
+        color: transparent;
+    }
+    
+    .btn-submit.loading::after {
+        content: '';
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        top: 50%;
+        left: 50%;
+        margin-left: -8px;
+        margin-top: -8px;
+        border: 2px solid white;
+        border-top-color: transparent;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    /* Alert Message */
+    .alert {
+        position: fixed;
+        top: 80px;
+        right: 24px;
+        padding: 16px 20px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        z-index: 1000;
+        display: none;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        max-width: 400px;
+    }
+    
+    .alert.show {
+        display: block;
+        animation: slideIn 0.3s ease;
+    }
+    
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    .alert-success {
+        background: var(--success-color);
+        color: white;
+    }
+    
+    .alert-error {
+        background: var(--error-color);
+        color: white;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .top-header {
+            flex-direction: column;
+            gap: 16px;
+            padding: 16px 20px;
+        }
+        
+        .form-container {
+            padding: 0 16px;
+        }
+        
+        .form-body,
+        .form-actions {
+            padding: 20px;
+        }
+    }
+    
+    /* RTL Support */
+    body.rtl .back-button {
+        flex-direction: row-reverse;
+    }
+</style>
+
+<!-- Alert Message -->
+<div id="alertMessage" class="alert"></div>
+
+<!-- Top Header -->
+<div class="top-header">
+    <div class="header-left">
+        <a href="/employee-portal-home" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+            <span data-en="Back to Dashboard" data-ar="العودة إلى لوحة التحكم">Back to Dashboard</span>
+        </a>
+        <div class="page-title-section">
+            <h1 data-en="General Request" data-ar="طلب عام">General Request</h1>
+            <p data-en="Submit a general service request" data-ar="تقديم طلب خدمة عام">Submit a general service request</p>
+        </div>
+    </div>
+    
+    <div class="header-right">
+        <button class="theme-toggle" id="themeToggle" title="Toggle Dark/Light Mode">
+            <i class="fas fa-moon" id="themeIcon"></i>
+        </button>
+        <div class="lang-switcher">
+            <button class="lang-btn active">English</button>
+            <button class="lang-btn">العربية</button>
+        </div>
+        
+        <div class="user-info">
+            <div class="user-avatar" id="userAvatar">--</div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Container -->
+<div class="form-container">
+    <!-- Video Tutorial Link -->
+    <div style="margin-bottom: 20px; padding: 12px 16px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-video" style="color: var(--primary-color); font-size: 18px;"></i>
+            <span style="font-size: 13px; color: var(--text-secondary);" data-en="Need help? Watch how to submit a general request" data-ar="تحتاج مساعدة؟ شاهد كيفية تقديم طلب عام">Need help? Watch how to submit a general request</span>
+        </div>
+        <a href="https://youtu.be/RIXIRHr9YDE" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: var(--primary-color); color: white; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 600; transition: all 0.2s;" onmouseover="this.style.background='var(--primary-dark)'" onmouseout="this.style.background='var(--primary-color)'">
+            <i class="fas fa-play"></i>
+            <span data-en="Watch Video" data-ar="شاهد الفيديو">Watch Video</span>
+        </a>
+    </div>
+    
+    <form id="generalRequestForm" class="form-card">
+        <div class="form-header">
+            <h2 data-en="New General Request" data-ar="طلب عام جديد">New General Request</h2>
+            <p data-en="Fill in the details below to submit your request" data-ar="املأ التفاصيل أدناه لتقديم طلبك">Fill in the details below to submit your request</p>
+        </div>
+        
+        <div class="form-body">
+            <!-- Employee (Auto-filled, Read-only) -->
+            <div class="form-group">
+                <label class="form-label">
+                    <span data-en="Employee" data-ar="الموظف">Employee</span>
+                </label>
+                <input type="text" class="form-input" id="employee" readonly disabled />
+            </div>
+            
+            <!-- Employee Name (Auto-filled, Read-only) -->
+            <div class="form-group">
+                <label class="form-label">
+                    <span data-en="Employee Name" data-ar="اسم الموظف">Employee Name</span>
+                </label>
+                <input type="text" class="form-input" id="employeeName" readonly disabled />
+            </div>
+            
+            <!-- Request Type -->
+            <div class="form-group">
+                <label class="form-label">
+                    <span data-en="Request Type" data-ar="نوع الطلب">Request Type</span>
+                    <span class="required-mark">*</span>
+                </label>
+                <select class="form-select" id="requestType" required onchange="handleRequestTypeChange(this.value)">
+                    <option value="">-- Select Request Type --</option>
+                    <!-- Options will be populated dynamically by JavaScript -->
+                </select>
+                <div id="requestTypeDescription" style="display: none; margin-top: 8px; padding: 10px 12px; background: var(--bg-secondary); border-radius: 6px; border-left: 3px solid var(--primary-color); font-size: 12px; color: var(--text-secondary); line-height: 1.5;"></div>
+            </div>
+            
+            <!-- Salary Certificate Fields (shown only for Salary Certificate requests) -->
+            <div id="salaryCertificateFields" style="display: none;">
+                <div class="form-group">
+                    <label class="form-label">
+                        <span data-en="Date" data-ar="التاريخ">Date</span>
+                        <span class="required-mark">*</span>
+                    </label>
+                    <input type="date" class="form-input" id="certificateDate" />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <span data-en="Employment Date" data-ar="تاريخ التوظيف">Employment Date</span>
+                    </label>
+                    <input type="date" class="form-input" id="employmentDate" readonly disabled />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <span data-en="Nationality" data-ar="الجنسية">Nationality</span>
+                    </label>
+                    <input type="text" class="form-input" id="nationality" readonly disabled />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <span data-en="National ID No" data-ar="رقم الهوية الوطنية">National ID No</span>
+                    </label>
+                    <input type="text" class="form-input" id="nationalId" readonly disabled />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <span data-en="Date in Hijri" data-ar="التاريخ الهجري">Date in Hijri</span>
+                    </label>
+                    <input type="text" class="form-input" id="hijriDate" readonly disabled />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <span data-en="Position" data-ar="المنصب">Position</span>
+                    </label>
+                    <input type="text" class="form-input" id="position" readonly disabled />
+                </div>
+
+                <div style="background: var(--bg-secondary); padding: 16px; border-radius: 8px; margin: 20px 0;">
+                    <h4 style="font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 12px;" data-en="More Details" data-ar="تفاصيل أخرى">More Details</h4>
+
+                    <div class="form-group" style="margin-bottom: 12px;">
+                        <label class="form-label">
+                            <span data-en="Basic Salary" data-ar="الراتب الأساسي">Basic Salary</span>
+                        </label>
+                        <input type="number" class="form-input" id="basicSalary" readonly disabled />
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 12px;">
+                        <label class="form-label">
+                            <span data-en="Housing Allowance" data-ar="بدل السكن">Housing Allowance</span>
+                        </label>
+                        <input type="number" class="form-input" id="housingAllowance" readonly disabled />
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 12px;">
+                        <label class="form-label">
+                            <span data-en="Transportation Allowance" data-ar="بدل المواصلات">Transportation Allowance</span>
+                        </label>
+                        <input type="number" class="form-input" id="transportationAllowance" readonly disabled />
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 12px;">
+                        <label class="form-label">
+                            <span data-en="Others Allowance" data-ar="بدلات أخرى">Others Allowance</span>
+                        </label>
+                        <input type="number" class="form-input" id="othersAllowance" readonly disabled />
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label">
+                            <span data-en="Total Salary" data-ar="إجمالي الراتب">Total Salary</span>
+                        </label>
+                        <input type="number" class="form-input" id="totalSalary" readonly disabled style="font-weight: 600; background: var(--bg-primary);" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Details -->
+            <div class="form-group">
+                <label class="form-label">
+                    <span data-en="Details" data-ar="التفاصيل">Details</span>
+                    <span class="required-mark" id="detailsRequired">*</span>
+                </label>
+                <textarea class="form-textarea" id="details" placeholder="Enter request details..." required></textarea>
+            </div>
+            
+            <!-- File Upload -->
+            <div class="form-group">
+<label class="form-label">
+    <span data-en="Attachments (Optional)" data-ar="المرفقات (اختياري)">Attachments (Optional)</span>
+</label>
+                <div class="file-upload-area" id="fileUploadArea">
+                    <div class="file-upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <div class="file-upload-text" data-en="Click to upload or drag and drop" data-ar="انقر للتحميل أو السحب والإفلات">Click to upload or drag and drop</div>
+                    <div class="file-upload-hint" data-en="PDF, DOC, DOCX, JPG, PNG (Max 10MB)" data-ar="PDF, DOC, DOCX, JPG, PNG (الحد الأقصى 10 ميجابايت)">PDF, DOC, DOCX, JPG, PNG (Max 10MB)</div>
+                    <input type="file" class="file-input" id="fileInput" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" />
+                </div>
+                <div class="uploaded-files" id="uploadedFiles"></div>
+            </div>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn-submit" id="submitBtn">
+                <i class="fas fa-paper-plane"></i>
+                <span data-en="Submit Request" data-ar="إرسال الطلب">Submit Request</span>
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Test if any JavaScript is running
+    console.log('🚀 SCRIPT START - BASIC JS TEST');
+    window.jsLoaded = true;
+
+    let currentLang = localStorage.getItem('employeePortalLang') || 'en';
+    let currentTheme = localStorage.getItem('employeePortalTheme') || 'light';
+    let currentUser = null;
+    let employeeData = null;
+    let uploadedFiles = [];
+    
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('🔥 DOM CONTENT LOADED - Starting initialization...');
+
+        checkAuthentication();
+        initializeTheme();
+        initializeLanguage();
+
+        // Delay dropdown population to ensure DOM is ready and language is set
+        setTimeout(() => {
+            console.log('🔥 DELAYED DROPDOWN POPULATION STARTING...');
+            console.log('Current language during dropdown population:', currentLang);
+            populateRequestTypeDropdown();
+
+            // Also try direct population as backup
+            console.log('🔥 TRYING DIRECT DROPDOWN POPULATION...');
+            const requestTypeSelect = document.getElementById('requestType');
+            if (requestTypeSelect) {
+                console.log('🔥 Found dropdown element, populating directly...');
+
+                // Determine language and set appropriate placeholder and options
+                const isArabic = currentLang === 'ar';
+                const placeholder = isArabic ? '-- اختر نوع الطلب --' : '-- Select Request Type --';
+
+                // Start with placeholder
+                let optionsHtml = `<option value="">${placeholder}</option>`;
+
+                // Add all options based on current language
+                if (window.requestTypeOptions) {
+                    Object.keys(window.requestTypeOptions).forEach(key => {
+                        const displayText = window.requestTypeOptions[key][currentLang] || window.requestTypeOptions[key].en;
+                        optionsHtml += `<option value="${key}">${displayText}</option>`;
+                    });
+                } else {
+                    // Fallback options
+                    optionsHtml += isArabic ? `
+                        <option value="Salary Certificate">شهادة راتب</option>
+                        <option value="Embassy Form">نموذج السفارة</option>
+                        <option value="Employment Letter">خطاب العمل</option>
+                        <option value="Experience Letter">خطاب الخبرة</option>
+                        <option value="Passport Office Authorization">تفويض مكتب الجوازات</option>
+                        <option value="Salary Letter">خطاب الراتب</option>
+                        <option value="Salary Slip">كشف راتب</option>
+                    ` : `
+                        <option value="Salary Certificate">Salary Certificate</option>
+                        <option value="Embassy Form">Embassy Form</option>
+                        <option value="Employment Letter">Employment Letter</option>
+                        <option value="Experience Letter">Experience Letter</option>
+                        <option value="Passport Office Authorization">Passport Office Authorization</option>
+                        <option value="Salary Letter">Salary Letter</option>
+                        <option value="Salary Slip">Salary Slip</option>
+                    `;
+                }
+
+                requestTypeSelect.innerHTML = optionsHtml;
+                console.log('🔥 Direct population completed for language:', currentLang);
+            } else {
+                console.log('❌ Dropdown element not found');
+            }
+        }, 200);
+
+        setupFileUpload();
+        setupFormSubmission();
+    });
+    
+    // Check Authentication
+    function checkAuthentication() {
+        frappe.call({
+            method: 'frappe.auth.get_logged_user',
+            callback: function(r) {
+                if (r.message && r.message !== 'Guest') {
+                    currentUser = r.message;
+                    loadEmployeeData();
+                } else {
+                    window.location.href = '/employee-login';
+                }
+            },
+            error: function() {
+                window.location.href = '/employee-login';
+            }
+        });
+    }
+    
+    function loadEmployeeData() {
+    frappe.call({
+        method: 'hr_services.portal.api.get_list',
+        args: {
+            doctype: 'Employee',
+            filters: {
+                user_id: currentUser
+            },
+            fields: ['name']
+        },
+        callback: function(r) {
+            if (r.message && r.message.length > 0) {
+                fetchFullEmployeeDetails(r.message[0].name);
+            } else {
+                console.log('No employee record found');
+                employeeData = {
+                    name: '',
+                    employee_name: currentUser.split('@')[0] || 'User',
+                    custom_location: '',  // ADD THIS
+                    project: '',           // ADD THIS
+                    department: ''         // ADD THIS
+                };
+                populateEmployeeFields();
+            }
+        },
+        error: function(err) {
+            console.error('Employee lookup error:', err);
+            employeeData = {
+                name: '',
+                employee_name: currentUser.split('@')[0] || 'User',
+                custom_location: '',  // ADD THIS
+                project: '',           // ADD THIS
+                department: ''         // ADD THIS
+            };
+            populateEmployeeFields();
+        }
+    });
+}
+
+    
+    
+    // // Load Employee Data
+    // function loadEmployeeData() {
+    //     frappe.call({
+    //         method: 'hr_services.portal.api.get_list',
+    //         args: {
+    //             doctype: 'Employee',
+    //             filters: {
+    //                 user_id: currentUser
+    //             },
+    //             fields: ['name']
+    //         },
+    //         callback: function(r) {
+    //             if (r.message && r.message.length > 0) {
+    //                 fetchFullEmployeeDetails(r.message[0].name);
+    //             } else {
+    //                 console.log('No employee record found');
+    //                 employeeData = {
+    //                     name: '',
+    //                     employee_name: currentUser.split('@')[0] || 'User'
+    //                 };
+    //                 populateEmployeeFields();
+    //             }
+    //         },
+    //         error: function(err) {
+    //             console.error('Employee lookup error:', err);
+    //             employeeData = {
+    //                 name: '',
+    //                 employee_name: currentUser.split('@')[0] || 'User'
+    //             };
+    //             populateEmployeeFields();
+    //         }
+    //     });
+    // }
+    
+    
+    function fetchFullEmployeeDetails(employeeName) {
+    frappe.call({
+        method: 'hr_services.portal.api.get',
+        args: {
+            doctype: 'Employee',
+            name: employeeName
+        },
+        callback: function(r) {
+            if (r.message) {
+                employeeData = r.message;
+                console.log('Full employee data:', employeeData);
+                console.log('Available fields:', Object.keys(employeeData));
+                populateEmployeeFields();
+                loadSalaryStructure(employeeName);
+            }
+        },
+        error: function() {
+            console.error('Failed to fetch employee details');
+            employeeData = {
+                name: employeeName,
+                employee_name: currentUser.split('@')[0] || 'User',
+                custom_location: '',
+                project: '',
+                department: ''
+            };
+            populateEmployeeFields();
+        }
+    });
+}
+    
+    // function fetchFullEmployeeDetails(employeeName) {
+    //     frappe.call({
+    //         method: 'hr_services.portal.api.get',
+    //         args: {
+    //             doctype: 'Employee',
+    //             name: employeeName
+    //         },
+    //         callback: function(r) {
+    //             if (r.message) {
+    //                 employeeData = r.message;
+    //                 populateEmployeeFields();
+    //             }
+    //         },
+    //         error: function() {
+    //             employeeData = {
+    //                 name: employeeName,
+    //                 employee_name: currentUser.split('@')[0] || 'User'
+    //             };
+    //             populateEmployeeFields();
+    //         }
+    //     });
+    // }
+    
+    function populateEmployeeFields() {
+        document.getElementById('employee').value = employeeData?.name || '';
+        document.getElementById('employeeName').value = employeeData?.employee_name || '';
+
+        const nameParts = (employeeData?.employee_name || '').split(' ');
+        const initials = nameParts.length >= 2
+            ? (nameParts[0][0] + nameParts[1][0]).toUpperCase()
+            : (employeeData?.employee_name || 'U').substring(0, 2).toUpperCase();
+        document.getElementById('userAvatar').textContent = initials;
+
+        // Auto-populate employment date if salary certificate fields are visible
+        const salaryCertFields = document.getElementById('salaryCertificateFields');
+        if (salaryCertFields && salaryCertFields.style.display === 'block') {
+            populateSalaryCertificateFields();
+        }
+    }
+
+
+
+    // // Static Request Type descriptions
+    // function fetchRequestTypeDescription(requestTypeName) {
+    //     const descriptionDiv = document.getElementById('requestTypeDescription');
+
+    //     if (!requestTypeName) {
+    //         descriptionDiv.style.display = 'none';
+    //         return;
+    //     }
+
+    //     // Static descriptions mapping
+    //     const descriptions = {
+    //         'Salary Slip': 'Document showing an employee\'s earnings, deductions, and net pay for a pay period.',
+    //         'Embassy Form': 'Official document required by a foreign embassy for visa applications, attestation, or other consular services. The form is prepared and issued by the employer or HR department and is subject to management and HR approval.',
+    //         'Employment Letter': 'Official document issued by the employer confirming an individual\'s employment with the organization.',
+    //         'End of Contract Notification': 'Official communication issued to inform an employee of the upcoming end of their employment contract. Subject to management and HR approval.',
+    //         'ERC Assets Receiving': 'Acknowledgment of company assets received by an employee, subject to approval.',
+    //         'Experience Letter': 'Document confirming an employee\'s tenure, role, and responsibilities, subject to approval.',
+    //         'Indebtedness Letter': 'Document confirming an employee\'s outstanding financial obligations to the company, subject to approval.',
+    //         'Letter for Extend of Probation': 'Official notice extending an employee\'s probation period, subject to approval.',
+    //         'Passport Office Authorization': 'Employer-issued authorization for passport-related procedures, subject to approval.',
+    //         'Salary Certificate': 'Official document confirming an employee\'s salary details, subject to approval.',
+    //         'Salary Increment Letter': 'Official notice of an employee\'s approved salary increase, subject to approval.',
+    //         'Salary Letter': 'Official document issued by the employer confirming an employee\'s salary details for a specific period. It typically includes basic salary, allowances, and other benefits, and is used for official purposes such as banking, visa, or loan applications. It is subject to management and HR approval.'
+    //     };
+
+    //     const description = descriptions[requestTypeName] || '';
+
+    //     if (description) {
+    //         descriptionDiv.innerHTML = '<strong style="color: var(--text-primary);">' + (currentLang === 'ar' ? 'الوصف:' : 'Description:') + '</strong> ' + description;
+    //         descriptionDiv.style.display = 'block';
+    //     } else {
+    //         descriptionDiv.style.display = 'none';
+    //     }
+    // }
+
+    // // Theme Toggle
+    // function initializeTheme() {
+    //     const themeToggle = document.getElementById('themeToggle');
+    //     const themeIcon = document.getElementById('themeIcon');
+        
+    //     if (currentTheme === 'dark') {
+    //         document.documentElement.setAttribute('data-theme', 'dark');
+    //         themeIcon.classList.remove('fa-moon');
+    //         themeIcon.classList.add('fa-sun');
+    //     }
+        
+    //     themeToggle.addEventListener('click', function() {
+    //         currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+    //         localStorage.setItem('employeePortalTheme', currentTheme);
+            
+    //         if (currentTheme === 'dark') {
+    //             document.documentElement.setAttribute('data-theme', 'dark');
+    //             themeIcon.classList.remove('fa-moon');
+    //             themeIcon.classList.add('fa-sun');
+    //         } else {
+    //             document.documentElement.removeAttribute('data-theme');
+    //             themeIcon.classList.remove('fa-sun');
+    //             themeIcon.classList.add('fa-moon');
+    //         }
+    //     });
+    // }
+    
+    // // Language Switcher
+    // function initializeLanguage() {
+    //     document.querySelectorAll('.lang-btn').forEach(button => {
+    //         button.addEventListener('click', function() {
+    //             const lang = this.textContent.includes('English') ? 'en' : 'ar';
+    //             currentLang = lang;
+    //             localStorage.setItem('employeePortalLang', lang);
+                
+    //             document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+    //             this.classList.add('active');
+                
+    //             applyLanguage(lang);
+    //         });
+    //     });
+        
+    //     applyLanguage(currentLang);
+    // }
+    
+    try {
+        console.log('🔥 REQUEST FORM SCRIPT LOADING...');
+
+        // Request Type options with English and Arabic
+        window.requestTypeOptions = {
+            'Salary Slip': {
+                en: 'Salary Slip',
+                ar: 'كشف راتب'
+            },
+            'Embassy Form': {
+                en: 'Embassy Form',
+                ar: 'نموذج السفارة'
+            },
+            'Employment Letter': {
+                en: 'Employment Letter',
+                ar: 'خطاب العمل'
+            },
+            'Experience Letter': {
+                en: 'Experience Letter',
+                ar: 'خطاب الخبرة'
+            },
+            'Passport Office Authorization': {
+                en: 'Passport Office Authorization',
+                ar: 'تفويض مكتب الجوازات'
+            },
+            'Salary Certificate': {
+                en: 'Salary Certificate',
+                ar: 'شهادة راتب'
+            },
+            'Salary Letter': {
+                en: 'Salary Letter',
+                ar: 'خطاب الراتب'
+            }
+        };
+
+        console.log('✅ Request type options loaded');
+    } catch (error) {
+        console.error('❌ Error loading request type options:', error);
+    }
+
+    // Request Type descriptions with English and Arabic
+    const requestTypeDescriptions = {
+        'Salary Slip': {
+            en: 'Document showing an employee\'s earnings, deductions, and net pay for a pay period.',
+            ar: 'مستند يوضح تفاصيل راتب الموظف خلال فترة محددة، بما يشمل الاستحقاقات، الاستقطاعات، وصافي الراتب'
+        },
+        'Embassy Form': {
+            en: 'Official document required by a foreign embassy for visa applications, attestation, or other consular services. The form is prepared and issued by the employer or HR department and is subject to management and HR approval.',
+            ar: 'مستند رسمي تطلبه إحدى السفارات الأجنبية لأغراض طلب التأشيرة أو التصديق أو غيرها من الخدمات القنصلية. يتم إعداده وإصداره من قبل جهة العمل أو إدارة الموارد البشرية، ويخضع لموافقة الإدارة والموارد البشرية'
+        },
+        'Employment Letter': {
+            en: 'Official document issued by the employer confirming an individual\'s employment with the organization.',
+            ar: 'مستند رسمي تصدره جهة العمل لتأكيد عمل الموظف لديها'
+        },
+        'End of Contract Notification': {
+            en: 'Official communication issued to inform an employee of the upcoming end of their employment contract. Subject to management and HR approval.',
+            ar: 'إشعار رسمي يُصدر لإبلاغ الموظف بقرب انتهاء عقد عمله، ويخضع لموافقة الإدارة والموارد البشرية'
+        },
+        'ERC Assets Receiving': {
+            en: 'Acknowledgment of company assets received by an employee, subject to approval.',
+            ar: 'إقرار باستلام الموظف لعهد وأصول الشركة، ويخضع للموافقة'
+        },
+        'Experience Letter': {
+            en: 'Document confirming an employee\'s tenure, role, and responsibilities, subject to approval.',
+            ar: 'مستند يؤكد مدة خدمة الموظف، ومسمّاه الوظيفي، ومسؤولياته، ويخضع للموافقة'
+        },
+        'Indebtedness Letter': {
+            en: 'Document confirming an employee\'s outstanding financial obligations to the company, subject to approval.',
+            ar: 'مستند يؤكد الالتزامات المالية المترتبة على الموظف تجاه الشركة، ويخضع للموافقة'
+        },
+        'Letter for Extend of Probation': {
+            en: 'Official notice extending an employee\'s probation period, subject to approval.',
+            ar: 'إشعار رسمي بتمديد فترة التجربة الخاصة بالموظف، ويخضع للموافقة'
+        },
+        'Passport Office Authorization': {
+            en: 'Employer-issued authorization for passport-related procedures, subject to approval.',
+            ar: 'تفويض رسمي صادر من جهة العمل لإجراء معاملات متعلقة بالجوازات، ويخضع للموافقة'
+        },
+        'Salary Certificate': {
+            en: 'Official document confirming an employee\'s salary details. This certificate will be automatically generated and fulfilled immediately upon submission.',
+            ar: 'مستند رسمي يؤكد تفاصيل راتب الموظف. ستتم إنشاء هذه الشهادة تلقائياً وإنجازها فوراً عند التقديم'
+        },
+        'Salary Increment Letter': {
+            en: 'Official notice of an employee\'s approved salary increase, subject to approval.',
+            ar: 'إشعار رسمي باعتماد زيادة راتب الموظف، ويخضع للموافقة'
+        },
+        'Salary Letter': {
+            en: 'Official document issued by the employer confirming an employee\'s salary details for a specific period. It typically includes basic salary, allowances, and other benefits, and is used for official purposes such as banking, visa, or loan applications. It is subject to management and HR approval.',
+            ar: 'مستند رسمي تصدره جهة العمل لتأكيد تفاصيل راتب الموظف لفترة محددة. يتضمن عادة الراتب الأساسي، البدلات، والمزايا الأخرى، ويُستخدم للأغراض الرسمية مثل المعاملات البنكية أو طلبات التأشيرة أو القروض، ويخضع لموافقة الإدارة والموارد البشرية'
+        }
+    };
+
+    // Handle Request Type Change
+    function handleRequestTypeChange(requestTypeName) {
+        fetchRequestTypeDescription(requestTypeName);
+
+        const salaryCertFields = document.getElementById('salaryCertificateFields');
+        const detailsField = document.getElementById('details');
+        const detailsRequired = document.getElementById('detailsRequired');
+
+        if (requestTypeName === 'Salary Certificate') {
+            salaryCertFields.style.display = 'block';
+            detailsField.required = false;
+            detailsRequired.style.display = 'none';
+
+            // Auto-populate salary certificate fields immediately
+            setTimeout(() => {
+                populateSalaryCertificateFields();
+            }, 100);
+
+            // Set default details
+            detailsField.value = 'Salary Certificate - Auto Generated';
+        } else {
+            salaryCertFields.style.display = 'none';
+            detailsField.required = true;
+            detailsRequired.style.display = 'inline';
+            if (detailsField.value === 'Salary Certificate - Auto Generated') {
+                detailsField.value = '';
+            }
+        }
+    }
+
+    // Fetch Request Type Description
+    function fetchRequestTypeDescription(requestTypeName) {
+        const descriptionDiv = document.getElementById('requestTypeDescription');
+
+        if (!requestTypeName) {
+            descriptionDiv.style.display = 'none';
+            return;
+        }
+
+        // Get description based on current language
+        if (requestTypeDescriptions[requestTypeName]) {
+            const description = requestTypeDescriptions[requestTypeName][currentLang] || requestTypeDescriptions[requestTypeName].en;
+
+            if (description) {
+                descriptionDiv.innerHTML = '<strong style="color: var(--text-primary);">' +
+                    (currentLang === 'ar' ? 'الوصف: ' : 'Description: ') +
+                    '</strong>' + description;
+                descriptionDiv.style.display = 'block';
+            } else {
+                descriptionDiv.style.display = 'none';
+            }
+        } else {
+            descriptionDiv.style.display = 'none';
+        }
+    }
+
+    // Load Salary Structure for the employee (with permission error handling)
+    function loadSalaryStructure(employeeName) {
+        console.log('Loading salary structure for employee:', employeeName);
+
+        // Set default salary data first
+        window.salaryData = {
+            basic_salary: 0,
+            housing_allowance: 0,
+            transportation_allowance: 0,
+            others_allowance: 0,
+            total_salary: 0
+        };
+
+        // Try to get basic employee info first (this should always work)
+        frappe.call({
+            method: 'hr_services.portal.api.get',
+            args: {
+                doctype: 'Employee',
+                name: employeeName
+            },
+            callback: function(r) {
+                if (r.message && r.message.basic_salary) {
+                    // If employee has basic_salary field, use it
+                    const basicSalary = r.message.basic_salary || 0;
+                    window.salaryData = {
+                        basic_salary: basicSalary,
+                        housing_allowance: 0,
+                        transportation_allowance: 0,
+                        others_allowance: 0,
+                        total_salary: basicSalary
+                    };
+                    console.log('Using employee basic salary:', basicSalary);
+                    updateSalaryFields();
+                } else {
+                    // Try salary structure assignment with error handling
+                    tryFetchSalaryStructureAssignment(employeeName);
+                }
+            },
+            error: function() {
+                console.log('Employee fetch failed, using default salary data');
+                updateSalaryFields();
+            }
+        });
+    }
+
+    function tryFetchSalaryStructureAssignment(employeeName) {
+        // Try with minimal fields first to test permissions
+        frappe.call({
+            method: 'hr_services.portal.api.get_list',
+            args: {
+                doctype: 'Salary Structure Assignment',
+                filters: {
+                    employee: employeeName,
+                    docstatus: 1
+                },
+                fields: ['base'],  // Only request essential field
+                limit_page_length: 1,
+                order_by: 'from_date desc'
+            },
+            callback: function(r) {
+                if (r.message && r.message.length > 0) {
+                    const assignment = r.message[0];
+                    const baseSalary = assignment.base || 0;
+
+                    window.salaryData = {
+                        basic_salary: baseSalary,
+                        housing_allowance: 0,
+                        transportation_allowance: 0,
+                        others_allowance: 0,
+                        total_salary: baseSalary
+                    };
+
+                    console.log('Salary data from assignment:', window.salaryData);
+                    updateSalaryFields();
+                } else {
+                    console.log('No salary structure assignment found');
+                    updateSalaryFields();
+                }
+            },
+            error: function(err) {
+                console.log('Salary Structure Assignment access denied or error:', err);
+
+                // Try alternative method - check if there's a custom field in Employee
+                tryFetchFromEmployeeCustomFields(employeeName);
+            }
+        });
+    }
+
+    function tryFetchFromEmployeeCustomFields(employeeName) {
+        // Try to get salary info from custom fields in Employee doctype
+        frappe.call({
+            method: 'hr_services.portal.api.get',
+            args: {
+                doctype: 'Employee',
+                name: employeeName
+            },
+            callback: function(r) {
+                if (r.message) {
+                    const emp = r.message;
+
+                    // Try various possible salary field names
+                    const salaryFields = [
+                        'custom_basic_salary', 'basic_salary', 'salary', 'custom_salary',
+                        'monthly_salary', 'gross_salary', 'custom_gross_salary'
+                    ];
+
+                    let foundSalary = 0;
+                    for (const field of salaryFields) {
+                        if (emp[field] && emp[field] > 0) {
+                            foundSalary = emp[field];
+                            console.log(`Found salary in field ${field}: ${foundSalary}`);
+                            break;
+                        }
+                    }
+
+                    if (foundSalary > 0) {
+                        window.salaryData = {
+                            basic_salary: foundSalary,
+                            housing_allowance: 0,
+                            transportation_allowance: 0,
+                            others_allowance: 0,
+                            total_salary: foundSalary
+                        };
+                        console.log('Using employee custom salary field:', foundSalary);
+                    } else {
+                        console.log('No salary data found in employee record');
+                    }
+                }
+
+                updateSalaryFields();
+            },
+            error: function() {
+                console.log('All salary loading methods failed, using defaults');
+                updateSalaryFields();
+            }
+        });
+    }
+
+    function updateSalaryFields() {
+        // Update the fields if they exist and salary certificate section is visible
+        const salaryCertFields = document.getElementById('salaryCertificateFields');
+        if (salaryCertFields && salaryCertFields.style.display === 'block' && window.salaryData) {
+            const basicSalaryField = document.getElementById('basicSalary');
+            const housingAllowanceField = document.getElementById('housingAllowance');
+            const transportationAllowanceField = document.getElementById('transportationAllowance');
+            const othersAllowanceField = document.getElementById('othersAllowance');
+            const totalSalaryField = document.getElementById('totalSalary');
+
+            if (basicSalaryField) basicSalaryField.value = (window.salaryData.basic_salary || 0).toFixed(3);
+            if (housingAllowanceField) housingAllowanceField.value = (window.salaryData.housing_allowance || 0).toFixed(3);
+            if (transportationAllowanceField) transportationAllowanceField.value = (window.salaryData.transportation_allowance || 0).toFixed(3);
+            if (othersAllowanceField) othersAllowanceField.value = (window.salaryData.others_allowance || 0).toFixed(3);
+            if (totalSalaryField) totalSalaryField.value = (window.salaryData.total_salary || 0).toFixed(3);
+
+            console.log('Salary fields updated with values:', window.salaryData);
+        }
+    }
+
+    function populateSalaryCertificateFields() {
+        // Always set current date as default
+        const today = new Date().toISOString().split('T')[0];
+        const certificateDateField = document.getElementById('certificateDate');
+        if (certificateDateField && !certificateDateField.value) {
+            certificateDateField.value = today;
+        }
+
+        // Auto-populate from employee data
+        if (employeeData) {
+            // Employment Date - automatically populate from employee record
+            if (employeeData.date_of_joining) {
+                const employmentDateField = document.getElementById('employmentDate');
+                if (employmentDateField) {
+                    employmentDateField.value = employeeData.date_of_joining;
+                }
+            }
+
+            // Nationality - try various field names
+            let nationalityValue = '';
+            const nationalityFields = [
+                'custom_nationality', 'nationality', 'custom_nationality_', 'employee_nationality',
+                'passport_nationality', 'country_of_origin', 'country'
+            ];
+            for (const field of nationalityFields) {
+                if (employeeData[field]) {
+                    nationalityValue = employeeData[field];
+                    break;
+                }
+            }
+            const nationalityField = document.getElementById('nationality');
+            if (nationalityField) {
+                nationalityField.value = nationalityValue;
+                console.log('Nationality set to:', nationalityValue);
+            }
+
+            // National ID / Iqama ID - try various field names
+            let nationalIdValue = '';
+            const nationalIdFields = [
+                'custom_iqama_id', 'custom_national_id', 'iqama_id', 'national_id',
+                'custom_iqama_no', 'iqama_no', 'passport_number', 'id_number',
+                'custom_id_number', 'custom_passport_number', 'employee_number'
+            ];
+            for (const field of nationalIdFields) {
+                if (employeeData[field]) {
+                    nationalIdValue = employeeData[field];
+                    break;
+                }
+            }
+            const nationalIdField = document.getElementById('nationalId');
+            if (nationalIdField) {
+                nationalIdField.value = nationalIdValue;
+                console.log('National ID set to:', nationalIdValue);
+            }
+
+            // Position/Designation
+            if (employeeData.designation) {
+                const positionField = document.getElementById('position');
+                if (positionField) {
+                    positionField.value = employeeData.designation;
+                }
+            }
+
+            // Convert current date (not employment date) to Hijri for the certificate
+            const hijriDate = convertToHijri(today);
+            const hijriDateField = document.getElementById('hijriDate');
+            if (hijriDateField) {
+                hijriDateField.value = hijriDate;
+            }
+        }
+
+        // Populate salary data - use updateSalaryFields function
+        updateSalaryFields();
+
+        // If no salary data is available yet, trigger loading
+        if (!window.salaryData && employeeData?.name) {
+            loadSalaryStructure(employeeData.name);
+        }
+    }
+
+    function convertToHijri(gregorianDate) {
+        // Simplified Hijri conversion - in production, you'd use a proper library
+        try {
+            const gDate = new Date(gregorianDate);
+            const gYear = gDate.getFullYear();
+            const gMonth = gDate.getMonth() + 1;
+            const gDay = gDate.getDate();
+
+            // Approximate conversion (this is simplified)
+            const hYear = Math.floor((gYear - 622) * 1.030684) + 1;
+            const monthNames = ['محرم', 'صفر', 'ربيع الأول', 'ربيع الثاني', 'جمادى الأولى', 'جمادى الثانية',
+                              'رجب', 'شعبان', 'رمضان', 'شوال', 'ذو القعدة', 'ذو الحجة'];
+
+            return `${gDay} ${monthNames[gMonth - 1]} ${hYear}هـ`;
+        } catch (e) {
+            return 'غير محدد';
+        }
+    }
+
+    // Theme Toggle
+    function initializeTheme() {
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        
+        if (currentTheme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            themeIcon.classList.remove('fa-moon');
+            themeIcon.classList.add('fa-sun');
+        }
+        
+        themeToggle.addEventListener('click', function() {
+            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+            localStorage.setItem('employeePortalTheme', currentTheme);
+            
+            if (currentTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
+            }
+        });
+    }
+    
+    // Language Switcher
+    function initializeLanguage() {
+        console.log('Initializing language system...');
+        console.log('Current language on init:', currentLang);
+
+        // Set the active button based on current language
+        document.querySelectorAll('.lang-btn').forEach(button => {
+            const isEnglish = button.textContent.includes('English');
+            const isArabic = button.textContent.includes('العربية');
+
+            if ((currentLang === 'en' && isEnglish) || (currentLang === 'ar' && isArabic)) {
+                button.classList.add('active');
+            } else {
+                button.classList.remove('active');
+            }
+
+            button.addEventListener('click', function() {
+                const lang = this.textContent.includes('English') ? 'en' : 'ar';
+                console.log('Language button clicked:', lang);
+
+                currentLang = lang;
+                localStorage.setItem('employeePortalLang', lang);
+
+                document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+
+                applyLanguage(lang);
+
+                // Update dropdown options when language changes
+                updateRequestTypeDropdown(lang);
+
+                // Refresh request type description when language changes
+                const requestType = document.getElementById('requestType').value;
+                if (requestType) {
+                    fetchRequestTypeDescription(requestType);
+                }
+            });
+        });
+
+        applyLanguage(currentLang);
+    }
+    
+    function applyLanguage(lang) {
+        const body = document.body;
+        const html = document.documentElement;
+
+        if (lang === 'ar') {
+            body.classList.add('rtl');
+            html.setAttribute('dir', 'rtl');
+        } else {
+            body.classList.remove('rtl');
+            html.setAttribute('dir', 'ltr');
+        }
+        html.setAttribute('lang', lang);
+
+        document.querySelectorAll('[data-' + lang + ']').forEach(element => {
+            const text = element.getAttribute('data-' + lang);
+            element.textContent = text;
+        });
+
+        // Update request type dropdown options
+        updateRequestTypeDropdown(lang);
+    }
+
+    function updateRequestTypeDropdown(lang) {
+        const requestTypeSelect = document.getElementById('requestType');
+        console.log('Updating dropdown for language:', lang);
+        console.log('Request type select element:', requestTypeSelect);
+
+        if (!requestTypeSelect) {
+            console.error('Request type select element not found');
+            return;
+        }
+
+        // Store current selection
+        const currentValue = requestTypeSelect.value;
+        console.log('Current selection:', currentValue);
+
+        // Clear existing options
+        const placeholderText = lang === 'ar' ? '-- اختر نوع الطلب --' : '-- Select Request Type --';
+        let optionsHtml = `<option value="">${placeholderText}</option>`;
+
+        // Add options in the current language using the global requestTypeOptions
+        if (window.requestTypeOptions && Object.keys(window.requestTypeOptions).length > 0) {
+            Object.keys(window.requestTypeOptions).forEach(key => {
+                const displayText = window.requestTypeOptions[key][lang] || window.requestTypeOptions[key].en;
+                optionsHtml += `<option value="${key}">${displayText}</option>`;
+                console.log(`Adding option: ${key} = ${displayText}`);
+            });
+        } else {
+            // Fallback with all options in both languages
+            const options = {
+                'Salary Slip': { en: 'Salary Slip', ar: 'كشف راتب' },
+                'Embassy Form': { en: 'Embassy Form', ar: 'نموذج السفارة' },
+                'Employment Letter': { en: 'Employment Letter', ar: 'خطاب العمل' },
+                'Experience Letter': { en: 'Experience Letter', ar: 'خطاب الخبرة' },
+                'Passport Office Authorization': { en: 'Passport Office Authorization', ar: 'تفويض مكتب الجوازات' },
+                'Salary Certificate': { en: 'Salary Certificate', ar: 'شهادة راتب' },
+                'Salary Letter': { en: 'Salary Letter', ar: 'خطاب الراتب' }
+            };
+
+            Object.keys(options).forEach(key => {
+                const displayText = options[key][lang] || options[key].en;
+                optionsHtml += `<option value="${key}">${displayText}</option>`;
+                console.log(`Adding fallback option: ${key} = ${displayText}`);
+            });
+        }
+
+        requestTypeSelect.innerHTML = optionsHtml;
+
+        // Restore selection if it exists
+        if (currentValue && requestTypeSelect.querySelector(`option[value="${currentValue}"]`)) {
+            requestTypeSelect.value = currentValue;
+            console.log('Restored selection:', currentValue);
+        }
+
+        console.log('Dropdown updated with', requestTypeSelect.options.length, 'options for language:', lang);
+    }
+
+    function populateRequestTypeDropdown() {
+        console.log('Populating dropdown with current language:', currentLang);
+        updateRequestTypeDropdown(currentLang);
+    }
+    
+    // File Upload Setup
+    function setupFileUpload() {
+        const fileUploadArea = document.getElementById('fileUploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const uploadedFilesDiv = document.getElementById('uploadedFiles');
+        
+        fileUploadArea.addEventListener('click', () => fileInput.click());
+        
+        fileUploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileUploadArea.classList.add('dragover');
+        });
+        
+        fileUploadArea.addEventListener('dragleave', () => {
+            fileUploadArea.classList.remove('dragover');
+        });
+        
+        fileUploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileUploadArea.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+    }
+    
+    function handleFiles(files) {
+        Array.from(files).forEach(file => {
+            if (file.size > 10 * 1024 * 1024) {
+                showAlert('error', currentLang === 'ar' ? '❌ الملف كبير جداً (الحد الأقصى 10 ميجابايت)' : '❌ File too large (Max 10MB)');
+                return;
+            }
+            
+            uploadedFiles.push(file);
+            displayFile(file);
+        });
+    }
+    
+    function displayFile(file) {
+        const uploadedFilesDiv = document.getElementById('uploadedFiles');
+        const fileItem = document.createElement('div');
+        fileItem.className = 'file-item';
+        fileItem.dataset.fileName = file.name;
+        
+        const fileExtension = file.name.split('.').pop().toLowerCase();
+        const iconMap = {
+            'pdf': 'fa-file-pdf',
+            'doc': 'fa-file-word',
+            'docx': 'fa-file-word',
+            'jpg': 'fa-file-image',
+            'jpeg': 'fa-file-image',
+            'png': 'fa-file-image'
+        };
+        
+        fileItem.innerHTML = `
+            <div class="file-icon">
+                <i class="fas ${iconMap[fileExtension] || 'fa-file'}"></i>
+            </div>
+            <div class="file-info">
+                <div class="file-name">${file.name}</div>
+                <div class="file-size">${formatFileSize(file.size)}</div>
+            </div>
+            <button type="button" class="file-remove" onclick="removeFile('${file.name}')">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        
+        uploadedFilesDiv.appendChild(fileItem);
+    }
+    
+    function removeFile(fileName) {
+        uploadedFiles = uploadedFiles.filter(f => f.name !== fileName);
+        const fileItem = document.querySelector(`[data-file-name="${fileName}"]`);
+        if (fileItem) {
+            fileItem.remove();
+        }
+    }
+    
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+    }
+    
+    // Form Submission
+    function setupFormSubmission() {
+        document.getElementById('generalRequestForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            submitRequest();
+        });
+    }
+    
+    async function submitRequest() {
+        const submitBtn = document.getElementById('submitBtn');
+        const requestType = document.getElementById('requestType').value;
+
+        // Validate salary certificate specific fields
+        if (requestType === 'Salary Certificate') {
+            const certificateDate = document.getElementById('certificateDate').value;
+            if (!certificateDate) {
+                showAlert('error', currentLang === 'ar'
+                    ? '❌ يرجى تحديد تاريخ شهادة الراتب'
+                    : '❌ Please specify the salary certificate date');
+                return;
+            }
+        }
+
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.classList.add('loading');
+        }
+
+
+const formData = {
+    doctype: 'Employee General Requests',
+    naming_series: requestType === 'Salary Certificate' ? 'ERC-F-.YY.-' : 'EGR-.YYYY.-',
+    employee: employeeData?.name || '',
+    employee_name: employeeData?.employee_name || '',
+    work_location: employeeData?.custom_location || '',
+    project: employeeData?.project || '',
+    department: employeeData?.department || '',
+    request_type: requestType,
+    details: document.getElementById('details').value,
+    fulfilled: requestType === 'Salary Certificate' ? 'Yes' : 'No'
+};
+
+// Add salary certificate specific fields if it's a salary certificate request
+if (requestType === 'Salary Certificate') {
+    Object.assign(formData, {
+        certificate_date: document.getElementById('certificateDate').value,
+        employment_date: document.getElementById('employmentDate').value,
+        nationality: document.getElementById('nationality').value,
+        national_id_no: document.getElementById('nationalId').value,
+        date_in_hijri: document.getElementById('hijriDate').value,
+        position: document.getElementById('position').value,
+        basic_salary: parseFloat(document.getElementById('basicSalary').value) || 0,
+        housing_allowance: parseFloat(document.getElementById('housingAllowance').value) || 0,
+        transportation_allowance: parseFloat(document.getElementById('transportationAllowance').value) || 0,
+        others_allowance: parseFloat(document.getElementById('othersAllowance').value) || 0,
+        total_salary: parseFloat(document.getElementById('totalSalary').value) || 0
+    });
+}
+
+// Debug log
+console.log('Submitting formData:', formData);
+console.log('Request type:', requestType);
+console.log('Is Salary Certificate:', requestType === 'Salary Certificate');
+
+        
+        // const formData = {
+        //     doctype: 'Employee General Requests',
+        //     naming_series: 'EGR-.YYYY.-',
+        //     employee: employeeData?.name || '',
+        //     employee_name: employeeData?.employee_name || '',
+        //     request_type: document.getElementById('requestType').value,
+        //     details: document.getElementById('details').value,
+        //     fulfilled: 'No'
+        // };
+        
+        frappe.call({
+            method: 'hr_services.portal.api.insert',
+            args: {
+                doc: formData
+            },
+            callback: async function(r) {
+                if (r.message) {
+                    const requestName = r.message.name;
+                    console.log('✅ Document created:', requestName);
+
+                    // Wait a bit longer to ensure document is fully saved
+                    await new Promise(resolve => setTimeout(resolve, 500));
+
+                    // If this is a salary certificate, create the ERC Form
+                    if (requestType === 'Salary Certificate') {
+                        try {
+                            await createERCForm(requestName, formData);
+                            console.log('✅ ERC Form created successfully');
+                        } catch (ercError) {
+                            console.error('❌ Failed to create ERC Form:', ercError);
+                            // Continue anyway - the request was created
+                        }
+                    }
+
+                    // Determine success message based on request type
+                    const successMessage = requestType === 'Salary Certificate'
+                        ? (currentLang === 'ar'
+                            ? `✅ تم إنشاء شهادة الراتب وإنجازها تلقائياً! رقم الطلب: ${requestName}`
+                            : `✅ Salary Certificate auto-generated and fulfilled! Request ID: ${requestName}`)
+                        : (currentLang === 'ar'
+                            ? `✅ تم إنشاء الطلب بنجاح! رقم الطلب: ${requestName}`
+                            : `✅ Request created successfully! Request ID: ${requestName}`);
+
+                    // Upload attachments
+                    if (uploadedFiles.length > 0) {
+                        try {
+                            await uploadAttachments(requestName);
+                            showAlert('success', successMessage);
+
+                            setTimeout(function() {
+                                window.location.href = '/general-request-list';
+                            }, 2000);
+                        } catch (uploadError) {
+                            console.error('❌ File upload failed:', uploadError);
+                            showAlert('error',
+                                currentLang === 'ar'
+                                    ? '⚠️ تم إنشاء الطلب ولكن فشل رفع الملفات'
+                                    : '⚠️ Request created but file upload failed'
+                            );
+
+                            if (submitBtn) {
+                                submitBtn.disabled = false;
+                                submitBtn.classList.remove('loading');
+                            }
+                        }
+                    } else {
+                        showAlert('success', successMessage);
+
+                        setTimeout(function() {
+                            window.location.href = '/general-request-list';
+                        }, 2000);
+                    }
+                }
+            },
+            error: function(r) {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('loading');
+                }
+                console.error('❌ Submission error:', r);
+                showAlert('error', 
+                    currentLang === 'ar'
+                        ? '❌ فشل في إنشاء الطلب. يرجى المحاولة مرة أخرى'
+                        : '❌ Failed to create request. Please try again'
+                );
+            }
+        });
+    }
+    
+    async function uploadAttachments(requestName) {
+        if (uploadedFiles.length === 0) {
+            console.log('⚠️ No files to upload');
+            return;
+        }
+        
+        console.log('📤 Starting upload of', uploadedFiles.length, 'file(s) to document:', requestName);
+        
+        for (let i = 0; i < uploadedFiles.length; i++) {
+            const file = uploadedFiles[i];
+            
+            try {
+                console.log(`📁 Uploading file ${i + 1}/${uploadedFiles.length}:`, {
+                    name: file.name,
+                    size: file.size,
+                    type: file.type
+                });
+                
+                const formData = new FormData();
+                formData.append('file', file, file.name);
+                formData.append('doctype', 'Employee General Requests');
+                formData.append('docname', requestName);
+                formData.append('is_private', '0');
+                formData.append('folder', 'Home/Attachments');
+                
+                const response = await fetch('/api/method/upload_file', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Frappe-CSRF-Token': frappe.csrf_token
+                    },
+                    body: formData
+                });
+                
+                console.log(`📥 Upload response for ${file.name}:`, response.status);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error(`❌ Upload failed for ${file.name}:`, errorText);
+                    throw new Error(`Upload failed with status ${response.status}: ${errorText}`);
+                }
+                
+                const result = await response.json();
+                console.log(`✅ File uploaded successfully: ${file.name}`, result);
+                
+                if (result.message) {
+                    console.log('📎 File attached:', {
+                        url: result.message.file_url,
+                        name: result.message.file_name
+                    });
+                }
+                
+                // Small delay between uploads
+                if (i < uploadedFiles.length - 1) {
+                    await new Promise(resolve => setTimeout(resolve, 200));
+                }
+                
+            } catch (error) {
+                console.error(`❌ File upload error for ${file.name}:`, error);
+                // Continue with other files even if one fails
+            }
+        }
+        
+        console.log('✅ All file uploads completed!');
+    }
+
+    async function createERCForm(requestName, formData) {
+        return new Promise((resolve, reject) => {
+            console.log('Creating ERC Form with data:', formData);
+
+            // Create ERC Form document
+            const ercFormData = {
+                doctype: 'ERC Forms',
+                naming_series: 'ERC-F-.YY.-',
+                forms: 'Salary Certificate',
+                employee: formData.employee,
+                employee_name: formData.employee_name,
+                date: formData.certificate_date,
+                employment_date: formData.employment_date,
+                nationality: formData.nationality,
+                national_id_no: formData.national_id_no,
+                date_in_hijri: formData.date_in_hijri,
+                position: formData.position,
+                basic_salary: formData.basic_salary,
+                housing_allowance: formData.housing_allowance,
+                transportation_allowance: formData.transportation_allowance,
+                others_allowance: formData.others_allowance,
+                total_salary: formData.total_salary,
+                // Link back to the general request
+                reference_doctype: 'Employee General Requests',
+                reference_name: requestName
+            };
+
+            console.log('ERC Form data to be created:', ercFormData);
+
+            frappe.call({
+                method: 'hr_services.portal.api.insert',
+                args: {
+                    doc: ercFormData
+                },
+                callback: function(r) {
+                    if (r.message) {
+                        console.log('✅ ERC Form created successfully:', r.message.name);
+                        console.log('ERC Form details:', r.message);
+
+                        // Don't auto-submit to avoid timestamp mismatch errors
+                        // The document can be used for PDF generation in draft state
+                        resolve(r.message);
+                    } else {
+                        console.error('❌ Failed to create ERC Form - no response');
+                        reject('Failed to create ERC Form - no response');
+                    }
+                },
+                error: function(err) {
+                    console.error('❌ ERC Form creation error:', err);
+                    reject(err);
+                }
+            });
+        });
+    }
+
+    function showAlert(type, message) {
+        const alert = document.getElementById('alertMessage');
+        alert.className = `alert alert-${type} show`;
+        alert.innerHTML = message;
+
+        setTimeout(() => {
+            alert.classList.remove('show');
+        }, 5000);
+    }
+</script>
+
+{% endraw %}
+</article>
+</div>
+{% endblock %}

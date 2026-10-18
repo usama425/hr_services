@@ -1,0 +1,1640 @@
+{% extends "templates/web.html" %}
+
+{% block page_content %}
+<div class="webpage-content">
+<article class="web-page-content" id="attendance-file-list" style="text-align: Left">
+{% raw %}<style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap');
+    
+    /* Hide default ERPNext header */
+    .navbar, .page-header, .page-head, .web-footer, header {
+        display: none !important;
+    }
+    
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    
+    /* Unified Color System - Light Mode (Default) */
+    :root {
+        --primary-color: #084887;
+        --primary-dark: #063a6b;
+        --primary-light: #0a5ba8;
+        --text-primary: #0f172a;
+        --text-secondary: #64748b;
+        --bg-primary: #ffffff;
+        --bg-secondary: #f8fafc;
+        --bg-tertiary: #f1f5f9;
+        --border-color: #e2e8f0;
+        --success-color: #10b981;
+        --error-color: #ef4444;
+        --warning-color: #f59e0b;
+    }
+    
+    /* Dark Mode */
+    [data-theme="dark"] {
+        --primary-color: #0d6efd;
+        --primary-dark: #084887;
+        --primary-light: #3d8bfd;
+        --text-primary: #ffffff;
+        --text-secondary: #cbd5e1;
+        --bg-primary: #1e293b;
+        --bg-secondary: #334155;
+        --bg-tertiary: #475569;
+        --border-color: rgba(148, 163, 184, 0.3);
+        --success-color: #10b981;
+        --error-color: #ef4444;
+        --warning-color: #f59e0b;
+    }
+    
+    body {
+        font-family: 'Inter', sans-serif;
+        background: var(--bg-secondary);
+        min-height: 100vh;
+        padding: 0;
+        padding-top: 0 !important;
+        transition: background 0.3s ease;
+    }
+    
+    body.rtl {
+        font-family: 'Cairo', sans-serif;
+        direction: rtl;
+    }
+    
+    /* Top Header Bar */
+    .top-header {
+        background: var(--bg-primary);
+        padding: 16px 48px;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+    
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+    
+    .back-button {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        background: transparent;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 500;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+    
+    .back-button:hover {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+    }
+    
+    .page-title-section h1 {
+        font-size: 18px;
+        color: var(--text-primary);
+        font-weight: 600;
+    }
+    
+    .page-title-section p {
+        font-size: 12px;
+        color: var(--text-secondary);
+        margin-top: 2px;
+    }
+    
+    .header-right {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+    
+    .theme-toggle {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 16px;
+        color: var(--text-primary);
+    }
+    
+    .theme-toggle:hover {
+        background: var(--bg-tertiary);
+        transform: scale(1.05);
+    }
+    
+    .lang-switcher {
+        display: flex;
+        gap: 4px;
+        background: var(--bg-secondary);
+        padding: 4px;
+        border-radius: 8px;
+    }
+    
+    .lang-btn {
+        padding: 6px 14px;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        border-radius: 6px;
+        font-weight: 500;
+        font-size: 13px;
+        color: var(--text-secondary);
+        transition: all 0.2s;
+    }
+    
+    .lang-btn.active {
+        background: var(--bg-primary);
+        color: var(--primary-color);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .user-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: var(--primary-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 14px;
+    }
+    
+    /* Main Container */
+    .main-container {
+        max-width: 1400px;
+        margin: 24px auto;
+        padding: 0 24px;
+    }
+    
+    /* Filters Section */
+    .filters-section {
+        background: var(--bg-primary);
+        padding: 20px 24px;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        margin-bottom: 20px;
+    }
+    
+    .filters-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        user-select: none;
+    }
+    
+    .filters-toggle {
+        margin-left: auto;
+        font-size: 12px;
+        color: var(--text-secondary);
+        transition: transform 0.3s;
+    }
+    
+    .filters-section.collapsed .filters-toggle {
+        transform: rotate(-90deg);
+    }
+    
+    .filters-content {
+        overflow: hidden;
+        transition: max-height 0.3s ease, margin-bottom 0.3s ease;
+        max-height: 2000px;
+    }
+    
+    .filters-section.collapsed .filters-content {
+        max-height: 0;
+        margin-bottom: 0;
+        padding: 0;
+    }
+    
+    @media (min-width: 769px) {
+        .filters-title {
+            cursor: default;
+        }
+        
+        .filters-toggle {
+            display: none;
+        }
+        
+        .filters-section.collapsed .filters-content {
+            max-height: 2000px;
+            margin-bottom: 16px;
+        }
+    }
+    
+    /* Mobile Table - Show only essential columns */
+    .mobile-table-view {
+        display: none;
+    }
+    
+    .mobile-table-row {
+        background: var(--bg-primary);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 12px;
+    }
+    
+    .mobile-row-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+    
+    .mobile-row-id {
+        font-weight: 600;
+        color: var(--primary-color);
+        font-size: 13px;
+    }
+    
+    .mobile-row-details {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-bottom: 8px;
+    }
+    
+    .mobile-row-detail-item {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+    }
+    
+    .mobile-row-label {
+        color: var(--text-secondary);
+        font-weight: 500;
+    }
+    
+    .mobile-row-value {
+        color: var(--text-primary);
+        font-weight: 600;
+    }
+    
+    .mobile-row-action {
+        margin-top: 8px;
+        padding-top: 8px;
+        border-top: 1px solid var(--border-color);
+    }
+    
+    .filters-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+    }
+    
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    
+    .filter-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+    
+    .filter-input,
+    .filter-select {
+        padding: 8px 12px;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        font-size: 13px;
+        font-family: inherit;
+        color: var(--text-primary);
+        background: var(--bg-primary);
+        transition: all 0.2s;
+    }
+    
+    .filter-input:focus,
+    .filter-select:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    .filter-actions {
+        display: flex;
+        gap: 8px;
+        align-items: flex-end;
+    }
+    
+    .btn-filter {
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: none;
+        font-family: inherit;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .btn-filter-primary {
+        background: var(--primary-color);
+        color: white;
+    }
+    
+    .btn-filter-primary:hover {
+        background: var(--primary-dark);
+    }
+    
+    .btn-filter-secondary {
+        background: var(--bg-secondary);
+        color: var(--text-secondary);
+        border: 1px solid var(--border-color);
+    }
+    
+    .btn-filter-secondary:hover {
+        border-color: var(--text-secondary);
+        color: var(--text-primary);
+    }
+    
+    /* Requests List */
+    .requests-section {
+        background: var(--bg-primary);
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        overflow: hidden;
+    }
+    
+    .section-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .section-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .requests-count {
+        font-size: 13px;
+        color: var(--text-secondary);
+        font-weight: 500;
+    }
+    
+    .requests-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .requests-table thead {
+        background: var(--bg-secondary);
+    }
+    
+    .requests-table th {
+        padding: 12px 16px;
+        text-align: left;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-primary);
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .requests-table td {
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--border-color);
+        font-size: 13px;
+        color: var(--text-primary);
+    }
+    
+    .requests-table tbody tr {
+        transition: background 0.2s;
+    }
+    
+    .requests-table tbody tr:hover {
+        background: var(--bg-secondary);
+    }
+    
+    .requests-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+    
+    .request-id {
+        font-weight: 600;
+        color: var(--primary-color);
+    }
+    
+    .expense-type-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+    
+    .expense-type-operational {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+    
+    .expense-type-advance {
+        background: #fef3c7;
+        color: #92400e;
+    }
+    
+    .status-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+    
+    .status-pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
+    
+    .status-approved {
+        background: #d1fae5;
+        color: #065f46;
+    }
+    
+    .status-rejected {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+    
+    .status-draft {
+        background: #e5e7eb;
+        color: #374151;
+    }
+    
+    .amount-value {
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+    
+    .btn-view {
+        padding: 6px 14px;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .btn-view:hover {
+        background: var(--primary-dark);
+    }
+    
+    /* Empty State */
+    .empty-state {
+        padding: 60px 24px;
+        text-align: center;
+    }
+    
+    .empty-state-icon {
+        width: 80px;
+        height: 80px;
+        background: var(--bg-secondary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        color: var(--text-secondary);
+        font-size: 32px;
+    }
+    
+    .empty-state-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+    }
+    
+    .empty-state-text {
+        font-size: 13px;
+        color: var(--text-secondary);
+    }
+    
+    /* Loading State */
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.95);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+    }
+    
+    .loading-spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid var(--border-color);
+        border-top-color: var(--primary-color);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    .hidden {
+        display: none;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .top-header {
+            padding: 8px 12px;
+            gap: 8px;
+        }
+        
+        .header-left {
+            gap: 8px;
+        }
+        
+        .back-button {
+            padding: 6px 12px;
+            font-size: 11px;
+        }
+        
+        .page-title-section h1 {
+            font-size: 14px;
+        }
+        
+        .page-title-section p {
+            font-size: 10px;
+        }
+        
+        .theme-toggle {
+            width: 32px;
+            height: 32px;
+            font-size: 14px;
+        }
+        
+        .lang-btn {
+            padding: 4px 10px;
+            font-size: 11px;
+        }
+        
+        .user-avatar {
+            width: 28px;
+            height: 28px;
+            font-size: 12px;
+        }
+        
+        .main-container {
+            padding: 12px;
+        }
+        
+        .filters-section {
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .filters-title {
+            font-size: 13px;
+            margin-bottom: 12px;
+        }
+        
+        .filters-grid {
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+        
+        .filter-group {
+            gap: 4px;
+        }
+        
+        .filter-label {
+            font-size: 11px;
+        }
+        
+        .filter-input,
+        .filter-select {
+            padding: 6px 10px;
+            font-size: 12px;
+        }
+        
+        .btn-filter {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        
+        .requests-section {
+            border-radius: 8px;
+        }
+        
+        .section-header {
+            padding: 12px 16px;
+        }
+        
+        .section-title {
+            font-size: 14px;
+        }
+        
+        /* Hide desktop table, show mobile view */
+        .requests-table-container {
+            display: none;
+        }
+        
+        .mobile-table-view {
+            display: block;
+            padding: 12px;
+        }
+        
+        .requests-table {
+            display: none;
+        }
+    }
+    
+    /* RTL Support */
+    body.rtl .back-button {
+        flex-direction: row-reverse;
+    }
+    
+    body.rtl .requests-table th {
+        text-align: right;
+    }
+</style>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-spinner"></div>
+</div>
+
+<!-- Main Content -->
+<div id="mainContent" class="hidden">
+    <!-- Top Header -->
+    <div class="top-header">
+        <div class="header-left">
+            <a href="/employee-portal-home" class="back-button">
+                <i class="fas fa-arrow-left"></i>
+                <span data-en="Back to Dashboard" data-ar="العودة إلى لوحة التحكم">Back to Dashboard</span>
+            </a>
+            <div class="page-title-section">
+                <h1 data-en="Attendance Files" data-ar="ملفات الحضور">Attendance Files</h1>
+                <p data-en="View all your uploaded attendance files" data-ar="عرض جميع ملفات الحضور المرفوعة الخاصة بك">View all your uploaded attendance files</p>
+            </div>
+        </div>
+        
+        <div class="header-right">
+            <button class="theme-toggle" id="themeToggle" title="Toggle Dark/Light Mode">
+                <i class="fas fa-moon" id="themeIcon"></i>
+            </button>
+            <div class="lang-switcher">
+                <button class="lang-btn active">English</button>
+                <button class="lang-btn">العربية</button>
+            </div>
+            
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">--</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Video Tutorial Link -->
+        <div style="margin-bottom: 20px; padding: 12px 16px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-video" style="color: var(--primary-color); font-size: 18px;"></i>
+                <span style="font-size: 13px; color: var(--text-secondary);" data-en="Need help? Watch how to upload and view attendance" data-ar="تحتاج مساعدة؟ شاهد كيفية رفع وعرض الحضور">Need help? Watch how to upload and view attendance</span>
+            </div>
+            <a href="https://youtu.be/RIXIRHr9YDE" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: var(--primary-color); color: white; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 600; transition: all 0.2s;" onmouseover="this.style.background='var(--primary-dark)'" onmouseout="this.style.background='var(--primary-color)'">
+                <i class="fas fa-play"></i>
+                <span data-en="Watch Video" data-ar="شاهد الفيديو">Watch Video</span>
+            </a>
+        </div>
+        
+        <!-- Filters Section -->
+        <div class="filters-section" id="filtersSection">
+            <div class="filters-title" onclick="toggleFilters()">
+                <i class="fas fa-filter"></i>
+                <span data-en="Filters" data-ar="مرشحات">Filters</span>
+                <i class="fas fa-chevron-down filters-toggle" id="filtersToggle"></i>
+            </div>
+            <div class="filters-content" id="filtersContent">
+                <div class="filters-grid">
+                <div class="filter-group">
+                    <label class="filter-label" data-en="From Month" data-ar="من شهر">From Month</label>
+                    <input type="month" class="filter-input" id="filterFromMonth" />
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label" data-en="To Month" data-ar="إلى شهر">To Month</label>
+                    <input type="month" class="filter-input" id="filterToMonth" />
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label" data-en="From Date" data-ar="من تاريخ">From Date</label>
+                    <input type="date" class="filter-input" id="filterFromDate" />
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label" data-en="To Date" data-ar="إلى تاريخ">To Date</label>
+                    <input type="date" class="filter-input" id="filterToDate" />
+                </div>
+                
+                <div class="filter-group filter-actions">
+                    <button type="button" class="btn-filter btn-filter-primary" onclick="applyFilters()">
+                        <i class="fas fa-search"></i>
+                        <span data-en="Apply" data-ar="تطبيق">Apply</span>
+                    </button>
+                    <button type="button" class="btn-filter btn-filter-secondary" onclick="clearFilters()">
+                        <i class="fas fa-times"></i>
+                        <span data-en="Clear" data-ar="مسح">Clear</span>
+                    </button>
+                </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Requests List -->
+        <div class="requests-section">
+            <div class="section-header">
+                <div>
+                    <div class="section-title">
+                        <i class="fas fa-list"></i>
+                        <span data-en="All Attendance Files" data-ar="جميع ملفات الحضور">All Attendance Files</span>
+                    </div>
+                    <div class="requests-count" id="requestsCount" data-en="Loading..." data-ar="جاري التحميل...">Loading...</div>
+                    <div id="loadingProgress" style="display: none; font-size: 12px; color: var(--text-secondary); margin-top: 4px;"></div>
+                </div>
+            </div>
+            
+            <!-- Desktop Table View -->
+            <div id="requestsTableContainer">
+                <table class="requests-table">
+                    <thead>
+                        <tr>
+                            <th data-en="Record ID" data-ar="رقم السجل">Record ID</th>
+                            <th data-en="Employee Name" data-ar="اسم الموظف">Employee Name</th>
+                            <th data-en="Month" data-ar="الشهر">Month</th>
+                            <th data-en="Uploaded Date" data-ar="تاريخ الرفع">Uploaded Date</th>
+                            <th data-en="Actions" data-ar="الإجراءات">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="requestsTableBody">
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 40px;">
+                                <div class="empty-state">
+                                    <div class="empty-state-icon">
+                                        <i class="fas fa-spinner fa-spin"></i>
+                                    </div>
+                                    <div class="empty-state-title" data-en="Loading requests..." data-ar="جاري تحميل الطلبات...">Loading requests...</div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Mobile Table View -->
+            <div class="mobile-table-view" id="mobileTableView">
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-spinner fa-spin"></i>
+                    </div>
+                    <div class="empty-state-title" data-en="Loading files..." data-ar="جاري تحميل الملفات...">Loading files...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+<script>
+// Theme Toggle Functionality
+(function() {
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const html = document.documentElement;
+    
+    // Get saved theme or default to light
+    const savedTheme = localStorage.getItem('employeePortalTheme') || 'light';
+    html.setAttribute('data-theme', savedTheme);
+    updateThemeIcon(savedTheme);
+    
+    function updateThemeIcon(theme) {
+        if (theme === 'dark') {
+            themeIcon.className = 'fas fa-sun';
+        } else {
+            themeIcon.className = 'fas fa-moon';
+        }
+    }
+    
+    if (themeToggle) {
+        themeToggle.addEventListener('click', function() {
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('employeePortalTheme', newTheme);
+            updateThemeIcon(newTheme);
+        });
+    }
+})();
+
+let currentLang = localStorage.getItem('employeePortalLang') || 'en';
+let currentUser = null;
+let employeeData = null;
+let allRequests = [];
+let filteredRequests = [];
+const CACHE_KEY = 'attendanceFiles_cache';
+const CACHE_TIMESTAMP_KEY = 'attendanceFiles_cache_timestamp';
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes cache
+
+// Check authentication on page load
+document.addEventListener('DOMContentLoaded', function() {
+    checkAuthentication();
+});
+
+function checkAuthentication() {
+    frappe.call({
+        method: 'frappe.auth.get_logged_user',
+        callback: function(r) {
+            if (r.message && r.message !== 'Guest') {
+                currentUser = r.message;
+                console.log('Logged in user:', currentUser);
+                loadEmployeeData();
+            } else {
+                window.location.href = '/employee-login';
+            }
+        },
+        error: function() {
+            window.location.href = '/employee-login';
+        }
+    });
+}
+
+function loadEmployeeData() {
+    frappe.call({
+        method: 'hr_services.portal.api.get_list',
+        args: {
+            doctype: 'Employee',
+            filters: {
+                user_id: currentUser
+            },
+            fields: ['name', 'employee_name']
+        },
+        callback: function(r) {
+            if (r.message && r.message.length > 0) {
+                employeeData = r.message[0];
+                console.log('Employee found:', employeeData);
+                populateUserInfo();
+                loadRequests();
+            } else {
+                console.log('No employee record found');
+                employeeData = {
+                    name: '',
+                    employee_name: currentUser.split('@')[0] || 'User'
+                };
+                populateUserInfo();
+                loadRequests();
+            }
+        },
+        error: function(err) {
+            console.error('Employee lookup error:', err);
+            employeeData = {
+                name: '',
+                employee_name: currentUser.split('@')[0] || 'User'
+            };
+            populateUserInfo();
+            loadRequests();
+        }
+    });
+}
+
+function populateUserInfo() {
+    const nameParts = (employeeData?.employee_name || '').split(' ');
+    const initials = nameParts.length >= 2 
+        ? (nameParts[0][0] + nameParts[1][0]).toUpperCase()
+        : (employeeData?.employee_name || 'U').substring(0, 2).toUpperCase();
+    document.getElementById('userAvatar').textContent = initials;
+}
+
+function loadRequests() {
+    const employeeNo = employeeData?.name || '';
+    
+    if (!employeeNo) {
+        showEmptyState('No employee record found');
+        document.getElementById('loadingOverlay').classList.add('hidden');
+        document.getElementById('mainContent').classList.remove('hidden');
+        return;
+    }
+    
+    // Check cache first
+    const cachedData = getCachedRequests(employeeNo);
+    if (cachedData) {
+        console.log('Loading from cache');
+        allRequests = cachedData;
+        filteredRequests = [...allRequests];
+        applyURLFilters();
+        displayRequests();
+        document.getElementById('loadingOverlay').classList.add('hidden');
+        document.getElementById('mainContent').classList.remove('hidden');
+        applyLanguage(currentLang);
+        // Load fresh data in background
+        loadRequestsClientSide(employeeNo, true);
+    } else {
+        // No cache, load fresh
+        loadRequestsClientSide(employeeNo, false);
+    }
+}
+
+function getCachedRequests(employeeNo) {
+    try {
+        const cached = sessionStorage.getItem(CACHE_KEY);
+        const timestamp = sessionStorage.getItem(CACHE_TIMESTAMP_KEY);
+        const employeeKey = sessionStorage.getItem('myRequests_employee');
+        
+        if (cached && timestamp && employeeKey === employeeNo) {
+            const age = Date.now() - parseInt(timestamp);
+            if (age < CACHE_DURATION) {
+                return JSON.parse(cached);
+            }
+        }
+    } catch (e) {
+        console.error('Cache read error:', e);
+    }
+    return null;
+}
+
+function setCachedRequests(employeeNo, requests) {
+    try {
+        sessionStorage.setItem(CACHE_KEY, JSON.stringify(requests));
+        sessionStorage.setItem(CACHE_TIMESTAMP_KEY, Date.now().toString());
+        sessionStorage.setItem('myRequests_employee', employeeNo);
+    } catch (e) {
+        console.error('Cache write error:', e);
+    }
+}
+
+function clearCache() {
+    try {
+        sessionStorage.removeItem(CACHE_KEY);
+        sessionStorage.removeItem(CACHE_TIMESTAMP_KEY);
+        sessionStorage.removeItem('myRequests_employee');
+    } catch (e) {
+        console.error('Cache clear error:', e);
+    }
+}
+
+function loadRequestsClientSide(employeeNo, background = false) {
+    // Fetch Attendance Files - simple, no child tables
+    if (!background) {
+        document.getElementById('loadingOverlay').classList.remove('hidden');
+    }
+    
+    frappe.call({
+        method: 'hr_services.portal.api.get_list',
+        args: {
+            doctype: 'Attendance Files',
+            filters: {
+                employee: employeeNo
+            },
+            fields: ['name', 'employe_name', 'month', 'creation'],
+            limit_page_length: 1000,
+            order_by: 'creation desc'
+        },
+        callback: function(r) {
+            if (r.message && r.message.length > 0) {
+                allRequests = r.message.map(req => ({
+                    name: req.name,
+                    employe_name: req.employe_name || '',
+                    month: req.month || '',
+                    creation: req.creation
+                }));
+                
+                setCachedRequests(employeeNo, allRequests);
+                filteredRequests = [...allRequests];
+                applyURLFilters();
+                displayRequests();
+                document.getElementById('loadingOverlay').classList.add('hidden');
+                document.getElementById('mainContent').classList.remove('hidden');
+                applyLanguage(currentLang);
+            } else {
+                if (!background) {
+                    showEmptyState('No files found');
+                    document.getElementById('loadingOverlay').classList.add('hidden');
+                    document.getElementById('mainContent').classList.remove('hidden');
+                }
+            }
+        },
+        error: function(err) {
+            console.error('Error loading requests:', err);
+            if (!background) {
+                // Show error but don't block the UI
+                showEmptyState('Unable to load requests. Please try again or contact support.');
+                document.getElementById('loadingProgress').style.display = 'none';
+                document.getElementById('loadingOverlay').classList.add('hidden');
+                document.getElementById('mainContent').classList.remove('hidden');
+            }
+        }
+    });
+}
+
+function updateProgress(current, total) {
+    const progressEl = document.getElementById('loadingProgress');
+    if (progressEl && total > 0) {
+        progressEl.style.display = 'block';
+        const percent = Math.round((current / total) * 100);
+        progressEl.textContent = currentLang === 'ar' 
+            ? `جاري التحقق من ${current} من ${total} طلب (${percent}%)`
+            : `Checking ${current} of ${total} requests (${percent}%)`;
+    }
+}
+
+function fetchRequestsInBatches(employeeNo, requests, background = false) {
+    const BATCH_SIZE = 5; // Increased batch size for faster processing
+    const userRequests = [];
+    let currentIndex = 0;
+    let totalProcessed = 0;
+    const MAX_REQUESTS = 50; // Increased limit
+    
+    // Limit requests to check
+    const requestsToCheck = requests.slice(0, MAX_REQUESTS);
+    
+    function processBatch() {
+        const batch = requestsToCheck.slice(currentIndex, currentIndex + BATCH_SIZE);
+        if (batch.length === 0) {
+            // All batches processed
+            allRequests = userRequests.sort((a, b) => {
+                return new Date(b.date || 0) - new Date(a.date || 0);
+            });
+            
+            // Save to cache
+            setCachedRequests(employeeNo, allRequests);
+            
+            if (!background) {
+                filteredRequests = [...allRequests];
+                
+                // Check URL parameters and apply filters
+                applyURLFilters();
+                
+                displayRequests();
+                document.getElementById('loadingProgress').style.display = 'none';
+                document.getElementById('loadingOverlay').classList.add('hidden');
+                document.getElementById('mainContent').classList.remove('hidden');
+                applyLanguage(currentLang);
+            } else {
+                // Background refresh - update if current view is not filtered
+                const urlParams = new URLSearchParams(window.location.search);
+                if (!urlParams.get('status') && !urlParams.get('item')) {
+                    filteredRequests = [...allRequests];
+                    applyURLFilters();
+                    displayRequests();
+                }
+            }
+            return;
+        }
+        
+        if (!background) {
+            updateProgress(totalProcessed, requestsToCheck.length);
+        }
+        
+        // Process batch in parallel for speed
+        const batchPromises = batch.map(request => {
+            return new Promise((resolve) => {
+                frappe.call({
+                    method: 'hr_services.portal.api.get',
+                    args: {
+                        doctype: 'Attendance Files',
+                        name: request.name
+                    },
+                    timeout: 10,
+                    callback: function(r) {
+                        totalProcessed++;
+                        const doc = r.message;
+                        
+                        // Check if employee is in items, advances, or employees tables
+                        let isEmployeeRequest = false;
+                        
+                        if (doc.items && doc.items.length > 0) {
+                            isEmployeeRequest = doc.items.some(item => item.employee_no === employeeNo);
+                        }
+                        
+                        if (!isEmployeeRequest && doc.advances && doc.advances.length > 0) {
+                            isEmployeeRequest = doc.advances.some(advance => advance.employee_no === employeeNo);
+                        }
+                        
+                        if (!isEmployeeRequest && doc.employees && doc.employees.length > 0) {
+                            isEmployeeRequest = doc.employees.some(emp => emp.employee_no === employeeNo);
+                        }
+                        
+                        if (isEmployeeRequest) {
+                            userRequests.push({
+                                name: doc.name,
+                                expense_type: doc.expense_type || '',
+                                workflow_state: doc.workflow_state || 'Draft',
+                                date: doc.date || '',
+                                project_name: doc.project_name || '',
+                                total_amount: doc.total_amount || 0,
+                                company: doc.company || ''
+                            });
+                        }
+                        
+                        if (!background) {
+                            updateProgress(totalProcessed, requestsToCheck.length);
+                        }
+                        resolve();
+                    },
+                    error: function(err) {
+                        totalProcessed++;
+                        console.error('Error fetching request:', request.name, err);
+                        if (!background) {
+                            updateProgress(totalProcessed, requestsToCheck.length);
+                        }
+                        resolve();
+                    }
+                });
+            });
+        });
+        
+        // Wait for batch to complete, then move to next
+        Promise.all(batchPromises).then(() => {
+            currentIndex += BATCH_SIZE;
+            setTimeout(processBatch, 50); // Reduced delay between batches
+        });
+    }
+    
+    // Start processing batches
+    processBatch();
+}
+
+function displayRequests() {
+    const tbody = document.getElementById('requestsTableBody');
+    const mobileView = document.getElementById('mobileTableView');
+    const countElement = document.getElementById('requestsCount');
+    const isMobile = window.innerWidth <= 768;
+    
+    if (filteredRequests.length === 0) {
+        const emptyStateHTML = `
+            <div class="empty-state">
+                <div class="empty-state-icon">
+                    <i class="fas fa-inbox"></i>
+                </div>
+                <div class="empty-state-title" data-en="No files found" data-ar="لا توجد ملفات">No files found</div>
+                <div class="empty-state-text" data-en="You haven't uploaded any attendance files yet" data-ar="لم تقم برفع أي ملفات حضور بعد">You haven't uploaded any attendance files yet</div>
+            </div>
+        `;
+        
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 40px;">${emptyStateHTML}</td></tr>`;
+        if (mobileView) mobileView.innerHTML = emptyStateHTML;
+        countElement.textContent = currentLang === 'ar' ? '0 ملف' : '0 files';
+    } else {
+        // Desktop table view
+        tbody.innerHTML = filteredRequests.map(file => {
+            let formattedDate = '-';
+            if (file.creation) {
+                try {
+                    formattedDate = new Date(file.creation).toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'short', 
+                        day: 'numeric' 
+                    });
+                } catch (e) {
+                    formattedDate = file.creation;
+                }
+            }
+            
+            let formattedMonth = '-';
+            if (file.month) {
+                try {
+                    const monthDate = new Date(file.month);
+                    formattedMonth = monthDate.toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'long'
+                    });
+                } catch (e) {
+                    formattedMonth = file.month;
+                }
+            }
+            
+            return `
+                <tr>
+                    <td><span class="request-id">${file.name}</span></td>
+                    <td>${file.employee_name || '-'}</td>
+                    <td>${formattedMonth}</td>
+                    <td>${formattedDate}</td>
+                    <td>
+                        <button class="btn-view" onclick="viewFile('${file.name}')">
+                            <i class="fas fa-eye"></i>
+                            <span data-en="View" data-ar="عرض">View</span>
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+        
+        // Mobile card view
+        if (mobileView) {
+            mobileView.innerHTML = filteredRequests.map(file => {
+                let formattedDate = '-';
+                if (file.creation) {
+                    try {
+                        formattedDate = new Date(file.creation).toLocaleDateString('en-US', { 
+                            year: 'numeric', 
+                            month: 'short', 
+                            day: 'numeric' 
+                        });
+                    } catch (e) {
+                        formattedDate = file.creation;
+                    }
+                }
+                
+                let formattedMonth = '-';
+                if (file.month) {
+                    try {
+                        const monthDate = new Date(file.month);
+                        formattedMonth = monthDate.toLocaleDateString('en-US', { 
+                            year: 'numeric', 
+                            month: 'long'
+                        });
+                    } catch (e) {
+                        formattedMonth = file.month;
+                    }
+                }
+                
+                return `
+                    <div class="mobile-table-row">
+                        <div class="mobile-row-header">
+                            <span class="mobile-row-id">${file.name}</span>
+                        </div>
+                        <div class="mobile-row-details">
+                            <div class="mobile-row-detail-item">
+                                <span class="mobile-row-label" data-en="Employee" data-ar="الموظف">Employee:</span>
+                                <span class="mobile-row-value">${file.employee_name || '-'}</span>
+                            </div>
+                            <div class="mobile-row-detail-item">
+                                <span class="mobile-row-label" data-en="Month" data-ar="الشهر">Month:</span>
+                                <span class="mobile-row-value">${formattedMonth}</span>
+                            </div>
+                            <div class="mobile-row-detail-item">
+                                <span class="mobile-row-label" data-en="Date" data-ar="التاريخ">Date:</span>
+                                <span class="mobile-row-value">${formattedDate}</span>
+                            </div>
+                        </div>
+                        <div class="mobile-row-action">
+                            <button class="btn-view" onclick="viewFile('${file.name}')" style="width: 100%;">
+                                <i class="fas fa-eye"></i>
+                                <span data-en="View Details" data-ar="عرض التفاصيل">View Details</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        const countText = filteredRequests.length === 1 
+            ? (currentLang === 'ar' ? 'ملف واحد' : '1 file')
+            : (currentLang === 'ar' ? `${filteredRequests.length} ملفات` : `${filteredRequests.length} files`);
+        countElement.textContent = countText;
+    }
+    
+    applyLanguage(currentLang);
+}
+
+// Toggle filters on mobile
+function toggleFilters() {
+    const filtersSection = document.getElementById('filtersSection');
+    if (filtersSection) {
+        filtersSection.classList.toggle('collapsed');
+    }
+}
+
+// Auto-collapse filters on mobile on page load
+document.addEventListener('DOMContentLoaded', function() {
+    if (window.innerWidth <= 768) {
+        const filtersSection = document.getElementById('filtersSection');
+        if (filtersSection) {
+            filtersSection.classList.add('collapsed');
+        }
+    }
+    
+    // Handle window resize
+    window.addEventListener('resize', function() {
+        if (window.innerWidth <= 768) {
+            const filtersSection = document.getElementById('filtersSection');
+            if (filtersSection && !filtersSection.classList.contains('collapsed')) {
+                filtersSection.classList.add('collapsed');
+            }
+        }
+    });
+});
+
+function getStatusClass(status) {
+    if (!status) return 'status-draft';
+    
+    const statusLower = status.toLowerCase();
+    if (statusLower.includes('approved')) return 'status-approved';
+    if (statusLower.includes('rejected') || statusLower.includes('reject')) return 'status-rejected';
+    if (statusLower.includes('pending') || statusLower.includes('draft')) return 'status-pending';
+    return 'status-draft';
+}
+
+function applyURLFilters() {
+    // Check URL parameters for filters
+    const urlParams = new URLSearchParams(window.location.search);
+    const fromMonthParam = urlParams.get('fromMonth');
+    const toMonthParam = urlParams.get('toMonth');
+    
+    if (fromMonthParam) {
+        const fromMonthInput = document.getElementById('filterFromMonth');
+        if (fromMonthInput) {
+            fromMonthInput.value = fromMonthParam;
+        }
+    }
+    
+    if (toMonthParam) {
+        const toMonthInput = document.getElementById('filterToMonth');
+        if (toMonthInput) {
+            toMonthInput.value = toMonthParam;
+        }
+    }
+    
+    if (fromMonthParam || toMonthParam) {
+        applyFilters();
+    }
+}
+
+function filterByItem(itemId) {
+    // Item mapping for names
+    const itemMap = {
+        '62': { id: '62', name: 'Iqama Renewal Fee رسوم تجديد الإقامة' },
+        '63': { id: '63', name: 'Working License رخصة عمل' },
+        '889': { id: '889', name: 'Travel Tickets Allowance - بدل تذكرة سفر' },
+        '934': { id: '934', name: 'Vacation Salary' }
+    };
+    
+    const itemInfo = itemMap[itemId] || { id: itemId, name: '' };
+    const itemIdNum = parseInt(itemId);
+    
+    // Check cache for full request data
+    const fullRequestsCache = getFullRequestsCache();
+    
+    if (fullRequestsCache && fullRequestsCache.length > 0) {
+        // Use cached full request data
+        const matchingRequests = allRequests.filter(request => {
+            const fullRequest = fullRequestsCache.find(r => r.name === request.name);
+            if (fullRequest && fullRequest.items && fullRequest.items.length > 0) {
+                return fullRequest.items.some(itemRow => {
+                    const itemIdMatch = itemRow.item && (
+                        itemRow.item.toString() === itemId || 
+                        itemRow.item === itemIdNum || 
+                        itemRow.item.toString() === itemInfo.id
+                    );
+                    const itemNameMatch = itemRow.item_name && itemInfo.name && (
+                        itemRow.item_name.includes(itemInfo.name) || 
+                        itemInfo.name.includes(itemRow.item_name) ||
+                        itemRow.item_name.toLowerCase().includes(itemInfo.name.toLowerCase()) ||
+                        itemInfo.name.toLowerCase().includes(itemRow.item_name.toLowerCase())
+                    );
+                    return itemIdMatch || itemNameMatch;
+                });
+            }
+            return false;
+        });
+        
+        filteredRequests = matchingRequests;
+        displayRequests();
+    } else {
+        // Need to fetch - do it in parallel batches for speed
+        filterByItemFetch(itemId, itemInfo, itemIdNum);
+    }
+}
+
+function filterByItemFetch(itemId, itemInfo, itemIdNum) {
+    const loadingProgress = document.getElementById('loadingProgress');
+    if (loadingProgress) {
+        loadingProgress.style.display = 'block';
+        loadingProgress.textContent = currentLang === 'ar' 
+            ? 'جاري تصفية الطلبات حسب البند...' 
+            : 'Filtering requests by item...';
+    }
+    
+    const requestsToCheck = [...allRequests];
+    const matchingRequests = [];
+    const BATCH_SIZE = 10; // Process 10 in parallel
+    let currentIndex = 0;
+    const fullRequestsData = [];
+    
+    function processBatch() {
+        if (currentIndex >= requestsToCheck.length) {
+            // All done - save to cache and display
+            setFullRequestsCache(fullRequestsData);
+            filteredRequests = matchingRequests;
+            displayRequests();
+            if (loadingProgress) {
+                loadingProgress.style.display = 'none';
+            }
+            return;
+        }
+        
+        const batch = requestsToCheck.slice(currentIndex, currentIndex + BATCH_SIZE);
+        currentIndex += BATCH_SIZE;
+        
+        // Fetch all in batch in parallel
+        const promises = batch.map(request => {
+            return new Promise((resolve) => {
+                frappe.call({
+                    method: 'hr_services.portal.api.get',
+                    args: {
+                        doctype: 'Attendance Files',
+                        name: request.name
+                    },
+                    callback: function(r) {
+                        if (r.message) {
+                            fullRequestsData.push(r.message);
+                            if (r.message.items && r.message.items.length > 0) {
+                                const hasItem = r.message.items.some(itemRow => {
+                                    const itemIdMatch = itemRow.item && (
+                                        itemRow.item.toString() === itemId || 
+                                        itemRow.item === itemIdNum || 
+                                        itemRow.item.toString() === itemInfo.id
+                                    );
+                                    const itemNameMatch = itemRow.item_name && itemInfo.name && (
+                                        itemRow.item_name.includes(itemInfo.name) || 
+                                        itemInfo.name.includes(itemRow.item_name) ||
+                                        itemRow.item_name.toLowerCase().includes(itemInfo.name.toLowerCase()) ||
+                                        itemInfo.name.toLowerCase().includes(itemRow.item_name.toLowerCase())
+                                    );
+                                    return itemIdMatch || itemNameMatch;
+                                });
+                                
+                                if (hasItem) {
+                                    matchingRequests.push(request);
+                                }
+                            }
+                        }
+                        resolve();
+                    },
+                    error: function() {
+                        resolve();
+                    }
+                });
+            });
+        });
+        
+        Promise.all(promises).then(() => {
+            // Process next batch
+            setTimeout(processBatch, 10);
+        });
+    }
+    
+    processBatch();
+}
+
+function getFullRequestsCache() {
+    try {
+        const cached = sessionStorage.getItem('myRequests_full_cache');
+        const timestamp = sessionStorage.getItem('myRequests_full_cache_timestamp');
+        if (cached && timestamp) {
+            const age = Date.now() - parseInt(timestamp);
+            if (age < CACHE_DURATION) {
+                return JSON.parse(cached);
+            }
+        }
+    } catch (e) {
+        console.error('Full cache read error:', e);
+    }
+    return null;
+}
+
+function setFullRequestsCache(data) {
+    try {
+        sessionStorage.setItem('myRequests_full_cache', JSON.stringify(data));
+        sessionStorage.setItem('myRequests_full_cache_timestamp', Date.now().toString());
+    } catch (e) {
+        console.error('Full cache write error:', e);
+    }
+}
+
+function applyFilters() {
+    const fromMonth = document.getElementById('filterFromMonth').value;
+    const toMonth = document.getElementById('filterToMonth').value;
+    
+    filteredRequests = allRequests.filter(file => {
+        if (fromMonth && file.month && file.month < fromMonth + '-01') return false;
+        if (toMonth && file.month && file.month > toMonth + '-31') return false;
+        return true;
+    });
+    
+    displayRequests();
+}
+
+function clearFilters() {
+    document.getElementById('filterFromMonth').value = '';
+    document.getElementById('filterToMonth').value = '';
+    
+    filteredRequests = [...allRequests];
+    displayRequests();
+}
+
+function viewFile(fileId) {
+    window.location.href = `/attendance-file-detail?name=${encodeURIComponent(fileId)}`;
+}
+
+function showEmptyState(message) {
+    const tbody = document.getElementById('requestsTableBody');
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="7" style="text-align: center; padding: 40px;">
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-inbox"></i>
+                    </div>
+                    <div class="empty-state-title">${message}</div>
+                </div>
+            </td>
+        </tr>
+    `;
+    document.getElementById('loadingOverlay').classList.add('hidden');
+    document.getElementById('mainContent').classList.remove('hidden');
+}
+
+// Language Switcher
+document.querySelectorAll('.lang-btn').forEach(button => {
+    button.addEventListener('click', function() {
+        const lang = this.textContent.includes('English') ? 'en' : 'ar';
+        currentLang = lang;
+        localStorage.setItem('employeePortalLang', lang);
+        
+        document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+        this.classList.add('active');
+        
+        applyLanguage(lang);
+    });
+});
+
+function applyLanguage(lang) {
+    const body = document.body;
+    const html = document.documentElement;
+    
+    if (lang === 'ar') {
+        body.classList.add('rtl');
+        html.setAttribute('dir', 'rtl');
+    } else {
+        body.classList.remove('rtl');
+        html.setAttribute('dir', 'ltr');
+    }
+    html.setAttribute('lang', lang);
+    
+    document.querySelectorAll('[data-' + lang + ']').forEach(element => {
+        const text = element.getAttribute('data-' + lang);
+        if (text) element.textContent = text;
+    });
+}
+</script>
+
+{% endraw %}
+</article>
+</div>
+{% endblock %}

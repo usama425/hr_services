@@ -1,0 +1,1109 @@
+{% extends "templates/web.html" %}
+
+{% block page_content %}
+<div class="webpage-content">
+<article class="web-page-content" id="attendance-file-form" style="text-align: Left">
+{% raw %}<style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap');
+    
+    /* Hide default ERPNext header */
+    .navbar, .page-header, .page-head, .web-footer, header {
+        display: none !important;
+    }
+    
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    
+    /* Unified Color System - Light Mode (Default) */
+    :root {
+        --primary-color: #084887;
+        --primary-dark: #063a6b;
+        --primary-light: #0a5ba8;
+        --text-primary: #0f172a;
+        --text-secondary: #64748b;
+        --bg-primary: #ffffff;
+        --bg-secondary: #f8fafc;
+        --bg-tertiary: #f1f5f9;
+        --border-color: #e2e8f0;
+        --success-color: #10b981;
+        --error-color: #ef4444;
+        --warning-color: #f59e0b;
+    }
+    
+    /* Dark Mode */
+    [data-theme="dark"] {
+        --primary-color: #0d6efd;
+        --primary-dark: #084887;
+        --primary-light: #3d8bfd;
+        --text-primary: #ffffff;
+        --text-secondary: #cbd5e1;
+        --bg-primary: #1e293b;
+        --bg-secondary: #334155;
+        --bg-tertiary: #475569;
+        --border-color: rgba(148, 163, 184, 0.3);
+        --success-color: #10b981;
+        --error-color: #ef4444;
+        --warning-color: #f59e0b;
+    }
+    
+    body {
+        font-family: 'Inter', sans-serif;
+        background: var(--bg-secondary);
+        min-height: 100vh;
+        padding: 0;
+        padding-top: 0 !important;
+        transition: background 0.3s ease;
+    }
+    
+    body.rtl {
+        font-family: 'Cairo', sans-serif;
+        direction: rtl;
+    }
+    
+    /* Top Header Bar */
+    .top-header {
+        background: var(--bg-primary);
+        padding: 16px 48px;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+    
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+    
+    .back-button {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        background: transparent;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 500;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+    
+    .back-button:hover {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+    }
+    
+    .page-title-section h1 {
+        font-size: 18px;
+        color: var(--text-primary);
+        font-weight: 600;
+    }
+    
+    .page-title-section p {
+        font-size: 12px;
+        color: var(--text-secondary);
+        margin-top: 2px;
+    }
+    
+    .header-right {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+    
+    .theme-toggle {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 16px;
+        color: var(--text-primary);
+    }
+    
+    .theme-toggle:hover {
+        background: var(--bg-tertiary);
+        transform: scale(1.05);
+    }
+    
+    .lang-switcher {
+        display: flex;
+        gap: 4px;
+        background: var(--bg-secondary);
+        padding: 4px;
+        border-radius: 8px;
+    }
+    
+    .lang-btn {
+        padding: 6px 14px;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        border-radius: 6px;
+        font-weight: 500;
+        font-size: 13px;
+        color: var(--text-secondary);
+        transition: all 0.2s;
+    }
+    
+    .lang-btn.active {
+        background: var(--bg-primary);
+        color: var(--primary-color);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .user-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: var(--primary-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 14px;
+    }
+    
+    /* Main Container */
+    .form-container {
+        max-width: 900px;
+        margin: 24px auto;
+        padding: 0 24px;
+    }
+    
+    .form-card {
+        background: var(--bg-primary);
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        overflow: hidden;
+    }
+    
+    .form-header {
+        padding: 24px;
+        border-bottom: 1px solid var(--border-color);
+        background: var(--bg-secondary);
+    }
+    
+    .form-header h2 {
+        font-size: 20px;
+        color: var(--text-primary);
+        font-weight: 600;
+        margin-bottom: 6px;
+    }
+    
+    .form-header p {
+        font-size: 13px;
+        color: var(--text-secondary);
+    }
+    
+    .form-body {
+        padding: 24px;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+    }
+    
+    .required-mark {
+        color: var(--error-color);
+        margin-left: 4px;
+    }
+    
+    .form-input,
+    .form-select,
+    .form-textarea {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        font-size: 14px;
+        font-family: inherit;
+        transition: all 0.2s;
+    }
+    
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(8, 72, 135, 0.1);
+    }
+    
+    .form-input:disabled {
+        background: var(--bg-tertiary);
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+    
+    /* File Upload */
+    .file-upload-area {
+        border: 2px dashed var(--border-color);
+        border-radius: 8px;
+        padding: 24px;
+        text-align: center;
+        background: var(--bg-secondary);
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+    
+    .file-upload-area:hover {
+        border-color: var(--primary-color);
+        background: var(--bg-tertiary);
+    }
+    
+    .file-upload-area.dragover {
+        border-color: var(--primary-color);
+        background: rgba(8, 72, 135, 0.05);
+    }
+    
+    .file-upload-icon {
+        font-size: 32px;
+        color: var(--text-secondary);
+        margin-bottom: 12px;
+    }
+    
+    .file-upload-text {
+        font-size: 14px;
+        color: var(--text-primary);
+        font-weight: 500;
+        margin-bottom: 4px;
+    }
+    
+    .file-upload-hint {
+        font-size: 12px;
+        color: var(--text-secondary);
+    }
+    
+    .file-input {
+        display: none;
+    }
+    
+    .uploaded-files {
+        margin-top: 16px;
+    }
+    
+    .file-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        background: var(--bg-secondary);
+        border-radius: 8px;
+        margin-bottom: 8px;
+    }
+    
+    .file-icon {
+        width: 40px;
+        height: 40px;
+        background: var(--primary-color);
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 18px;
+    }
+    
+    .file-info {
+        flex: 1;
+    }
+    
+    .file-name {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--text-primary);
+    }
+    
+    .file-size {
+        font-size: 11px;
+        color: var(--text-secondary);
+        margin-top: 2px;
+    }
+    
+    .file-remove {
+        background: transparent;
+        border: none;
+        color: var(--error-color);
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 4px;
+        transition: all 0.2s;
+    }
+    
+    .file-remove:hover {
+        background: rgba(239, 68, 68, 0.1);
+    }
+    
+    /* Submit Button */
+    .form-actions {
+        padding: 24px;
+        border-top: 1px solid var(--border-color);
+        background: var(--bg-secondary);
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+    }
+    
+    .btn-submit {
+        padding: 12px 32px;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-submit:hover:not(:disabled) {
+        background: var(--primary-dark);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(8, 72, 135, 0.3);
+    }
+    
+    .btn-submit:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+    
+    .btn-submit.loading {
+        position: relative;
+        color: transparent;
+    }
+    
+    .btn-submit.loading::after {
+        content: '';
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        top: 50%;
+        left: 50%;
+        margin-left: -8px;
+        margin-top: -8px;
+        border: 2px solid white;
+        border-top-color: transparent;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    /* Alert Message */
+    .alert {
+        position: fixed;
+        top: 80px;
+        right: 24px;
+        padding: 16px 20px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        z-index: 1000;
+        display: none;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        max-width: 400px;
+    }
+    
+    .alert.show {
+        display: block;
+        animation: slideIn 0.3s ease;
+    }
+    
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    .alert-success {
+        background: var(--success-color);
+        color: white;
+    }
+    
+    .alert-error {
+        background: var(--error-color);
+        color: white;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .top-header {
+            flex-direction: column;
+            gap: 16px;
+            padding: 16px 20px;
+        }
+        
+        .form-container {
+            padding: 0 16px;
+        }
+        
+        .form-body,
+        .form-actions {
+            padding: 20px;
+        }
+    }
+    
+    /* RTL Support */
+    body.rtl .back-button {
+        flex-direction: row-reverse;
+    }
+</style>
+
+<!-- Alert Message -->
+<div id="alertMessage" class="alert"></div>
+
+<!-- Top Header -->
+<div class="top-header">
+    <div class="header-left">
+        <a href="/employee-portal-home" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+            <span data-en="Back to Dashboard" data-ar="العودة إلى لوحة التحكم">Back to Dashboard</span>
+        </a>
+        <div class="page-title-section">
+            <h1 data-en="Upload Attendance File" data-ar="رفع ملف الحضور">Upload Attendance File</h1>
+            <p data-en="Upload your monthly attendance file" data-ar="قم برفع ملف الحضور الشهري الخاص بك">Upload your monthly attendance file</p>
+        </div>
+    </div>
+    
+    <div class="header-right">
+        <button class="theme-toggle" id="themeToggle" title="Toggle Dark/Light Mode">
+            <i class="fas fa-moon" id="themeIcon"></i>
+        </button>
+        <div class="lang-switcher">
+            <button class="lang-btn active">English</button>
+            <button class="lang-btn">العربية</button>
+        </div>
+        
+        <div class="user-info">
+            <div class="user-avatar" id="userAvatar">--</div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Container -->
+<div class="form-container">
+    <!-- Video Tutorial Link -->
+    <div style="margin-bottom: 20px; padding: 12px 16px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-video" style="color: var(--primary-color); font-size: 18px;"></i>
+            <span style="font-size: 13px; color: var(--text-secondary);" data-en="Need help? Watch how to upload and view attendance" data-ar="تحتاج مساعدة؟ شاهد كيفية رفع وعرض الحضور">Need help? Watch how to upload and view attendance</span>
+        </div>
+        <a href="https://youtu.be/RIXIRHr9YDE" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: var(--primary-color); color: white; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 600; transition: all 0.2s;" onmouseover="this.style.background='var(--primary-dark)'" onmouseout="this.style.background='var(--primary-color)'">
+            <i class="fas fa-play"></i>
+            <span data-en="Watch Video" data-ar="شاهد الفيديو">Watch Video</span>
+        </a>
+    </div>
+    
+    <form id="attendanceFileForm" class="form-card">
+        <div class="form-header">
+            <h2 data-en="Upload Attendance File" data-ar="رفع ملف الحضور">Upload Attendance File</h2>
+            <p data-en="Select the month and upload your attendance file" data-ar="اختر الشهر وقم برفع ملف الحضور الخاص بك">Select the month and upload your attendance file</p>
+        </div>
+        
+        <div class="form-body">
+            <!-- Employee (Auto-filled, Read-only) -->
+            <div class="form-group">
+                <label class="form-label">
+                    <span data-en="Employee" data-ar="الموظف">Employee</span>
+                </label>
+                <input type="text" class="form-input" id="employee" readonly disabled />
+            </div>
+            
+            <!-- Employee Name (Auto-filled, Read-only) -->
+            <div class="form-group">
+                <label class="form-label">
+                    <span data-en="Employee Name" data-ar="اسم الموظف">Employee Name</span>
+                </label>
+                <input type="text" class="form-input" id="employeeName" readonly disabled />
+            </div>
+            
+            <!-- Month -->
+            <div class="form-group">
+                <label class="form-label">
+                    <span data-en="Month" data-ar="الشهر">Month</span>
+                    <span class="required-mark">*</span>
+                </label>
+                <input type="month" class="form-input" id="month" required />
+            </div>
+            
+            <!-- File Upload -->
+            <div class="form-group">
+                <label class="form-label">
+                    <span data-en="Attendance File" data-ar="ملف الحضور">Attendance File</span>
+                    <span class="required-mark">*</span>
+                </label>
+                <div class="file-upload-area" id="fileUploadArea">
+                    <div class="file-upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <div class="file-upload-text" data-en="Click to upload or drag and drop" data-ar="انقر للتحميل أو السحب والإفلات">Click to upload or drag and drop</div>
+                    <div class="file-upload-hint" data-en="PDF, Excel, CSV (Max 10MB)" data-ar="PDF، Excel، CSV (الحد الأقصى 10 ميجابايت)">PDF, Excel, CSV (Max 10MB)</div>
+                    <input type="file" class="file-input" id="fileInput" accept=".pdf,.xlsx,.xls,.csv" />
+                </div>
+                <div class="uploaded-files" id="uploadedFiles"></div>
+            </div>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn-submit" id="submitBtn">
+                <i class="fas fa-upload"></i>
+                <span data-en="Upload File" data-ar="رفع الملف">Upload File</span>
+            </button>
+        </div>
+    </form>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+<script>
+    let currentLang = localStorage.getItem('employeePortalLang') || 'en';
+    let currentTheme = localStorage.getItem('employeePortalTheme') || 'light';
+    let currentUser = null;
+    let employeeData = null;
+    let uploadedFile = null;
+    
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+        checkAuthentication();
+        initializeTheme();
+        initializeLanguage();
+        setupFileUpload();
+        setupFormSubmission();
+        setDefaultMonth();
+    });
+    
+    // Check Authentication
+    function checkAuthentication() {
+        frappe.call({
+            method: 'frappe.auth.get_logged_user',
+            callback: function(r) {
+                if (r.message && r.message !== 'Guest') {
+                    currentUser = r.message;
+                    loadEmployeeData();
+                } else {
+                    window.location.href = '/employee-login';
+                }
+            },
+            error: function() {
+                window.location.href = '/employee-login';
+            }
+        });
+    }
+    
+    function loadEmployeeData() {
+    frappe.call({
+        method: 'hr_services.portal.api.get_list',
+        args: {
+            doctype: 'Employee',
+            filters: {
+                user_id: currentUser
+            },
+            fields: ['name']
+        },
+        callback: function(r) {
+            if (r.message && r.message.length > 0) {
+                fetchFullEmployeeDetails(r.message[0].name);
+            } else {
+                console.log('No employee record found');
+                employeeData = {
+                    name: '',
+                    employe_name: currentUser.split('@')[0] || 'User',
+                    custom_location: '',  // ADD THIS
+                    project: '',           // ADD THIS
+                    department: ''         // ADD THIS
+                };
+                populateEmployeeFields();
+            }
+        },
+        error: function(err) {
+            console.error('Employee lookup error:', err);
+            employeeData = {
+                name: '',
+                employe_name: currentUser.split('@')[0] || 'User',
+                custom_location: '',  // ADD THIS
+                project: '',           // ADD THIS
+                department: ''         // ADD THIS
+            };
+            populateEmployeeFields();
+        }
+    });
+}
+    
+    // Load Employee Data
+    // function loadEmployeeData() {
+    //     frappe.call({
+    //         method: 'hr_services.portal.api.get_list',
+    //         args: {
+    //             doctype: 'Employee',
+    //             filters: {
+    //                 user_id: currentUser
+    //             },
+    //             fields: ['name']
+    //         },
+    //         callback: function(r) {
+    //             if (r.message && r.message.length > 0) {
+    //                 fetchFullEmployeeDetails(r.message[0].name);
+    //             } else {
+    //                 console.log('No employee record found');
+    //                 employeeData = {
+    //                     name: '',
+    //                     employe_name: currentUser.split('@')[0] || 'User'
+    //                 };
+    //                 populateEmployeeFields();
+    //             }
+    //         },
+    //         error: function(err) {
+    //             console.error('Employee lookup error:', err);
+    //             employeeData = {
+    //                 name: '',
+    //                 employe_name: currentUser.split('@')[0] || 'User'
+    //             };
+    //             populateEmployeeFields();
+    //         }
+    //     });
+    // }
+    
+    
+    function fetchFullEmployeeDetails(employeeName) {
+    frappe.call({
+        method: 'hr_services.portal.api.get',
+        args: {
+            doctype: 'Employee',
+            name: employeeName
+        },
+        callback: function(r) {
+            if (r.message) {
+                employeeData = r.message;
+                console.log('Full employee data:', employeeData);
+                console.log('Custom Location:', employeeData.custom_location);  // ADD THIS
+                console.log('Project:', employeeData.project);                   // ADD THIS
+                console.log('Department:', employeeData.department);             // ADD THIS
+                populateEmployeeFields();
+            }
+        },
+        error: function() {
+            employeeData = {
+                name: employeeName,
+                employe_name: currentUser.split('@')[0] || 'User',
+                custom_location: '',  // ADD THIS
+                project: '',           // ADD THIS
+                department: ''         // ADD THIS
+            };
+            populateEmployeeFields();
+        }
+    });
+}
+
+    // function fetchFullEmployeeDetails(employeeName) {
+    //     frappe.call({
+    //         method: 'hr_services.portal.api.get',
+    //         args: {
+    //             doctype: 'Employee',
+    //             name: employeeName
+    //         },
+    //         callback: function(r) {
+    //             if (r.message) {
+    //                 employeeData = r.message;
+    //                 populateEmployeeFields();
+    //             }
+    //         },
+    //         error: function() {
+    //             employeeData = {
+    //                 name: employeeName,
+    //                 employe_name: currentUser.split('@')[0] || 'User'
+    //             };
+    //             populateEmployeeFields();
+    //         }
+    //     });
+    // }
+    
+    function populateEmployeeFields() {
+        document.getElementById('employee').value = employeeData?.name || '';
+        document.getElementById('employeeName').value = employeeData?.employe_name || employeeData?.employee_name || '';
+        
+        const nameParts = (employeeData?.employe_name || employeeData?.employee_name || '').split(' ');
+        const initials = nameParts.length >= 2 
+            ? (nameParts[0][0] + nameParts[1][0]).toUpperCase()
+            : (employeeData?.employe_name || employeeData?.employee_name || 'U').substring(0, 2).toUpperCase();
+        document.getElementById('userAvatar').textContent = initials;
+    }
+    
+    function setDefaultMonth() {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        document.getElementById('month').value = `${year}-${month}`;
+    }
+    
+    // Theme Toggle
+    function initializeTheme() {
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        
+        if (currentTheme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            themeIcon.classList.remove('fa-moon');
+            themeIcon.classList.add('fa-sun');
+        }
+        
+        themeToggle.addEventListener('click', function() {
+            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+            localStorage.setItem('employeePortalTheme', currentTheme);
+            
+            if (currentTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
+            }
+        });
+    }
+    
+    // Language Switcher
+    function initializeLanguage() {
+        document.querySelectorAll('.lang-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const lang = this.textContent.includes('English') ? 'en' : 'ar';
+                currentLang = lang;
+                localStorage.setItem('employeePortalLang', lang);
+                
+                document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                
+                applyLanguage(lang);
+            });
+        });
+        
+        applyLanguage(currentLang);
+    }
+    
+    function applyLanguage(lang) {
+        const body = document.body;
+        const html = document.documentElement;
+        
+        if (lang === 'ar') {
+            body.classList.add('rtl');
+            html.setAttribute('dir', 'rtl');
+        } else {
+            body.classList.remove('rtl');
+            html.setAttribute('dir', 'ltr');
+        }
+        html.setAttribute('lang', lang);
+        
+        document.querySelectorAll('[data-' + lang + ']').forEach(element => {
+            const text = element.getAttribute('data-' + lang);
+            element.textContent = text;
+        });
+    }
+    
+    // File Upload Setup
+    function setupFileUpload() {
+        const fileUploadArea = document.getElementById('fileUploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const uploadedFilesDiv = document.getElementById('uploadedFiles');
+        
+        fileUploadArea.addEventListener('click', () => fileInput.click());
+        
+        fileUploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileUploadArea.classList.add('dragover');
+        });
+        
+        fileUploadArea.addEventListener('dragleave', () => {
+            fileUploadArea.classList.remove('dragover');
+        });
+        
+        fileUploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileUploadArea.classList.remove('dragover');
+            handleFile(e.dataTransfer.files[0]);
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+    }
+    
+    function handleFile(file) {
+        if (file.size > 10 * 1024 * 1024) {
+            showAlert('error', currentLang === 'ar' ? '❌ الملف كبير جداً (الحد الأقصى 10 ميجابايت)' : '❌ File too large (Max 10MB)');
+            return;
+        }
+        
+        uploadedFile = file;
+        displayFile(file);
+    }
+    
+    function displayFile(file) {
+        const uploadedFilesDiv = document.getElementById('uploadedFiles');
+        uploadedFilesDiv.innerHTML = '';
+        
+        const fileItem = document.createElement('div');
+        fileItem.className = 'file-item';
+        fileItem.dataset.fileName = file.name;
+        
+        const fileExtension = file.name.split('.').pop().toLowerCase();
+        const iconMap = {
+            'pdf': 'fa-file-pdf',
+            'xlsx': 'fa-file-excel',
+            'xls': 'fa-file-excel',
+            'csv': 'fa-file-csv'
+        };
+        
+        fileItem.innerHTML = `
+            <div class="file-icon">
+                <i class="fas ${iconMap[fileExtension] || 'fa-file'}"></i>
+            </div>
+            <div class="file-info">
+                <div class="file-name">${file.name}</div>
+                <div class="file-size">${formatFileSize(file.size)}</div>
+            </div>
+            <button type="button" class="file-remove" onclick="removeFile()">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        
+        uploadedFilesDiv.appendChild(fileItem);
+    }
+    
+    function removeFile() {
+        uploadedFile = null;
+        document.getElementById('uploadedFiles').innerHTML = '';
+        document.getElementById('fileInput').value = '';
+    }
+    
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+    }
+    
+    // Form Submission
+    function setupFormSubmission() {
+        document.getElementById('attendanceFileForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            submitAttendanceFile();
+        });
+    }
+    
+    async function submitAttendanceFile() {
+        const submitBtn = document.getElementById('submitBtn');
+        
+        // Validate
+        if (!uploadedFile) {
+            showAlert('error', currentLang === 'ar' ? '❌ يرجى رفع ملف الحضور' : '❌ Please upload attendance file');
+            return;
+        }
+        
+        const monthValue = document.getElementById('month').value;
+        if (!monthValue) {
+            showAlert('error', currentLang === 'ar' ? '❌ يرجى اختيار الشهر' : '❌ Please select month');
+            return;
+        }
+        
+        // Convert month (YYYY-MM) to date (first day of month)
+        const monthDate = monthValue + '-01';
+        
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.classList.add('loading');
+        }
+        
+        const formData = {
+    doctype: 'Attendance Files',
+    naming_series: 'AF-.YYYY.-',
+    employee: employeeData?.name || '',
+    employe_name: employeeData?.employe_name || employeeData?.employee_name || '',
+    work_location: employeeData?.custom_location || '',  // ADD THIS - Auto-populate location
+    project: employeeData?.project || '',                 // ADD THIS (optional)
+    department: employeeData?.department || '',           // ADD THIS (optional)
+    month: monthDate
+};
+
+// Debug log
+console.log('Submitting with work_location:', formData.work_location);
+
+        // const formData = {
+        //     doctype: 'Attendance Files',
+        //     naming_series: 'AF-.YYYY.-',
+        //     employee: employeeData?.name || '',
+        //     employe_name: employeeData?.employe_name || employeeData?.employee_name || '',
+        //     month: monthDate
+        // };
+        
+        frappe.call({
+            method: 'hr_services.portal.api.insert',
+            args: {
+                doc: formData
+            },
+            callback: async function(r) {
+                if (r.message) {
+                    const fileRecordName = r.message.name;
+                    console.log('✅ Document created:', fileRecordName);
+                    
+                    // Wait a bit longer to ensure document is fully saved
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    
+                    // Upload attachment
+                    if (uploadedFile) {
+                        try {
+                            await uploadAttachment(fileRecordName);
+                            
+                            showAlert('success', 
+                                currentLang === 'ar' 
+                                    ? `✅ تم رفع الملف بنجاح! رقم السجل: ${fileRecordName}`
+                                    : `✅ File uploaded successfully! Record ID: ${fileRecordName}`
+                            );
+                            
+                            setTimeout(function() {
+                                window.location.href = '/attendance-file-list';
+                            }, 2000);
+                        } catch (uploadError) {
+                            console.error('❌ File upload failed:', uploadError);
+                            showAlert('error', 
+                                currentLang === 'ar'
+                                    ? '⚠️ تم إنشاء السجل ولكن فشل رفع الملف'
+                                    : '⚠️ Record created but file upload failed'
+                            );
+                            
+                            if (submitBtn) {
+                                submitBtn.disabled = false;
+                                submitBtn.classList.remove('loading');
+                            }
+                        }
+                    }
+                }
+            },
+            error: function(r) {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('loading');
+                }
+                console.error('❌ Submission error:', r);
+                showAlert('error', 
+                    currentLang === 'ar'
+                        ? '❌ فشل في رفع الملف. يرجى المحاولة مرة أخرى'
+                        : '❌ Failed to upload file. Please try again'
+                );
+            }
+        });
+    }
+    
+    async function uploadAttachment(recordName) {
+        if (!uploadedFile) {
+            console.log('⚠️ No file to upload');
+            return;
+        }
+        
+        console.log('📤 Starting file upload for document:', recordName);
+        console.log('📁 File details:', {
+            name: uploadedFile.name,
+            size: uploadedFile.size,
+            type: uploadedFile.type
+        });
+        
+        try {
+            const formData = new FormData();
+            formData.append('file', uploadedFile, uploadedFile.name);
+            formData.append('doctype', 'Attendance Files');
+            formData.append('docname', recordName);
+            formData.append('is_private', '0');
+            formData.append('folder', 'Home/Attachments');
+            
+            console.log('📤 Sending upload request...');
+            
+            const response = await fetch('/api/method/upload_file', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Frappe-CSRF-Token': frappe.csrf_token
+                },
+                body: formData
+            });
+            
+            console.log('📥 Upload response status:', response.status);
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('❌ Upload failed:', errorText);
+                throw new Error(`Upload failed with status ${response.status}: ${errorText}`);
+            }
+            
+            const result = await response.json();
+            console.log('✅ Upload successful!', result);
+            
+            if (result.message) {
+                console.log('📎 File attached:', {
+                    url: result.message.file_url,
+                    name: result.message.file_name
+                });
+            }
+            
+            return result;
+        } catch (error) {
+            console.error('❌ File upload error:', error);
+            throw error;
+        }
+    }
+    
+    function showAlert(type, message) {
+        const alert = document.getElementById('alertMessage');
+        alert.className = `alert alert-${type} show`;
+        alert.innerHTML = message;
+        
+        setTimeout(() => {
+            alert.classList.remove('show');
+        }, 5000);
+    }
+</script>{% endraw %}
+</article>
+</div>
+{% endblock %}

@@ -1,0 +1,1099 @@
+{% extends "templates/web.html" %}
+
+{% block page_content %}
+<div class="webpage-content">
+<article class="web-page-content" id="employee-self-service" style="text-align: Left">
+{% raw %}<style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap');
+    
+    /* Hide default ERPNext header */
+    .navbar, .page-header, .page-head, .web-footer, header {
+        display: none !important;
+    }
+    
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    
+    /* Unified Color System - Light Mode (Default) */
+    :root {
+        --primary-color: #084887;
+        --primary-dark: #063a6b;
+        --primary-light: #0a5ba8;
+        --text-primary: #0f172a;
+        --text-secondary: #64748b;
+        --bg-primary: #ffffff;
+        --bg-secondary: #f8fafc;
+        --bg-tertiary: #f1f5f9;
+        --border-color: #e2e8f0;
+        --success-color: #10b981;
+        --error-color: #ef4444;
+        --warning-color: #f59e0b;
+        --gradient-1: linear-gradient(135deg, #084887 0%, #0a5ba8 100%);
+        --gradient-2: linear-gradient(135deg, #084887 0%, #063a6b 100%);
+        --gradient-3: linear-gradient(135deg, #0a5ba8 0%, #084887 100%);
+        --gradient-4: linear-gradient(135deg, #084887 0%, #0d6efd 100%);
+        --gradient-5: linear-gradient(135deg, #063a6b 0%, #084887 100%);
+        --gradient-6: linear-gradient(135deg, #084887 0%, #0a5ba8 100%);
+    }
+    
+    /* Dark Mode */
+    [data-theme="dark"] {
+        --primary-color: #0d6efd;
+        --primary-dark: #084887;
+        --primary-light: #3d8bfd;
+        --text-primary: #ffffff;
+        --text-secondary: #cbd5e1;
+        --bg-primary: #1e293b;
+        --bg-secondary: #334155;
+        --bg-tertiary: #475569;
+        --border-color: rgba(148, 163, 184, 0.3);
+        --success-color: #10b981;
+        --error-color: #ef4444;
+        --warning-color: #f59e0b;
+        --gradient-1: linear-gradient(135deg, #0d6efd 0%, #3d8bfd 100%);
+        --gradient-2: linear-gradient(135deg, #084887 0%, #0d6efd 100%);
+        --gradient-3: linear-gradient(135deg, #3d8bfd 0%, #084887 100%);
+        --gradient-4: linear-gradient(135deg, #084887 0%, #0d6efd 100%);
+        --gradient-5: linear-gradient(135deg, #0d6efd 0%, #084887 100%);
+        --gradient-6: linear-gradient(135deg, #084887 0%, #3d8bfd 100%);
+    }
+    
+    body {
+        font-family: 'Inter', sans-serif;
+        background: var(--bg-primary);
+        min-height: 100vh;
+        padding: 0;
+        padding-top: 0 !important;
+        transition: background 0.3s ease;
+    }
+    
+    body.rtl {
+        font-family: 'Cairo', sans-serif;
+        direction: rtl;
+    }
+    
+    /* Top Header with Language Switcher */
+    .top-header {
+        background: var(--bg-primary);
+        padding: 16px 48px;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    
+    .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+    
+    .theme-toggle {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 16px;
+        color: var(--text-primary);
+    }
+    
+    .theme-toggle:hover {
+        background: var(--bg-tertiary);
+        transform: scale(1.05);
+    }
+    
+    .lang-switcher {
+        display: flex;
+        gap: 4px;
+        background: var(--bg-secondary);
+        padding: 4px;
+        border-radius: 8px;
+    }
+    
+    .lang-btn {
+        padding: 6px 14px;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        border-radius: 6px;
+        font-weight: 500;
+        font-size: 13px;
+        color: var(--text-secondary);
+        transition: all 0.2s;
+    }
+    
+    .lang-btn.active {
+        background: var(--bg-primary);
+        color: var(--primary-color);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .sign-in-btn {
+        padding: 10px 24px;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .sign-in-btn:hover {
+        background: var(--primary-dark);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(8, 72, 135, 0.3);
+    }
+    
+    [data-theme="dark"] .sign-in-btn:hover {
+        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.4);
+    }
+    
+    /* Hero Section */
+    .hero-section {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+        color: white;
+        padding: 80px 20px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        transition: background 0.3s ease;
+    }
+    
+    [data-theme="dark"] .hero-section {
+        background: var(--bg-primary);
+    }
+    
+    /* Premium Waving/Shiny Effect */
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(
+            45deg,
+            transparent 30%,
+            rgba(255, 255, 255, 0.1) 50%,
+            transparent 70%
+        );
+        animation: wave 8s ease-in-out infinite;
+        pointer-events: none;
+    }
+    
+    [data-theme="dark"] .hero-section::before {
+        background: linear-gradient(
+            45deg,
+            transparent 30%,
+            rgba(13, 110, 253, 0.2) 50%,
+            transparent 70%
+        );
+    }
+    
+    .hero-section::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(
+            -45deg,
+            transparent 30%,
+            rgba(255, 255, 255, 0.08) 50%,
+            transparent 70%
+        );
+        animation: wave 10s ease-in-out infinite reverse;
+        pointer-events: none;
+    }
+    
+    [data-theme="dark"] .hero-section::after {
+        background: linear-gradient(
+            -45deg,
+            transparent 30%,
+            rgba(13, 110, 253, 0.15) 50%,
+            transparent 70%
+        );
+    }
+    
+    @keyframes wave {
+        0%, 100% {
+            transform: translate(0, 0) rotate(0deg);
+        }
+        25% {
+            transform: translate(20px, -20px) rotate(5deg);
+        }
+        50% {
+            transform: translate(-20px, 20px) rotate(-5deg);
+        }
+        75% {
+            transform: translate(15px, 15px) rotate(3deg);
+        }
+    }
+    
+    .hero-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .logo-text {
+        font-size: 48px;
+        font-weight: 700;
+        margin-bottom: 12px;
+        letter-spacing: -1px;
+    }
+    
+    .subtitle {
+        font-size: 20px;
+        font-weight: 400;
+        opacity: 0.95;
+        margin-top: 20px;
+        letter-spacing: 0.5px;
+    }
+    
+    .hero-description {
+        font-size: 18px;
+        line-height: 1.8;
+        max-width: 800px;
+        margin: 35px auto;
+        opacity: 0.95;
+    }
+    
+    .hero-cta-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        background: white;
+        color: var(--primary-color);
+        padding: 18px 50px;
+        font-size: 18px;
+        font-weight: 600;
+        border-radius: 12px;
+        text-decoration: none;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+        transition: all 0.3s ease;
+        margin-top: 40px;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .hero-cta-button:hover {
+        background: #f8fafc;
+        box-shadow: 0 12px 32px rgba(0,0,0,0.3);
+        transform: translateY(-3px);
+        color: var(--primary-dark);
+        text-decoration: none;
+    }
+    
+    /* Content Wrapper */
+    .content-wrapper {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 60px 20px;
+        background: var(--bg-primary);
+        transition: background 0.3s ease;
+    }
+    
+    /* Section Headers */
+    .section-header {
+        text-align: center;
+        margin-bottom: 50px;
+    }
+    
+    .section-title {
+        font-size: 36px;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 12px;
+    }
+    
+    .section-subtitle {
+        font-size: 18px;
+        color: var(--text-secondary);
+        max-width: 700px;
+        margin: 0 auto;
+        line-height: 1.7;
+    }
+    
+    /* Video Section - Side by Side */
+    .video-section {
+        background: var(--bg-primary);
+        border-radius: 16px;
+        padding: 40px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        margin-bottom: 60px;
+        border: 1px solid var(--border-color);
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+        align-items: center;
+    }
+    
+    .video-container {
+        position: relative;
+        padding-bottom: 56.25%;
+        height: 0;
+        overflow: hidden;
+        background: #000;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    }
+    
+    .video-container iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: 0;
+    }
+    
+    .video-description {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .video-description h3 {
+        font-size: 24px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+    }
+    
+    .video-description p {
+        color: var(--text-secondary);
+        font-size: 16px;
+        line-height: 1.7;
+    }
+    
+    /* Features Grid */
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+        margin-bottom: 60px;
+    }
+    
+    .feature-card {
+        background: var(--bg-primary);
+        border-radius: 16px;
+        padding: 35px 30px;
+        border: 1px solid var(--border-color);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+    }
+    
+    .feature-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--gradient-1);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+    
+    .feature-card:hover::before {
+        transform: scaleX(1);
+    }
+    
+    .feature-card:hover {
+        border-color: var(--primary-color);
+        box-shadow: 0 12px 32px rgba(8, 72, 135, 0.15);
+        transform: translateY(-8px);
+    }
+    
+    [data-theme="dark"] .feature-card:hover {
+        box-shadow: 0 12px 32px rgba(13, 110, 253, 0.25);
+    }
+    
+    .feature-icon-wrapper {
+        width: 70px;
+        height: 70px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 24px;
+        font-size: 32px;
+        background: var(--gradient-1);
+        box-shadow: 0 4px 12px rgba(8, 72, 135, 0.3);
+    }
+    
+    .feature-card:nth-child(2) .feature-icon-wrapper {
+        background: var(--gradient-2);
+        box-shadow: 0 4px 12px rgba(8, 72, 135, 0.3);
+    }
+    
+    .feature-card:nth-child(3) .feature-icon-wrapper {
+        background: var(--gradient-3);
+        box-shadow: 0 4px 12px rgba(8, 72, 135, 0.3);
+    }
+    
+    .feature-card:nth-child(4) .feature-icon-wrapper {
+        background: var(--gradient-4);
+        box-shadow: 0 4px 12px rgba(8, 72, 135, 0.3);
+    }
+    
+    .feature-card:nth-child(5) .feature-icon-wrapper {
+        background: var(--gradient-5);
+        box-shadow: 0 4px 12px rgba(8, 72, 135, 0.3);
+    }
+    
+    .feature-card:nth-child(6) .feature-icon-wrapper {
+        background: var(--gradient-6);
+        box-shadow: 0 4px 12px rgba(8, 72, 135, 0.3);
+    }
+    
+    .feature-card:nth-child(7) .feature-icon-wrapper {
+        background: linear-gradient(135deg, #084887 0%, #0a5ba8 100%);
+        box-shadow: 0 4px 12px rgba(8, 72, 135, 0.3);
+    }
+    
+    .feature-card:nth-child(8) .feature-icon-wrapper {
+        background: linear-gradient(135deg, #0a5ba8 0%, #084887 100%);
+        box-shadow: 0 4px 12px rgba(8, 72, 135, 0.3);
+    }
+    
+    [data-theme="dark"] .feature-icon-wrapper {
+        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.4);
+    }
+    
+    [data-theme="dark"] .feature-card:nth-child(2) .feature-icon-wrapper {
+        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.4);
+    }
+    
+    [data-theme="dark"] .feature-card:nth-child(3) .feature-icon-wrapper {
+        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.4);
+    }
+    
+    [data-theme="dark"] .feature-card:nth-child(4) .feature-icon-wrapper {
+        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.4);
+    }
+    
+    [data-theme="dark"] .feature-card:nth-child(5) .feature-icon-wrapper {
+        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.4);
+    }
+    
+    [data-theme="dark"] .feature-card:nth-child(6) .feature-icon-wrapper {
+        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.4);
+    }
+    
+    [data-theme="dark"] .feature-card:nth-child(7) .feature-icon-wrapper {
+        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.4);
+    }
+    
+    [data-theme="dark"] .feature-card:nth-child(8) .feature-icon-wrapper {
+        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.4);
+    }
+    
+    .feature-title {
+        font-size: 22px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 12px;
+    }
+    
+    .feature-description {
+        color: var(--text-secondary);
+        font-size: 15px;
+        line-height: 1.7;
+        margin-top: 12px;
+    }
+    
+    /* Services Grid */
+    .services-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 25px;
+        margin-bottom: 60px;
+    }
+    
+    .service-card {
+        background: var(--bg-primary);
+        border-radius: 12px;
+        padding: 30px;
+        border: 1px solid var(--border-color);
+        transition: all 0.3s ease;
+        text-align: center;
+        cursor: pointer;
+    }
+    
+    .service-card:hover {
+        border-color: var(--primary-color);
+        box-shadow: 0 8px 24px rgba(8, 72, 135, 0.12);
+        transform: translateY(-4px);
+    }
+    
+    [data-theme="dark"] .service-card:hover {
+        box-shadow: 0 8px 24px rgba(13, 110, 253, 0.2);
+    }
+    
+    .service-icon {
+        font-size: 48px;
+        margin-bottom: 20px;
+        display: block;
+    }
+    
+    .service-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 10px;
+    }
+    
+    .service-description {
+        color: var(--text-secondary);
+        font-size: 14px;
+        line-height: 1.6;
+    }
+    
+    /* Info Footer */
+    .info-footer {
+        background: var(--bg-primary);
+        border-radius: 16px;
+        padding: 50px 40px;
+        text-align: center;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    
+    .info-title {
+        font-size: 28px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 12px;
+    }
+    
+    .info-text {
+        color: var(--text-secondary);
+        font-size: 16px;
+        line-height: 1.8;
+        margin-top: 20px;
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .contact-info {
+        margin-top: 35px;
+        padding-top: 35px;
+        border-top: 1px solid var(--border-color);
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        flex-wrap: wrap;
+    }
+    
+    .contact-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: var(--primary-color);
+        font-weight: 500;
+        font-size: 16px;
+    }
+    
+    .contact-item i {
+        font-size: 20px;
+    }
+    
+    /* Language-specific visibility */
+    [data-lang="en"] {
+        display: block;
+    }
+    
+    [data-lang="ar"] {
+        display: none;
+    }
+    
+    body.rtl [data-lang="en"] {
+        display: none;
+    }
+    
+    body.rtl [data-lang="ar"] {
+        display: block;
+    }
+    
+    /* Responsive */
+    @media (max-width: 968px) {
+        .video-section {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .top-header {
+            padding: 12px 16px;
+        }
+        
+        .hero-section {
+            padding: 50px 20px;
+        }
+        
+        .logo-text {
+            font-size: 36px;
+        }
+        
+        .section-title {
+            font-size: 28px;
+        }
+        
+        .features-grid,
+        .services-grid {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        
+        .video-section,
+        .info-footer {
+            padding: 30px 20px;
+        }
+        
+        .contact-info {
+            flex-direction: column;
+            gap: 20px;
+        }
+    }
+</style>
+
+<!-- Top Header -->
+<div class="top-header">
+    <div class="header-actions">
+        <button class="theme-toggle" id="themeToggle" title="Toggle Dark/Light Mode">
+            <i class="fas fa-moon" id="themeIcon"></i>
+        </button>
+        <div class="lang-switcher">
+            <button class="lang-btn active" onclick="switchLanguage('en')">EN</button>
+            <button class="lang-btn" onclick="switchLanguage('ar')">AR</button>
+        </div>
+        <a href="/employee-login" class="sign-in-btn">
+            <i class="fas fa-sign-in-alt"></i>
+            <span data-lang="en">Sign In</span>
+            <span data-lang="ar">تسجيل الدخول</span>
+        </a>
+    </div>
+</div>
+
+<div class="onboarding-container">
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="hero-content">
+            <div class="logo-text">
+                <span data-lang="en">🏢 Elite Resources Center</span>
+                <span data-lang="ar">🏢 مركز النخبة للموارد</span>
+            </div>
+            <div class="subtitle">
+                <span data-lang="en">Employee Self Service Portal</span>
+                <span data-lang="ar">بوابة الخدمة الذاتية للموظفين</span>
+            </div>
+            <div class="subtitle" style="margin-top: 10px; font-size: 16px; opacity: 0.9;">
+                <!--<span data-lang="en">Riyadh Schools Group</span>-->
+                <!--<span data-lang="ar">مجموعة مدارس الرياض</span>-->
+            </div>
+            
+            <div class="hero-description">
+                <span data-lang="en">
+                    Streamline your work-related requests with our comprehensive employee portal. 
+                    Submit requests, track status, manage your profile, and access all employee services in one place.
+                </span>
+                <span data-lang="ar">
+                    قم بتبسيط طلباتك المتعلقة بالعمل من خلال بوابة الموظفين الشاملة. 
+                    قدم الطلبات، تتبع الحالة، أدر ملفك الشخصي، واذهب إلى جميع خدمات الموظفين في مكان واحد.
+                </span>
+            </div>
+            
+            <a href="/employee-login" class="hero-cta-button">
+                <i class="fas fa-arrow-right"></i>
+                <span data-lang="en">Get Started Now</span>
+                <span data-lang="ar">ابدأ الآن</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="content-wrapper">
+        <!-- Video Tutorial Section - Side by Side -->
+        <div class="video-section">
+            <div class="video-container">
+                <iframe 
+                    src="https://youtu.be/RIXIRHr9YDE" 
+                    title="Employee Portal Login Tutorial" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen>
+                </iframe>
+            </div>
+            <div class="video-description">
+                <h3 data-lang="en">How to Login</h3>
+                <h3 data-lang="ar">كيفية تسجيل الدخول</h3>
+                <p data-lang="en">
+                    Watch this tutorial to learn how to log in to the employee self-service portal. 
+                    This step-by-step guide will show you how to access your account and get started.
+                </p>
+                <p data-lang="ar">
+                    شاهد هذا البرنامج التعليمي لتتعلم كيفية تسجيل الدخول إلى بوابة الخدمة الذاتية للموظفين. 
+                    سيوضح لك هذا الدليل خطوة بخطوة كيفية الوصول إلى حسابك والبدء.
+                </p>
+            </div>
+        </div>
+
+        <!-- Main Features Section -->
+        <div class="section-header">
+            <h2 class="section-title">
+                <span data-lang="en">Portal Features</span>
+                <span data-lang="ar">مميزات البوابة</span>
+            </h2>
+            <p class="section-subtitle">
+                <span data-lang="en">Discover all the powerful features designed to make your work life easier and more efficient.</span>
+                <span data-lang="ar">اكتشف جميع الميزات القوية المصممة لجعل حياتك العملية أسهل وأكثر كفاءة.</span>
+            </p>
+        </div>
+        
+        <div class="features-grid">
+            <div class="feature-card" onclick="window.location.href='/employee-login'">
+                <div class="feature-icon-wrapper">
+                    <i class="fas fa-paper-plane" style="color: white;"></i>
+                </div>
+                <div class="feature-title">
+                    <span data-lang="en">Submit Requests</span>
+                    <span data-lang="ar">تقديم الطلبات</span>
+                </div>
+                <p class="feature-description">
+                    <span data-lang="en">Easily submit requests for Iqama renewal, flight tickets, leave applications, employee advances, and other essential employee services with just a few clicks.</span>
+                    <span data-lang="ar">قدم بسهولة طلبات تجديد الإقامة وتذاكر الطيران وطلبات الإجازة وسلف الموظفين وخدمات الموظفين الأساسية الأخرى بنقرة واحدة فقط.</span>
+                </p>
+            </div>
+
+            <div class="feature-card" onclick="window.location.href='/employee-login'">
+                <div class="feature-icon-wrapper">
+                    <i class="fas fa-search" style="color: white;"></i>
+                </div>
+                <div class="feature-title">
+                    <span data-lang="en">Track Request Status</span>
+                    <span data-lang="ar">تتبع حالة الطلبات</span>
+                </div>
+                <p class="feature-description">
+                    <span data-lang="en">Monitor the approval status of all your submitted requests in real-time. Get instant notifications and updates on your request progress.</span>
+                    <span data-lang="ar">راقب حالة الموافقة على جميع طلباتك المقدمة في الوقت الفعلي. احصل على إشعارات وتحديثات فورية حول تقدم طلبك.</span>
+                </p>
+            </div>
+
+            <div class="feature-card" onclick="window.location.href='/employee-login'">
+                <div class="feature-icon-wrapper">
+                    <i class="fas fa-user-circle" style="color: white;"></i>
+                </div>
+                <div class="feature-title">
+                    <span data-lang="en">Employee Profile</span>
+                    <span data-lang="ar">الملف الشخصي للموظف</span>
+                </div>
+                <p class="feature-description">
+                    <span data-lang="en">View and update your personal information, employment details, contact information, and manage your account settings securely.</span>
+                    <span data-lang="ar">اعرض وحدّث معلوماتك الشخصية وتفاصيل التوظيف ومعلومات الاتصال وأدر إعدادات حسابك بأمان.</span>
+                </p>
+            </div>
+
+            <div class="feature-card" onclick="window.location.href='/employee-login'">
+                <div class="feature-icon-wrapper">
+                    <i class="fas fa-chart-line" style="color: white;"></i>
+                </div>
+                <div class="feature-title">
+                    <span data-lang="en">View Records & Statistics</span>
+                    <span data-lang="ar">عرض السجلات والإحصائيات</span>
+                </div>
+                <p class="feature-description">
+                    <span data-lang="en">Access your complete attendance records, leave balance, salary information, employment history, and detailed analytics all in one dashboard.</span>
+                    <span data-lang="ar">الوصول إلى سجلات الحضور الكاملة ورصيد الإجازات ومعلومات الراتب وتاريخ التوظيف والتحليلات التفصيلية كلها في لوحة تحكم واحدة.</span>
+                </p>
+            </div>
+
+            <div class="feature-card" onclick="window.location.href='/employee-login'">
+                <div class="feature-icon-wrapper">
+                    <i class="fas fa-file-alt" style="color: white;"></i>
+                </div>
+                <div class="feature-title">
+                    <span data-lang="en">Document Management</span>
+                    <span data-lang="ar">إدارة المستندات</span>
+                </div>
+                <p class="feature-description">
+                    <span data-lang="en">Upload, view, and manage all your important documents including contracts, certificates, payslips, and other employment-related files.</span>
+                    <span data-lang="ar">ارفع واعرض وأدر جميع مستنداتك المهمة بما في ذلك العقود والشهادات وكشوف المرتبات والملفات الأخرى المتعلقة بالتوظيف.</span>
+                </p>
+            </div>
+
+            <div class="feature-card" onclick="window.location.href='/employee-login'">
+                <div class="feature-icon-wrapper">
+                    <i class="fas fa-bell" style="color: white;"></i>
+                </div>
+                <div class="feature-title">
+                    <span data-lang="en">Notifications & Alerts</span>
+                    <span data-lang="ar">الإشعارات والتنبيهات</span>
+                </div>
+                <p class="feature-description">
+                    <span data-lang="en">Stay informed with real-time notifications about request approvals, important announcements, deadlines, and system updates.</span>
+                    <span data-lang="ar">ابق على اطلاع مع الإشعارات الفورية حول موافقات الطلبات والإعلانات المهمة والمواعيد النهائية وتحديثات النظام.</span>
+                </p>
+            </div>
+
+            <div class="feature-card" onclick="window.location.href='/employee-login'">
+                <div class="feature-icon-wrapper">
+                    <i class="fas fa-shield-alt" style="color: white;"></i>
+                </div>
+                <div class="feature-title">
+                    <span data-lang="en">Secure & Private</span>
+                    <span data-lang="ar">آمن وخاص</span>
+                </div>
+                <p class="feature-description">
+                    <span data-lang="en">Your data is protected with enterprise-grade security. All information is encrypted and accessible only to authorized personnel.</span>
+                    <span data-lang="ar">بياناتك محمية بأمان على مستوى المؤسسة. جميع المعلومات مشفرة ويمكن الوصول إليها فقط من قبل الموظفين المصرح لهم.</span>
+                </p>
+            </div>
+
+            <div class="feature-card" onclick="window.location.href='/employee-login'">
+                <div class="feature-icon-wrapper">
+                    <i class="fas fa-mobile-alt" style="color: white;"></i>
+                </div>
+                <div class="feature-title">
+                    <span data-lang="en">Mobile Friendly</span>
+                    <span data-lang="ar">متوافق مع الجوال</span>
+                </div>
+                <p class="feature-description">
+                    <span data-lang="en">Access your portal from any device - desktop, tablet, or mobile. The responsive design ensures a seamless experience everywhere.</span>
+                    <span data-lang="ar">اذهب إلى بوابتك من أي جهاز - سطح المكتب أو الجهاز اللوحي أو الجوال. التصميم المتجاوب يضمن تجربة سلسة في كل مكان.</span>
+                </p>
+            </div>
+        </div>
+
+        <!-- Available Services Section -->
+        <div class="section-header" style="margin-top: 80px;">
+            <h2 class="section-title">
+                <span data-lang="en">Available Services</span>
+                <span data-lang="ar">الخدمات المتاحة</span>
+            </h2>
+            <p class="section-subtitle">
+                <span data-lang="en">Explore all the services you can request through the portal.</span>
+                <span data-lang="ar">استكشف جميع الخدمات التي يمكنك طلبها من خلال البوابة.</span>
+            </p>
+        </div>
+        
+        <div class="services-grid">
+            <div class="service-card" onclick="window.location.href='/employee-login'">
+                <span class="service-icon">🆔</span>
+                <div class="service-title">
+                    <span data-lang="en">Iqama Renewal</span>
+                    <span data-lang="ar">تجديد الإقامة</span>
+                </div>
+                <p class="service-description">
+                    <span data-lang="en">Request renewal of your residence permit</span>
+                    <span data-lang="ar">طلب تجديد تصريح الإقامة الخاص بك</span>
+                </p>
+            </div>
+
+            <div class="service-card" onclick="window.location.href='/employee-login'">
+                <span class="service-icon">🛂</span>
+                <div class="service-title">
+                    <span data-lang="en">Working License</span>
+                    <span data-lang="ar">رخصة العمل</span>
+                </div>
+                <p class="service-description">
+                    <span data-lang="en">Apply for or renew your work permit</span>
+                    <span data-lang="ar">التقدم للحصول على تصريح العمل أو تجديده</span>
+                </p>
+            </div>
+
+            <div class="service-card" onclick="window.location.href='/employee-login'">
+                <span class="service-icon">✈️</span>
+                <div class="service-title">
+                    <span data-lang="en">Flight Tickets</span>
+                    <span data-lang="ar">تذاكر الطيران</span>
+                </div>
+                <p class="service-description">
+                    <span data-lang="en">Request flight tickets for business or vacation</span>
+                    <span data-lang="ar">طلب تذاكر طيران للعمل أو الإجازة</span>
+                </p>
+            </div>
+
+            <div class="service-card" onclick="window.location.href='/employee-login'">
+                <span class="service-icon">🏖️</span>
+                <div class="service-title">
+                    <span data-lang="en">Vacation Salary</span>
+                    <span data-lang="ar">راتب الإجازة</span>
+                </div>
+                <p class="service-description">
+                    <span data-lang="en">Apply for annual leave and vacation days</span>
+                    <span data-lang="ar">التقدم للحصول على الإجازة السنوية وأيام الإجازة</span>
+                </p>
+            </div>
+
+            <div class="service-card" onclick="window.location.href='/employee-login'">
+                <span class="service-icon">💰</span>
+                <div class="service-title">
+                    <span data-lang="en">Employee Advance</span>
+                    <span data-lang="ar">سلف الموظف</span>
+                </div>
+                <p class="service-description">
+                    <span data-lang="en">Request salary advance or loan</span>
+                    <span data-lang="ar">طلب سلفة راتب أو قرض</span>
+                </p>
+            </div>
+
+            <div class="service-card" onclick="window.location.href='/employee-login'">
+                <span class="service-icon">📄</span>
+                <div class="service-title">
+                    <span data-lang="en">Certificates</span>
+                    <span data-lang="ar">الشهادات</span>
+                </div>
+                <p class="service-description">
+                    <span data-lang="en">Request employment or experience certificates</span>
+                    <span data-lang="ar">طلب شهادات التوظيف أو الخبرة</span>
+                </p>
+            </div>
+
+            <div class="service-card" onclick="window.location.href='/employee-login'">
+                <span class="service-icon">📊</span>
+                <div class="service-title">
+                    <span data-lang="en">Payslips</span>
+                    <span data-lang="ar">كشوف المرتبات</span>
+                </div>
+                <p class="service-description">
+                    <span data-lang="en">View and download your salary slips</span>
+                    <span data-lang="ar">عرض وتنزيل كشوف المرتبات الخاصة بك</span>
+                </p>
+            </div>
+
+            <div class="service-card" onclick="window.location.href='/employee-login'">
+                <span class="service-icon">⏰</span>
+                <div class="service-title">
+                    <span data-lang="en">Attendance</span>
+                    <span data-lang="ar">الحضور</span>
+                </div>
+                <p class="service-description">
+                    <span data-lang="en">View your attendance records and timesheets</span>
+                    <span data-lang="ar">عرض سجلات الحضور وجداول الوقت الخاصة بك</span>
+                </p>
+            </div>
+        </div>
+
+        <!-- Info Footer -->
+        <div class="info-footer">
+            <div class="info-title">
+                <span data-lang="en">Need Assistance?</span>
+                <span data-lang="ar">تحتاج إلى مساعدة؟</span>
+            </div>
+            <p class="info-text">
+                <span data-lang="en">
+                    For any questions, technical support, or assistance with your requests, 
+                    please contact the Human Resources Department at Elite Resources Center. 
+                    Our team is here to help you make the most of your employee portal experience.
+                </span>
+                <span data-lang="ar">
+                    لأي أسئلة أو دعم فني أو مساعدة في طلباتك، يرجى الاتصال بقسم الموارد البشرية 
+                    في مركز النخبة للموارد. فريقنا هنا لمساعدتك في الاستفادة القصوى من تجربة بوابة الموظفين.
+                </span>
+            </p>
+            <div class="contact-info">
+                <div class="contact-item">
+                    <i class="fas fa-envelope"></i>
+                    <span>itc@eliteresources.co</span>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-phone"></i>
+                    <span>+966 56 669 0593</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+<script>
+// Theme Toggle Functionality
+(function() {
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const html = document.documentElement;
+    
+    // Get saved theme or default to light
+    const savedTheme = localStorage.getItem('employeePortalTheme') || 'light';
+    html.setAttribute('data-theme', savedTheme);
+    updateThemeIcon(savedTheme);
+    
+    function updateThemeIcon(theme) {
+        if (theme === 'dark') {
+            themeIcon.className = 'fas fa-sun';
+        } else {
+            themeIcon.className = 'fas fa-moon';
+        }
+    }
+    
+    if (themeToggle) {
+        themeToggle.addEventListener('click', function() {
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('employeePortalTheme', newTheme);
+            updateThemeIcon(newTheme);
+        });
+    }
+})();
+
+let currentLang = localStorage.getItem('employeePortalLang') || 'en';
+
+function switchLanguage(lang) {
+    currentLang = lang;
+    localStorage.setItem('employeePortalLang', lang);
+    
+    // Update active button
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    
+    // Apply language
+    if (lang === 'ar') {
+        document.body.classList.add('rtl');
+    } else {
+        document.body.classList.remove('rtl');
+    }
+}
+
+// Apply saved language on load
+document.addEventListener('DOMContentLoaded', function() {
+    if (currentLang === 'ar') {
+        document.body.classList.add('rtl');
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            if (btn.textContent === 'AR') btn.classList.add('active');
+            else btn.classList.remove('active');
+        });
+    }
+});
+</script>
+{% endraw %}
+</article>
+</div>
+{% endblock %}

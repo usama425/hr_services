@@ -1,0 +1,1295 @@
+{% extends "templates/web.html" %}
+
+{% block page_content %}
+<div class="webpage-content">
+<article class="web-page-content" id="employee-portal-form" style="text-align: Left">
+{% raw %}<style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap');
+    
+    /* Hide default ERPNext header */
+    .navbar, .page-header, .page-head, .web-footer, header {
+        display: none !important;
+    }
+    
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    
+    /* Unified Color System - Light Mode (Default) */
+    :root {
+        --primary-color: #084887;
+        --primary-dark: #063a6b;
+        --primary-light: #0a5ba8;
+        --text-primary: #0f172a;
+        --text-secondary: #64748b;
+        --bg-primary: #ffffff;
+        --bg-secondary: #f8fafc;
+        --bg-tertiary: #f1f5f9;
+        --border-color: #e2e8f0;
+        --success-color: #10b981;
+        --error-color: #ef4444;
+        --warning-color: #f59e0b;
+    }
+    
+    /* Dark Mode */
+    [data-theme="dark"] {
+        --primary-color: #0d6efd;
+        --primary-dark: #084887;
+        --primary-light: #3d8bfd;
+        --text-primary: #ffffff;
+        --text-secondary: #cbd5e1;
+        --bg-primary: #1e293b;
+        --bg-secondary: #334155;
+        --bg-tertiary: #475569;
+        --border-color: rgba(148, 163, 184, 0.3);
+        --success-color: #10b981;
+        --error-color: #ef4444;
+        --warning-color: #f59e0b;
+    }
+    
+    body {
+        font-family: 'Inter', sans-serif;
+        background: var(--bg-secondary);
+        min-height: 100vh;
+        padding: 0;
+        padding-top: 0 !important;
+        transition: background 0.3s ease;
+    }
+    
+    body.rtl {
+        font-family: 'Cairo', sans-serif;
+        direction: rtl;
+    }
+    
+    /* Top Header Bar */
+    .top-header {
+        background: var(--bg-primary);
+        padding: 16px 48px;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+    
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+    
+    .back-button {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        background: transparent;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 500;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+    
+    .back-button:hover {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+    }
+    
+    .page-title-section h1 {
+        font-size: 18px;
+        color: var(--text-primary);
+        font-weight: 600;
+    }
+    
+    .page-title-section p {
+        font-size: 12px;
+        color: var(--text-secondary);
+        margin-top: 2px;
+    }
+    
+    .header-right {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+    
+    .theme-toggle {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 16px;
+        color: var(--text-primary);
+    }
+    
+    .theme-toggle:hover {
+        background: var(--bg-tertiary);
+        transform: scale(1.05);
+    }
+    
+    .lang-switcher {
+        display: flex;
+        gap: 4px;
+        background: var(--bg-secondary);
+        padding: 4px;
+        border-radius: 8px;
+    }
+    
+    .lang-btn {
+        padding: 6px 14px;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        border-radius: 6px;
+        font-weight: 500;
+        font-size: 13px;
+        color: var(--text-secondary);
+        transition: all 0.2s;
+    }
+    
+    .lang-btn.active {
+        background: var(--bg-primary);
+        color: var(--primary-color);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .user-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: var(--primary-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 14px;
+    }
+    
+    /* Main Container */
+    .form-container {
+        max-width: 900px;
+        margin: 24px auto;
+        padding: 0 24px;
+    }
+    
+    .form-card {
+        background: var(--bg-primary);
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        overflow: hidden;
+    }
+    
+    .form-header {
+        padding: 24px;
+        border-bottom: 1px solid var(--border-color);
+        background: var(--bg-secondary);
+    }
+    
+    .form-header h2 {
+        font-size: 20px;
+        color: var(--text-primary);
+        font-weight: 600;
+        margin-bottom: 6px;
+    }
+    
+    .form-header p {
+        font-size: 13px;
+        color: var(--text-secondary);
+    }
+    
+    .form-body {
+        padding: 24px;
+    }
+    
+    .form-group {
+        margin-bottom: 24px;
+    }
+    
+    .form-label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+    }
+    
+    .required-mark {
+        color: var(--error-color);
+        margin-left: 4px;
+    }
+    
+    .form-input,
+    .form-select {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        font-size: 14px;
+        font-family: inherit;
+        transition: all 0.2s;
+    }
+    
+    .form-input:focus,
+    .form-select:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(8, 72, 135, 0.1);
+    }
+    
+    .form-input:disabled {
+        background: var(--bg-tertiary);
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+    
+    /* Download Section */
+    .download-section {
+        background: var(--bg-secondary);
+        border: 2px solid var(--border-color);
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 24px;
+        text-align: center;
+    }
+    
+    .download-icon {
+        font-size: 48px;
+        color: var(--primary-color);
+        margin-bottom: 16px;
+    }
+    
+    .download-message {
+        font-size: 15px;
+        color: var(--text-primary);
+        font-weight: 500;
+        margin-bottom: 20px;
+        line-height: 1.6;
+    }
+    
+    .download-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 24px;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+    
+    .download-btn:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(8, 72, 135, 0.3);
+    }
+    
+    .download-btn i {
+        font-size: 16px;
+    }
+    
+    /* Filled Button */
+    .filled-btn-section {
+        text-align: center;
+        margin: 24px 0;
+    }
+    
+    .btn-filled {
+        padding: 14px 32px;
+        background: var(--success-color);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .btn-filled:hover {
+        background: #059669;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+    
+    /* Upload Section (Hidden Initially) */
+    .upload-section {
+        display: none;
+        animation: fadeIn 0.3s ease;
+    }
+    
+    .upload-section.show {
+        display: block;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .file-upload-area {
+        border: 2px dashed var(--border-color);
+        border-radius: 8px;
+        padding: 32px;
+        text-align: center;
+        background: var(--bg-secondary);
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+    
+    .file-upload-area:hover {
+        border-color: var(--primary-color);
+        background: var(--bg-tertiary);
+    }
+    
+    .file-upload-area.dragover {
+        border-color: var(--primary-color);
+        background: rgba(8, 72, 135, 0.05);
+    }
+    
+    .file-upload-icon {
+        font-size: 40px;
+        color: var(--primary-color);
+        margin-bottom: 12px;
+    }
+    
+    .file-upload-text {
+        font-size: 14px;
+        color: var(--text-primary);
+        font-weight: 500;
+        margin-bottom: 4px;
+    }
+    
+    .file-upload-hint {
+        font-size: 12px;
+        color: var(--text-secondary);
+    }
+    
+    .file-input {
+        display: none;
+    }
+    
+    .uploaded-file {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        background: var(--bg-secondary);
+        border-radius: 8px;
+        margin-top: 12px;
+    }
+    
+    .file-icon {
+        width: 40px;
+        height: 40px;
+        background: var(--primary-color);
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 18px;
+    }
+    
+    .file-info {
+        flex: 1;
+    }
+    
+    .file-name {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--text-primary);
+    }
+    
+    .file-size {
+        font-size: 11px;
+        color: var(--text-secondary);
+        margin-top: 2px;
+    }
+    
+    .file-remove {
+        background: transparent;
+        border: none;
+        color: var(--error-color);
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 4px;
+        transition: all 0.2s;
+    }
+    
+    .file-remove:hover {
+        background: rgba(239, 68, 68, 0.1);
+    }
+    
+    /* Submit Button */
+    .form-actions {
+        padding: 24px;
+        border-top: 1px solid var(--border-color);
+        background: var(--bg-secondary);
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+    }
+    
+    .btn-submit {
+        padding: 12px 32px;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-submit:hover:not(:disabled) {
+        background: var(--primary-dark);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(8, 72, 135, 0.3);
+    }
+    
+    .btn-submit:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+    
+    .btn-submit.loading {
+        position: relative;
+        color: transparent;
+    }
+    
+    .btn-submit.loading::after {
+        content: '';
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        top: 50%;
+        left: 50%;
+        margin-left: -8px;
+        margin-top: -8px;
+        border: 2px solid white;
+        border-top-color: transparent;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    /* Alert Message */
+    .alert {
+        position: fixed;
+        top: 80px;
+        right: 24px;
+        padding: 16px 20px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        z-index: 1000;
+        display: none;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        max-width: 400px;
+    }
+    
+    .alert.show {
+        display: block;
+        animation: slideIn 0.3s ease;
+    }
+    
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    .alert-success {
+        background: var(--success-color);
+        color: white;
+    }
+    
+    .alert-error {
+        background: var(--error-color);
+        color: white;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .top-header {
+            flex-direction: column;
+            gap: 16px;
+            padding: 16px 20px;
+        }
+        
+        .form-container {
+            padding: 0 16px;
+        }
+        
+        .form-body,
+        .form-actions {
+            padding: 20px;
+        }
+        
+        .download-section {
+            padding: 20px;
+        }
+    }
+    
+    /* RTL Support */
+    body.rtl .back-button {
+        flex-direction: row-reverse;
+    }
+</style>
+
+<!-- Alert Message -->
+<div id="alertMessage" class="alert"></div>
+
+<!-- Top Header -->
+<div class="top-header">
+    <div class="header-left">
+        <a href="/employee-portal-home" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+            <span data-en="Back to Dashboard" data-ar="العودة إلى لوحة التحكم">Back to Dashboard</span>
+        </a>
+        <div class="page-title-section">
+            <h1 data-en="Employee Portal Form" data-ar="نموذج بوابة الموظف">Employee Portal Form</h1>
+            <p data-en="Submit a signed form for verification" data-ar="تقديم نموذج موقّع للتحقق">Submit a signed form for verification</p>
+        </div>
+    </div>
+    
+    <div class="header-right">
+        <button class="theme-toggle" id="themeToggle" title="Toggle Dark/Light Mode">
+            <i class="fas fa-moon" id="themeIcon"></i>
+        </button>
+        <div class="lang-switcher">
+            <button class="lang-btn active">English</button>
+            <button class="lang-btn">العربية</button>
+        </div>
+        
+        <div class="user-info">
+            <div class="user-avatar" id="userAvatar">--</div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Container -->
+<div class="form-container">
+    <!-- Video Tutorial Link -->
+    <div style="margin-bottom: 20px; padding: 12px 16px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-video" style="color: var(--primary-color); font-size: 18px;"></i>
+            <span style="font-size: 13px; color: var(--text-secondary);" data-en="Need help? Watch how to submit a portal form" data-ar="تحتاج مساعدة؟ شاهد كيفية تقديم نموذج بوابة">Need help? Watch how to submit a portal form</span>
+        </div>
+        <a href="https://youtu.be/RIXIRHr9YDE" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: var(--primary-color); color: white; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 600; transition: all 0.2s;" onmouseover="this.style.background='var(--primary-dark)'" onmouseout="this.style.background='var(--primary-color)'">
+            <i class="fas fa-play"></i>
+            <span data-en="Watch Video" data-ar="شاهد الفيديو">Watch Video</span>
+        </a>
+    </div>
+    
+    <form id="portalFormForm" class="form-card">
+        <div class="form-header">
+            <h2 data-en="New Portal Form Submission" data-ar="تقديم نموذج بوابة جديد">New Portal Form Submission</h2>
+            <p data-en="Select form type, download, fill, and upload the signed form" data-ar="اختر نوع النموذج، قم بتنزيله وملئه ورفع النموذج الموقّع">Select form type, download, fill, and upload the signed form</p>
+        </div>
+        
+        <div class="form-body">
+            <!-- Employee (Auto-filled, Read-only) -->
+            <div class="form-group">
+                <label class="form-label">
+                    <span data-en="Employee" data-ar="الموظف">Employee</span>
+                </label>
+                <input type="text" class="form-input" id="employee" readonly disabled />
+            </div>
+            
+            <!-- Employee Name (Auto-filled, Read-only) -->
+            <div class="form-group">
+                <label class="form-label">
+                    <span data-en="Employee Name" data-ar="اسم الموظف">Employee Name</span>
+                </label>
+                <input type="text" class="form-input" id="employeeName" readonly disabled />
+            </div>
+            
+            <!-- Form Type -->
+            <div class="form-group">
+                <label class="form-label">
+                    <span data-en="Form Type" data-ar="نوع النموذج">Form Type</span>
+                    <span class="required-mark">*</span>
+                </label>
+                <select class="form-select" id="formType" required onchange="handleFormTypeChange()">
+                    <option value="">-- Select Form Type --</option>
+                    <option value="Health Declaration Form">Health Declaration Form</option>
+                    <option value="Istiqdam Form">Istiqdam Form</option>
+                    <option value="Reimbursement Form">Reimbursement Form</option>
+                    <option value="Vacation Request Form">Vacation Request Form</option>
+                    <option value="Visa Reimbursement Form">Visa Reimbursement Form</option>
+                </select>
+                <div id="formTypeDescription" style="display: none; margin-top: 8px; padding: 10px 12px; background: var(--bg-secondary); border-radius: 6px; border-left: 3px solid var(--primary-color); font-size: 12px; color: var(--text-secondary); line-height: 1.5;"></div>
+            </div>
+            
+            <!-- Download Section -->
+            <div class="download-section" id="downloadSection" style="display: none;">
+                <div class="download-icon">
+                    <i class="fas fa-file-download"></i>
+                </div>
+                <div class="download-message" id="downloadMessage"></div>
+                <a href="#" class="download-btn" id="downloadBtn" target="_blank">
+                    <i class="fas fa-download"></i>
+                    <span data-en="Download Form" data-ar="تحميل النموذج">Download Form</span>
+                </a>
+            </div>
+            
+            <!-- Filled Button Section -->
+            <div class="filled-btn-section" id="filledBtnSection" style="display: none;">
+                <button type="button" class="btn-filled" onclick="showUploadSection()">
+                    <i class="fas fa-check-circle"></i>
+                    <span data-en="I have filled the form" data-ar="لقد قمت بملء النموذج">I have filled the form</span>
+                </button>
+            </div>
+            
+            <!-- Upload Section (Hidden Initially) -->
+            <div class="upload-section" id="uploadSection">
+                <div class="form-group">
+                    <label class="form-label">
+                        <span data-en="Upload Signed Form" data-ar="رفع النموذج الموقّع">Upload Signed Form</span>
+                        <span class="required-mark">*</span>
+                    </label>
+                    <div class="file-upload-area" id="fileUploadArea" onclick="document.getElementById('fileInput').click()">
+                        <div class="file-upload-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <div class="file-upload-text" data-en="Click to upload or drag and drop" data-ar="انقر للتحميل أو السحب والإفلات">Click to upload or drag and drop</div>
+                        <div class="file-upload-hint" data-en="PDF, DOC, DOCX, JPG, PNG (Max 10MB)" data-ar="PDF, DOC, DOCX, JPG, PNG (الحد الأقصى 10 ميجابايت)">PDF, DOC, DOCX, JPG, PNG (Max 10MB)</div>
+                        <input type="file" class="file-input" id="fileInput" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" />
+                    </div>
+                    <div id="uploadedFile"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-actions">
+            <button type="button" class="btn-submit" id="submitBtn" onclick="submitForm()">
+                <i class="fas fa-paper-plane"></i>
+                <span data-en="Submit Form" data-ar="تقديم النموذج">Submit Form</span>
+            </button>
+        </div>
+    </form>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+<script>
+// Theme Toggle Functionality
+(function() {
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const html = document.documentElement;
+    
+    const savedTheme = localStorage.getItem('employeePortalTheme') || 'light';
+    html.setAttribute('data-theme', savedTheme);
+    updateThemeIcon(savedTheme);
+    
+    function updateThemeIcon(theme) {
+        if (theme === 'dark') {
+            themeIcon.className = 'fas fa-sun';
+        } else {
+            themeIcon.className = 'fas fa-moon';
+        }
+    }
+    
+    if (themeToggle) {
+        themeToggle.addEventListener('click', function() {
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('employeePortalTheme', newTheme);
+            updateThemeIcon(newTheme);
+        });
+    }
+})();
+
+// let currentLang = localStorage.getItem('employeePortalLang') || 'en';
+// let currentUser = null;
+// let employeeData = null;
+// let uploadedFile = null;
+
+// // Form type download URLs
+// const formDownloadUrls = {
+//     'Reimbursement Form': 'https://erpeliteresourcesco.frappe.cloud/files/REIMBURSEMENT%20FORMe608c8.pdf',
+//     'Istiqdam Form': 'https://erpeliteresourcesco.frappe.cloud/files/ISTIQDAM%20LETTER.pdf',
+//     'Health Declaration Form': 'https://erpeliteresourcesco.frappe.cloud/files/%D8%A7%D9%84%D8%A7%D9%81%D8%B5%D8%A7%D8%AD%20%D8%A7%D9%84%D8%B7%D8%A8%D9%8A%20%D8%A7%D9%84%D8%AA%D8%B9%D8%A7%D9%88%D9%86%D9%8A%D9%87.pdf',
+//     'Vacation Request Form': 'https://erpeliteresourcesco.frappe.cloud/files/Vacation%20Request%20Form.pdf',
+//     'Visa Reimbursement Form': 'https://erpeliteresourcesco.frappe.cloud/files/VISA%20Reimbursement%20Form.pdf'
+// };
+
+// // Form type descriptions with English and Arabic
+// const formDescriptions = {
+//     'Health Declaration Form': {
+//         en: 'Document that employees are required to complete to provide their personal health information. This form is necessary to enroll the employee in the company\'s health insurance plan and is subject to management and HR approval.',
+//         ar: 'مستند مطلوب من الموظفين لتقديم معلوماتهم الصحية الشخصية. هذا النموذج ضروري لتسجيل الموظف في خطة التأمين الصحي للشركة ويخضع لموافقة الإدارة والموارد البشرية.'
+//     },
+//     'Istiqdam Form': {
+//         en: 'Official document required for sponsoring family members for a permanent residence visa or a family visit visa. Employees must complete this form to initiate the visa sponsorship process, and it is subject to management and HR approval.',
+//         ar: 'مستند رسمي مطلوب لكفالة أفراد الأسرة للحصول على تأشيرة إقامة دائمة أو تأشيرة زيارة عائلية. يجب على الموظفين إكمال هذا النموذج لبدء عملية كفالة التأشيرة، ويخضع لموافقة الإدارة والموارد البشرية.'
+//     },
+//     'Reimbursement Form': {
+//         en: 'Official document that employees submit to request repayment for approved business or work-related expenses incurred out-of-pocket. The form must include supporting receipts and documentation and is subject to management and HR approval.',
+//         ar: 'مستند رسمي يقدمه الموظفون لطلب سداد النفقات التجارية أو المتعلقة بالعمل المعتمدة التي تم دفعها من الجيب الخاص. يجب أن يتضمن النموذج إيصالات ووثائق داعمة ويخضع لموافقة الإدارة والموارد البشرية.'
+//     },
+//     'Vacation Request Form': {
+//         en: 'Official document that employees submit to request leave or vacation days. The form specifies the requested dates and duration and is subject to management and HR approval.',
+//         ar: 'مستند رسمي يقدمه الموظفون لطلب أيام إجازة أو عطلة. يحدد النموذج التواريخ والمدة المطلوبة ويخضع لموافقة الإدارة والموارد البشرية.'
+//     },
+//     'Visa Reimbursement Form': {
+//         en: 'Official document for the repayment of expenses incurred by an employee for obtaining a visa required for employment, travel, or work-related purposes.',
+//         ar: 'مستند رسمي لسداد النفقات التي تكبدها الموظف للحصول على تأشيرة مطلوبة للتوظيف أو السفر أو الأغراض المتعلقة بالعمل.'
+//     }
+// };
+
+
+let currentLang = localStorage.getItem('employeePortalLang') || 'en';
+let currentUser = null;
+let employeeData = null;
+let uploadedFile = null;
+
+// Form type download URLs
+const formDownloadUrls = {
+    'Reimbursement Form': 'https://erpeliteresourcesco.frappe.cloud/files/REIMBURSEMENT%20FORMe608c8.pdf',
+    'Istiqdam Form': 'https://erpeliteresourcesco.frappe.cloud/files/ISTIQDAM%20LETTER.pdf',
+    'Health Declaration Form': 'https://erpeliteresourcesco.frappe.cloud/files/%D8%A7%D9%84%D8%A7%D9%81%D8%B5%D8%A7%D8%AD%20%D8%A7%D9%84%D8%B7%D8%A8%D9%8A%20%D8%A7%D9%84%D8%AA%D8%B9%D8%A7%D9%88%D9%86%D9%8A%D9%87.pdf',
+    'Vacation Request Form': 'https://erpeliteresourcesco.frappe.cloud/files/Vacation%20Request%20Form.pdf',
+    'Visa Reimbursement Form': 'https://erpeliteresourcesco.frappe.cloud/files/VISA%20Reimbursement%20Form.pdf'
+};
+
+// Form type descriptions with English and Arabic
+const formDescriptions = {
+    'Health Declaration Form': {
+        en: 'Document that employees are required to complete to provide their personal health information. This form is necessary to enroll the employee in the company\'s health insurance plan and is subject to management and HR approval.',
+        ar: 'مستند يُطلب من الموظفين تعبئته لتقديم معلوماتهم الصحية الشخصية. يُعد هذا النموذج ضروريًا لتسجيل الموظف في برنامج التأمين الصحي الخاص بالشركة، ويخضع لموافقة الإدارة والموارد البشرية'
+    },
+    'Istiqdam Form': {
+        en: 'Official document required for sponsoring family members for a permanent residence visa or a family visit visa. Employees must complete this form to initiate the visa sponsorship process, and it is subject to management and HR approval.',
+        ar: 'مستند رسمي يُستخدم لاستقدام أفراد العائلة لغرض الحصول على تأشيرة إقامة دائمة أو تأشيرة زيارة عائلية. يجب على الموظف تعبئة هذا النموذج لبدء إجراءات الاستقدام، ويخضع لموافقة الإدارة والموارد البشرية'
+    },
+    'Reimbursement Form': {
+        en: 'Official document that employees submit to request repayment for approved business or work-related expenses incurred out-of-pocket. The form must include supporting receipts and documentation and is subject to management and HR approval.',
+        ar: 'مستند رسمي يقدمه الموظف لطلب تعويض المصروفات المعتمدة المتعلقة بالعمل والتي قام بسدادها من ماله الخاص. يجب إرفاق الإيصالات والمستندات الداعمة، ويخضع الطلب لموافقة الإدارة والموارد البشرية'
+    },
+    'Vacation Request Form': {
+        en: 'Official document that employees submit to request leave or vacation days. The form specifies the requested dates and duration and is subject to management and HR approval.',
+        ar: 'مستند رسمي يقدمه الموظف لطلب إجازة أو أيام راحة، مع تحديد التواريخ المطلوبة ومدة الإجازة، ويخضع لموافقة الإدارة والموارد البشرية'
+    },
+    'Visa Reimbursement Form': {
+        en: 'Official document for the repayment of expenses incurred by an employee for obtaining a visa required for employment, travel, or work-related purposes.',
+        ar: 'مستند رسمي يُستخدم لطلب استرداد التكاليف التي تكبدها الموظف للحصول على تأشيرة مطلوبة لأغراض العمل أو السفر أو المهام الوظيفية'
+    }
+};
+
+// Language Switcher
+document.querySelectorAll('.lang-btn').forEach(button => {
+    button.addEventListener('click', function() {
+        const lang = this.textContent.includes('English') ? 'en' : 'ar';
+        currentLang = lang;
+        localStorage.setItem('employeePortalLang', lang);
+        
+        document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+        this.classList.add('active');
+        
+        applyLanguage(lang);
+        
+        // Refresh form type description when language changes
+        const formType = document.getElementById('formType').value;
+        if (formType) {
+            updateFormTypeDescription(formType);
+            
+            // Also update the download message
+            const downloadMessage = document.getElementById('downloadMessage');
+            if (downloadMessage) {
+                const message = currentLang === 'ar'
+                    ? `قم بتنزيل "${formType}" من هنا، املأه وارفعه للتحقق من قبل المسؤول. شكراً لك.`
+                    : `Download the "${formType}" from here, fill it up and upload it for admin's verification. Thank you.`;
+                downloadMessage.textContent = message;
+            }
+        }
+    });
+});
+
+function applyLanguage(lang) {
+    const body = document.body;
+    const html = document.documentElement;
+    
+    if (lang === 'ar') {
+        body.classList.add('rtl');
+        html.setAttribute('dir', 'rtl');
+    } else {
+        body.classList.remove('rtl');
+        html.setAttribute('dir', 'ltr');
+    }
+    html.setAttribute('lang', lang);
+    
+    document.querySelectorAll('[data-' + lang + ']').forEach(element => {
+        const text = element.getAttribute('data-' + lang);
+        if (text) {
+            if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
+                element.value = text;
+            } else {
+                element.textContent = text;
+            }
+        }
+    });
+}
+
+// Check authentication on page load
+document.addEventListener('DOMContentLoaded', function() {
+    checkAuthentication();
+    setupFileUpload();
+    applyLanguage(currentLang);
+});
+
+function checkAuthentication() {
+    frappe.call({
+        method: 'frappe.auth.get_logged_user',
+        callback: function(r) {
+            if (r.message && r.message !== 'Guest') {
+                currentUser = r.message;
+                loadEmployeeData();
+            } else {
+                window.location.href = '/employee-login';
+            }
+        },
+        error: function() {
+            window.location.href = '/employee-login';
+        }
+    });
+}
+
+
+function loadEmployeeData() {
+    frappe.call({
+        method: 'hr_services.portal.api.get_list',
+        args: {
+            doctype: 'Employee',
+            filters: {
+                user_id: currentUser
+            },
+            fields: ['name']
+        },
+        callback: function(r) {
+            if (r.message && r.message.length > 0) {
+                fetchFullEmployeeDetails(r.message[0].name);
+            } else {
+                console.log('No employee record found');
+                employeeData = {
+                    name: '',
+                    employee_name: currentUser.split('@')[0] || 'User',
+                    custom_location: '',  // ADD THIS
+                    project: '',           // ADD THIS
+                    department: ''         // ADD THIS
+                };
+                showAlert('error', currentLang === 'ar' ? 'لم يتم العثور على سجل الموظف' : 'Employee record not found');
+            }
+        },
+        error: function(err) {
+            console.error('Employee lookup error:', err);
+            employeeData = {
+                name: '',
+                employee_name: currentUser.split('@')[0] || 'User',
+                custom_location: '',  // ADD THIS
+                project: '',           // ADD THIS
+                department: ''         // ADD THIS
+            };
+        }
+    });
+}
+
+
+// function loadEmployeeData() {
+//     frappe.call({
+//         method: 'hr_services.portal.api.get_list',
+//         args: {
+//             doctype: 'Employee',
+//             filters: {
+//                 user_id: currentUser
+//             },
+//             fields: ['name']
+//         },
+//         callback: function(r) {
+//             if (r.message && r.message.length > 0) {
+//                 fetchFullEmployeeDetails(r.message[0].name);
+//             } else {
+//                 console.log('No employee record found');
+//                 showAlert('error', currentLang === 'ar' ? 'لم يتم العثور على سجل الموظف' : 'Employee record not found');
+//             }
+//         },
+//         error: function(err) {
+//             console.error('Employee lookup error:', err);
+//         }
+//     });
+// }
+
+function fetchFullEmployeeDetails(employeeName) {
+    frappe.call({
+        method: 'hr_services.portal.api.get',
+        args: {
+            doctype: 'Employee',
+            name: employeeName
+        },
+        callback: function(r) {
+            if (r.message) {
+                employeeData = r.message;
+                console.log('Full employee data:', employeeData);
+                console.log('Custom Location:', employeeData.custom_location);  // ADD THIS
+                console.log('Project:', employeeData.project);                   // ADD THIS
+                console.log('Department:', employeeData.department);             // ADD THIS
+                populateEmployeeFields();
+            }
+        },
+        error: function() {
+            console.error('Error fetching employee details');
+            employeeData = {
+                name: employeeName,
+                employee_name: currentUser.split('@')[0] || 'User',
+                custom_location: '',  // ADD THIS
+                project: '',           // ADD THIS
+                department: ''         // ADD THIS
+            };
+        }
+    });
+}
+
+
+// function fetchFullEmployeeDetails(employeeName) {
+//     frappe.call({
+//         method: 'hr_services.portal.api.get',
+//         args: {
+//             doctype: 'Employee',
+//             name: employeeName
+//         },
+//         callback: function(r) {
+//             if (r.message) {
+//                 employeeData = r.message;
+//                 populateEmployeeFields();
+//             }
+//         },
+//         error: function() {
+//             console.error('Error fetching employee details');
+//         }
+//     });
+// }
+
+function populateEmployeeFields() {
+    document.getElementById('employee').value = employeeData?.name || '';
+    document.getElementById('employeeName').value = employeeData?.employee_name || '';
+    
+    const nameParts = (employeeData?.employee_name || '').split(' ');
+    const initials = nameParts.length >= 2 
+        ? (nameParts[0][0] + nameParts[1][0]).toUpperCase()
+        : (employeeData?.employee_name || 'U').substring(0, 2).toUpperCase();
+    document.getElementById('userAvatar').textContent = initials;
+}
+
+function handleFormTypeChange() {
+    const formType = document.getElementById('formType').value;
+    const downloadSection = document.getElementById('downloadSection');
+    const filledBtnSection = document.getElementById('filledBtnSection');
+    const uploadSection = document.getElementById('uploadSection');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const downloadMessage = document.getElementById('downloadMessage');
+
+    if (formType) {
+        // Show download section
+        downloadSection.style.display = 'block';
+        filledBtnSection.style.display = 'block';
+
+        // Hide upload section
+        uploadSection.classList.remove('show');
+
+        // Set download URL
+        const downloadUrl = formDownloadUrls[formType];
+        if (downloadUrl) {
+            downloadBtn.href = downloadUrl;
+        }
+
+        // Set message
+        const message = currentLang === 'ar'
+            ? `قم بتنزيل "${formType}" من هنا، املأه وارفعه للتحقق من قبل المسؤول. شكراً لك.`
+            : `Download the "${formType}" from here, fill it up and upload it for admin's verification. Thank you.`;
+        downloadMessage.textContent = message;
+
+        // Update description
+        updateFormTypeDescription(formType);
+
+        // Reset uploaded file
+        uploadedFile = null;
+        document.getElementById('uploadedFile').innerHTML = '';
+    } else {
+        downloadSection.style.display = 'none';
+        filledBtnSection.style.display = 'none';
+        uploadSection.classList.remove('show');
+        document.getElementById('formTypeDescription').style.display = 'none';
+    }
+}
+
+function updateFormTypeDescription(formType) {
+    const descriptionDiv = document.getElementById('formTypeDescription');
+    
+    // Get description based on current language
+    if (formDescriptions[formType]) {
+        const description = formDescriptions[formType][currentLang] || formDescriptions[formType].en;
+        
+        if (description) {
+            descriptionDiv.innerHTML = '<strong style="color: var(--text-primary);">' + 
+                (currentLang === 'ar' ? 'الوصف: ' : 'Description: ') + 
+                '</strong>' + description;
+            descriptionDiv.style.display = 'block';
+        } else {
+            descriptionDiv.style.display = 'none';
+        }
+    } else {
+        descriptionDiv.style.display = 'none';
+    }
+}
+
+function showUploadSection() {
+    const uploadSection = document.getElementById('uploadSection');
+    uploadSection.classList.add('show');
+    uploadSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function setupFileUpload() {
+    const fileInput = document.getElementById('fileInput');
+    const fileUploadArea = document.getElementById('fileUploadArea');
+    
+    fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            if (file.size > 10 * 1024 * 1024) {
+                showAlert('error', currentLang === 'ar' ? 'الملف كبير جداً. الحد الأقصى 10 ميجابايت' : 'File is too large. Maximum size is 10MB');
+                return;
+            }
+            uploadedFile = file;
+            displayUploadedFile();
+        }
+    });
+    
+    // Drag and drop
+    fileUploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        fileUploadArea.classList.add('dragover');
+    });
+    
+    fileUploadArea.addEventListener('dragleave', function() {
+        fileUploadArea.classList.remove('dragover');
+    });
+    
+    fileUploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        fileUploadArea.classList.remove('dragover');
+        
+        const file = e.dataTransfer.files[0];
+        if (file) {
+            if (file.size > 10 * 1024 * 1024) {
+                showAlert('error', currentLang === 'ar' ? 'الملف كبير جداً. الحد الأقصى 10 ميجابايت' : 'File is too large. Maximum size is 10MB');
+                return;
+            }
+            uploadedFile = file;
+            fileInput.files = e.dataTransfer.files;
+            displayUploadedFile();
+        }
+    });
+}
+
+function displayUploadedFile() {
+    const container = document.getElementById('uploadedFile');
+    if (uploadedFile) {
+        const fileSize = (uploadedFile.size / 1024 / 1024).toFixed(2);
+        container.innerHTML = `
+            <div class="uploaded-file">
+                <div class="file-icon">
+                    <i class="fas fa-file-pdf"></i>
+                </div>
+                <div class="file-info">
+                    <div class="file-name">${uploadedFile.name}</div>
+                    <div class="file-size">${fileSize} MB</div>
+                </div>
+                <button type="button" class="file-remove" onclick="removeUploadedFile()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `;
+    } else {
+        container.innerHTML = '';
+    }
+}
+
+function removeUploadedFile() {
+    uploadedFile = null;
+    document.getElementById('fileInput').value = '';
+    document.getElementById('uploadedFile').innerHTML = '';
+}
+
+async function submitForm() {
+    const formType = document.getElementById('formType').value;
+    
+    if (!formType) {
+        showAlert('error', currentLang === 'ar' ? 'يرجى اختيار نوع النموذج' : 'Please select form type');
+        return;
+    }
+    
+    if (!uploadedFile) {
+        showAlert('error', currentLang === 'ar' ? 'يرجى رفع النموذج الموقّع' : 'Please upload the signed form');
+        return;
+    }
+    
+    const submitBtn = document.getElementById('submitBtn');
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.classList.add('loading');
+    }
+ 
+ const formData = {
+    doctype: 'Employee Portal Form',
+    naming_series: 'EF-.YYYY.-',
+    employee: employeeData?.name || '',
+    employee_name: employeeData?.employee_name || '',
+    work_location: employeeData?.custom_location || '',  // ADD THIS - Auto-populate location
+    project: employeeData?.project || '',                 // ADD THIS (optional)
+    department: employeeData?.department || '',           // ADD THIS (optional)
+    form_trype: formType,
+    signed: 'False',
+    verification: 'Pending'
+};
+
+// Debug log to verify location is being set
+console.log('Submitting Employee Portal Form with data:', {
+    employee: formData.employee,
+    work_location: formData.work_location,
+    form_type: formData.form_trype
+});   
+    // const formData = {
+    //     doctype: 'Employee Portal Form',
+    //     naming_series: 'EF-.YYYY.-',
+    //     employee: employeeData?.name || '',
+    //     employee_name: employeeData?.employee_name || '',
+    //     form_trype: formType,
+    //     signed: 'False',
+    //     verification: 'Pending'
+    // };
+    
+    frappe.call({
+        method: 'hr_services.portal.api.insert',
+        args: {
+            doc: formData
+        },
+        callback: async function(r) {
+            if (r.message) {
+                const formName = r.message.name;
+                
+                // Upload file
+                if (uploadedFile) {
+                    await uploadFormFile(formName);
+                }
+                
+                showAlert('success', 
+                    currentLang === 'ar' 
+                        ? `✅ تم تقديم النموذج بنجاح! رقم النموذج: ${formName}`
+                        : `✅ Form submitted successfully! Form ID: ${formName}`
+                );
+                
+                setTimeout(function() {
+                    window.location.href = '/employee-portal-form-list';
+                }, 2000);
+            }
+        },
+        error: function(r) {
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('loading');
+            }
+            console.error('Submission error:', r);
+            showAlert('error', 
+                currentLang === 'ar'
+                    ? '❌ فشل في تقديم النموذج. يرجى المحاولة مرة أخرى'
+                    : '❌ Failed to submit form. Please try again'
+            );
+        }
+    });
+}
+
+async function uploadFormFile(formName) {
+    try {
+        const formData = new FormData();
+        formData.append('file', uploadedFile);
+        formData.append('doctype', 'Employee Portal Form');
+        formData.append('docname', formName);
+        formData.append('is_private', '0');
+        formData.append('folder', 'Home/Attachments');
+        
+        const response = await fetch('/api/method/upload_file', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'X-Frappe-CSRF-Token': frappe.csrf_token
+            },
+            body: formData
+        });
+        
+        if (!response.ok) {
+            console.error('File upload failed:', response);
+        }
+    } catch (e) {
+        console.error('File upload error:', e);
+    }
+}
+
+function showAlert(type, message) {
+    const alert = document.getElementById('alertMessage');
+    alert.className = `alert alert-${type} show`;
+    alert.textContent = message;
+    
+    setTimeout(() => {
+        alert.classList.remove('show');
+    }, 5000);
+}
+</script>
+
+{% endraw %}
+</article>
+</div>
+{% endblock %}

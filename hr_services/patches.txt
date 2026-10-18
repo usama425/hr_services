@@ -1,0 +1,4 @@
+[pre_model_sync]
+
+[post_model_sync]
+hr_services.patches.v1.move_employee_portal_to_app

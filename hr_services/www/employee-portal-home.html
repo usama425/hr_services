@@ -1,0 +1,1395 @@
+{% extends "templates/web.html" %}
+
+{% block page_content %}
+<div class="webpage-content">
+<article class="web-page-content" id="employee-portal-home" style="text-align: Left">
+{% raw %}<style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap');
+    
+    /* Hide default ERPNext header */
+    .navbar, .page-header, .page-head, .web-footer, header {
+        display: none !important;
+    }
+    
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+    
+    /* Unified Color System - Light Mode (Default) */
+            :root {
+        --primary-color: #084887;
+        --primary-dark: #063a6b;
+        --primary-light: #0a5ba8;
+                --text-primary: #0f172a;
+                --text-secondary: #64748b;
+                --bg-primary: #ffffff;
+                --bg-secondary: #f8fafc;
+        --bg-tertiary: #f1f5f9;
+                --border-color: #e2e8f0;
+        --success-color: #10b981;
+        --error-color: #ef4444;
+        --warning-color: #f59e0b;
+    }
+    
+    /* Dark Mode */
+    [data-theme="dark"] {
+        --primary-color: #0d6efd;
+        --primary-dark: #084887;
+        --primary-light: #3d8bfd;
+        --text-primary: #ffffff;
+        --text-secondary: #cbd5e1;
+        --bg-primary: #1e293b;
+        --bg-secondary: #334155;
+        --bg-tertiary: #475569;
+        --border-color: rgba(148, 163, 184, 0.3);
+        --success-color: #10b981;
+        --error-color: #ef4444;
+        --warning-color: #f59e0b;
+            }
+    
+            body {
+                font-family: 'Inter', sans-serif;
+                background: var(--bg-secondary);
+                min-height: 100vh;
+                padding: 0;
+                padding-top: 0 !important;
+        transition: background 0.3s ease;
+            }
+    
+            body.rtl {
+                font-family: 'Cairo', sans-serif;
+                direction: rtl;
+            }
+    
+            /* Top Header Bar */
+            .top-header {
+                background: var(--bg-primary);
+                padding: 16px 48px;
+                border-bottom: 1px solid var(--border-color);
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                position: sticky;
+                top: 0;
+                z-index: 100;
+            }
+    
+            .header-left {
+                display: flex;
+                align-items: center;
+                gap: 20px;
+            }
+    
+            .logo-section {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+    
+            .logo-icon {
+                width: 40px;
+                height: 40px;
+                background: var(--primary-color);
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-size: 18px;
+                font-weight: 700;
+            }
+    
+            .logo-text h1 {
+                font-size: 18px;
+                color: var(--text-primary);
+                font-weight: 600;
+            }
+    
+            .logo-text p {
+                font-size: 12px;
+                color: var(--text-secondary);
+                margin-top: 2px;
+            }
+    
+            .header-right {
+                display: flex;
+                align-items: center;
+                gap: 16px;
+                flex-wrap: nowrap;
+            }
+    
+            .theme-toggle {
+                width: 40px;
+                height: 40px;
+                border-radius: 8px;
+                background: var(--bg-secondary);
+                border: 1px solid var(--border-color);
+                display: flex !important;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                font-size: 18px;
+                color: var(--text-primary) !important;
+                flex-shrink: 0;
+            }
+            
+            .theme-toggle i,
+            .theme-toggle #themeIcon {
+                color: var(--text-primary) !important;
+                font-size: 18px !important;
+                display: inline-block !important;
+                line-height: 1 !important;
+            }
+            
+            .theme-toggle:hover {
+                background: var(--bg-tertiary);
+                transform: scale(1.05);
+            }
+            
+            .theme-toggle:hover i,
+            .theme-toggle:hover #themeIcon {
+                color: var(--primary-color) !important;
+            }
+    
+            .lang-switcher {
+                display: flex;
+                gap: 4px;
+                background: var(--bg-secondary);
+                padding: 4px;
+                border-radius: 8px;
+            }
+    
+            .lang-btn {
+                padding: 6px 14px;
+                border: none;
+                background: transparent;
+                cursor: pointer;
+                border-radius: 6px;
+                font-weight: 500;
+                font-size: 13px;
+                color: var(--text-secondary);
+                transition: all 0.2s;
+            }
+    
+            .lang-btn.active {
+                background: var(--bg-primary);
+                color: var(--primary-color);
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            }
+    
+            body.rtl .lang-switcher {
+                direction: rtl;
+            }
+    
+            .user-info {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                cursor: pointer;
+                padding: 6px 12px;
+                border-radius: 8px;
+                transition: all 0.2s;
+                text-decoration: none;
+                color: inherit;
+                position: relative;
+                z-index: 10;
+            }
+            
+            .user-info:hover {
+                background: var(--bg-secondary);
+            }
+            
+            .user-info * {
+                pointer-events: none;
+            }
+    
+            .user-avatar {
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                background: var(--primary-color);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-weight: 600;
+                font-size: 14px;
+            }
+    
+            .user-details h3 {
+                font-size: 13px;
+                color: var(--text-primary);
+                font-weight: 600;
+            }
+    
+            .user-details p {
+                font-size: 11px;
+                color: var(--text-secondary);
+            }
+    
+            /* Welcome Section */
+            .welcome-section {
+                background: var(--bg-primary);
+                padding: 32px 48px;
+                border-bottom: 1px solid var(--border-color);
+            }
+    
+            .welcome-content h2 {
+                font-size: 24px;
+                color: var(--text-primary);
+                margin-bottom: 6px;
+                font-weight: 600;
+            }
+    
+            .welcome-content p {
+                font-size: 14px;
+                color: var(--text-secondary);
+                line-height: 1.5;
+            }
+    
+            /* Stats Overview */
+            .stats-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 20px;
+                padding: 24px 48px;
+                max-width: 1400px;
+                margin: 0 auto;
+            }
+    
+            .stat-card {
+                background: var(--bg-primary);
+                padding: 20px;
+                border-radius: 12px;
+                border: 1px solid var(--border-color);
+                display: flex;
+                align-items: center;
+                gap: 16px;
+                transition: all 0.2s;
+            }
+    
+            .stat-card:hover {
+                border-color: #cbd5e1;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            }
+    
+            .stat-icon {
+                width: 48px;
+                height: 48px;
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 20px;
+                color: white;
+            }
+    
+            .stat-icon.blue { background: var(--primary-color); }
+            .stat-icon.green { background: #10b981; }
+            .stat-icon.orange { background: #f59e0b; }
+            .stat-icon.purple { background: #8b5cf6; }
+    
+            .stat-details h3 {
+                font-size: 24px;
+                color: var(--text-primary);
+                font-weight: 700;
+                margin-bottom: 2px;
+            }
+    
+            .stat-details p {
+                font-size: 13px;
+                color: var(--text-secondary);
+                font-weight: 500;
+            }
+    
+            /* Main Content */
+            .main-content {
+                max-width: 1400px;
+                margin: 0 auto;
+                padding: 32px 48px;
+            }
+    
+            .section-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px;
+            }
+    
+            .section-header h3 {
+                font-size: 16px;
+                color: var(--text-primary);
+                font-weight: 600;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+    
+            .section-header h3 i {
+                color: var(--text-secondary);
+                font-size: 14px;
+            }
+    
+            /* Service Cards Grid */
+            .services-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+                gap: 16px;
+                margin-bottom: 40px;
+            }
+    
+            .service-card {
+                background: var(--bg-primary);
+                padding: 20px;
+                border-radius: 12px;
+                border: 1px solid var(--border-color);
+                cursor: pointer;
+                transition: all 0.2s;
+                position: relative;
+                text-decoration: none;
+                display: block;
+            }
+    
+            .service-card:hover {
+                border-color: var(--primary-color);
+                box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+                transform: translateY(-2px);
+            }
+    
+            .service-icon {
+                width: 44px;
+                height: 44px;
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-bottom: 14px;
+                font-size: 20px;
+                color: white;
+            }
+    
+            .service-card h4 {
+                font-size: 15px;
+                color: var(--text-primary);
+                margin-bottom: 6px;
+                font-weight: 600;
+            }
+    
+            .service-card p {
+                font-size: 12px;
+                color: var(--text-secondary);
+                line-height: 1.5;
+                margin-bottom: 12px;
+            }
+    
+            .service-arrow {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                color: var(--primary-color);
+                font-size: 12px;
+                font-weight: 600;
+                transition: gap 0.2s;
+            }
+    
+            .service-card:hover .service-arrow {
+                gap: 8px;
+            }
+    
+            /* Quick Actions */
+            .quick-actions-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                gap: 12px;
+                margin-bottom: 30px;
+            }
+    
+            .quick-action {
+                background: var(--bg-primary);
+                padding: 16px;
+                border-radius: 10px;
+                border: 1px solid var(--border-color);
+                text-align: center;
+                cursor: pointer;
+                transition: all 0.2s;
+                text-decoration: none;
+                display: block;
+            }
+    
+            .quick-action:hover {
+                border-color: #cbd5e1;
+                transform: translateY(-2px);
+            }
+    
+            .quick-action i {
+                font-size: 22px;
+                margin-bottom: 8px;
+                display: block;
+            }
+    
+            .quick-action span {
+                font-size: 12px;
+                color: var(--text-primary);
+                font-weight: 500;
+            }
+    
+            /* Color Schemes for Cards */
+            .card-blue .service-icon { background: var(--primary-color); }
+            .card-green .service-icon { background: #10b981; }
+            .card-orange .service-icon { background: #f59e0b; }
+            .card-purple .service-icon { background: #8b5cf6; }
+            .card-yellow .service-icon { background: #eab308; }
+            .card-red .service-icon { background: #ef4444; }
+            .card-teal .service-icon { background: #14b8a6; }
+            .card-indigo .service-icon { background: #6366f1; }
+            .card-pink .service-icon { background: #ec4899; }
+    
+            /* Loading Overlay */
+            .loading-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(255, 255, 255, 0.95);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 9999;
+            }
+    
+            .loading-spinner {
+                width: 50px;
+                height: 50px;
+                border: 4px solid var(--border-color);
+                border-top-color: var(--primary-color);
+                border-radius: 50%;
+                animation: spin 0.8s linear infinite;
+            }
+    
+            @keyframes spin {
+                to { transform: rotate(360deg); }
+            }
+    
+            .hidden {
+                display: none;
+            }
+    
+            /* Responsive */
+            @media (max-width: 768px) {
+                .top-header {
+                    padding: 12px 16px;
+                    gap: 12px;
+                }
+    
+                .header-left {
+                    gap: 12px;
+                }
+    
+                .logo-icon {
+                    width: 32px;
+                    height: 32px;
+                    font-size: 14px;
+                }
+    
+                .logo-text h1 {
+                    font-size: 14px;
+                }
+    
+                .logo-text p {
+                    font-size: 10px;
+                }
+    
+                .header-right {
+                    width: auto;
+                    gap: 8px;
+                    flex-wrap: wrap;
+                }
+    
+                .theme-toggle {
+                    width: 32px;
+                    height: 32px;
+                    font-size: 14px;
+                }
+    
+                .lang-btn {
+                    padding: 4px 10px;
+                    font-size: 11px;
+                }
+    
+                .user-info {
+                    padding: 4px 8px;
+                }
+    
+                .user-avatar {
+                    width: 28px;
+                    height: 28px;
+                    font-size: 12px;
+                }
+    
+                .user-details h3 {
+                    font-size: 11px;
+                }
+    
+                .user-details p {
+                    font-size: 9px;
+                }
+    
+                .welcome-section {
+                    padding: 24px 20px;
+                }
+    
+                .stats-grid {
+                    padding: 20px;
+                    grid-template-columns: 1fr;
+                }
+    
+                .main-content {
+                    padding: 24px 20px;
+                }
+    
+                .services-grid {
+                    grid-template-columns: 1fr;
+                }
+    
+                .quick-actions-grid {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+            }
+    
+            /* Arabic RTL Support */
+            [dir="rtl"] {
+                direction: rtl;
+            }
+    
+            [dir="rtl"] .service-arrow {
+                flex-direction: row-reverse;
+            }
+        </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    </head>
+    <body>
+    
+        <!-- Loading Overlay -->
+        <div id="loadingOverlay" class="loading-overlay">
+            <div class="loading-spinner"></div>
+        </div>
+    
+        <!-- Main Dashboard Content -->
+        <div id="dashboardContent" class="hidden">
+    
+        <!-- Top Header -->
+        <div class="top-header">
+            <div class="header-left">
+                <div class="logo-section">
+                    <div class="logo-icon">R</div>
+                    <div class="logo-text">
+                        <h1 id="portalTitle">ERC Employee Portal</h1>
+                        <p id="companyName">Elite Resources Center</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="header-right">
+                <button class="theme-toggle" id="themeToggle" title="Toggle Dark/Light Mode">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </button>
+                <div class="lang-switcher">
+                    <button class="lang-btn active">English</button>
+                    <button class="lang-btn">العربية</button>
+                </div>
+                
+                <a href="/my-profile" class="user-info" onclick="window.location.href='/my-profile'; return false;">
+                    <div class="user-avatar" id="userAvatar">SK</div>
+                    <div class="user-details">
+                        <h3 id="userName">Loading...</h3>
+                        <p id="userRole">Employee</p>
+                    </div>
+                </a>
+                
+                <button onclick="handleLogout()" style="margin-left: 16px; padding: 8px 16px; background: transparent; border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; font-size: 13px; color: var(--text-secondary); transition: all 0.2s;" onmouseover="this.style.borderColor='var(--primary-color)'; this.style.color='var(--primary-color)';" onmouseout="this.style.borderColor='var(--border-color)'; this.style.color='var(--text-secondary)';">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span style="margin-left: 6px;" data-en="Logout" data-ar="تسجيل الخروج">Logout</span>
+                </button>
+            </div>
+        </div>
+    
+    
+        <!-- Stats Overview -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon blue">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <div class="stat-details">
+                    <h3 id="totalRequestsCount">0</h3>
+                    <p id="totalRequests">Total Requests</p>
+                </div>
+            </div>
+    
+            <div class="stat-card">
+                <div class="stat-icon green">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-details">
+                    <h3 id="completedCount">0</h3>
+                    <p id="completedRequests">Completed</p>
+                </div>
+            </div>
+    
+            <div class="stat-card">
+                <div class="stat-icon orange">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-details">
+                    <h3 id="pendingCount">0</h3>
+                    <p id="pendingRequests">Pending</p>
+                </div>
+            </div>
+    
+            <div class="stat-card">
+                <div class="stat-icon purple">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div class="stat-details">
+                    <h3 id="inProgressCount">0</h3>
+                    <p id="upcomingTasks">In Progress</p>
+                </div>
+            </div>
+        </div>
+    
+        <!-- Main Services -->
+        <div class="main-content">
+            <div class="section-header">
+                <h3><i class="fas fa-briefcase"></i> <span id="servicesTitle">Core Services</span></h3>
+            </div>
+            
+            <div class="services-grid">
+                <!-- Submit Request -->
+                <a href="/submit-request-form" class="service-card card-blue">
+                    <div class="service-icon">
+                        <i class="fas fa-paper-plane"></i>
+                    </div>
+                    <h4 id="submitRequest">Submit New Request</h4>
+                    <p id="submitRequestDesc">Create and submit new service requests for approvals</p>
+                    <span class="service-arrow">
+                        <span id="viewMore1">Learn more</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </span>
+                </a>
+    
+                <!-- All Requests -->
+                <a href="/my-requests" class="service-card card-green">
+                    <div class="service-icon">
+                        <i class="fas fa-list-alt"></i>
+                    </div>
+                    <h4 id="allRequests">All Requests</h4>
+                    <p id="allRequestsDesc">View complete history of all your submitted requests</p>
+                    <span class="service-arrow">
+                        <span id="viewMore2">View details</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </span>
+                </a>
+    
+                <!-- Pending Requests -->
+                <a href="/my-requests?status=Draft" class="service-card card-orange">
+                    <div class="service-icon">
+                        <i class="fas fa-hourglass-half"></i>
+                    </div>
+                    <h4 id="pendingRequestsTitle">Pending Requests</h4>
+                    <p id="pendingRequestsDesc">Track requests awaiting approval or processing</p>
+                    <span class="service-arrow">
+                        <span id="viewMore3">Check status</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </span>
+                </a>
+    
+                <!-- In Progress Requests -->
+                <a href="/my-requests?status=In Progress" class="service-card card-purple">
+                    <div class="service-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <h4 id="myRecords">In Progress Requests</h4>
+                    <p id="myRecordsDesc">View requests that are currently in progress</p>
+                    <span class="service-arrow">
+                        <span id="viewMore4">View requests</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </span>
+                </a>
+
+                <!-- Approved Requests -->
+                <a href="/my-requests?status=Approved by FM" class="service-card card-green">
+                    <div class="service-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h4 id="approvedRequestsTitle" data-en="Approved Requests" data-ar="الطلبات المعتمدة">Approved Requests</h4>
+                    <p id="approvedRequestsDesc" data-en="View requests that have been approved by FM" data-ar="عرض الطلبات التي تمت الموافقة عليها من قبل المدير المالي">View requests that have been approved by FM</p>
+                    <span class="service-arrow">
+                        <span id="viewMore5" data-en="View approved" data-ar="عرض المعتمدة">View approved</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </span>
+                </a>
+            </div>
+    
+            <!-- General Requests Section -->
+            <div class="section-header">
+                <h3><i class="fas fa-file-alt"></i> <span id="generalRequestsTitle" data-en="General Requests" data-ar="الطلبات العامة">General Requests</span></h3>
+            </div>
+            
+            <div class="services-grid">
+                <!-- Submit General Request -->
+                <a href="/general-request-form" class="service-card card-blue">
+                    <div class="service-icon">
+                        <i class="fas fa-file-signature"></i>
+                    </div>
+                    <h4 id="submitGeneralRequest" data-en="Submit General Request" data-ar="تقديم طلب عام">Submit General Request</h4>
+                    <p id="submitGeneralRequestDesc" data-en="Request documents like salary slips, letters, certificates, etc." data-ar="طلب مستندات مثل كشوف الراتب والخطابات والشهادات وغيرها">Request documents like salary slips, letters, certificates, etc.</p>
+                    <span class="service-arrow">
+                        <span id="viewMoreGeneral1" data-en="Submit request" data-ar="إرسال الطلب">Submit request</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </span>
+                </a>
+    
+                <!-- All General Requests -->
+                <a href="/general-request-list" class="service-card card-green">
+                    <div class="service-icon">
+                        <i class="fas fa-list-ul"></i>
+                    </div>
+                    <h4 id="allGeneralRequests" data-en="All General Requests" data-ar="جميع الطلبات العامة">All General Requests</h4>
+                    <p id="allGeneralRequestsDesc" data-en="View all your general service requests and their status" data-ar="عرض جميع طلبات الخدمة العامة الخاصة بك وحالتها">View all your general service requests and their status</p>
+                    <span class="service-arrow">
+                        <span id="viewMoreGeneral2" data-en="View requests" data-ar="عرض الطلبات">View requests</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </span>
+                </a>
+    
+                <!-- Pending General Requests -->
+                <a href="/general-request-list?fulfilled=No" class="service-card card-orange">
+                    <div class="service-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <h4 id="pendingGeneralRequests" data-en="Pending Requests" data-ar="الطلبات المعلقة">Pending Requests</h4>
+                    <p id="pendingGeneralRequestsDesc" data-en="Track general requests that are not yet fulfilled" data-ar="تتبع الطلبات العامة التي لم يتم الوفاء بها بعد">Track general requests that are not yet fulfilled</p>
+                    <span class="service-arrow">
+                        <span id="viewMoreGeneral3" data-en="Check status" data-ar="التحقق من الحالة">Check status</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </span>
+                </a>
+            </div>
+    
+            <!-- Attendance Files Section -->
+            <div class="section-header">
+                <h3><i class="fas fa-calendar-check"></i> <span id="attendanceFilesTitle" data-en="Attendance Files" data-ar="ملفات الحضور">Attendance Files</span></h3>
+            </div>
+            
+            <div class="services-grid">
+                <!-- Upload Attendance File -->
+                <a href="/attendance-file-form" class="service-card card-teal">
+                    <div class="service-icon">
+                        <i class="fas fa-upload"></i>
+                    </div>
+                    <h4 id="uploadAttendanceFile" data-en="Upload Attendance File" data-ar="رفع ملف الحضور">Upload Attendance File</h4>
+                    <p id="uploadAttendanceFileDesc" data-en="Upload your monthly attendance file for processing" data-ar="قم برفع ملف الحضور الشهري الخاص بك للمعالجة">Upload your monthly attendance file for processing</p>
+                    <span class="service-arrow">
+                        <span id="viewMoreAttendance1" data-en="Upload file" data-ar="رفع ملف">Upload file</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </span>
+                </a>
+    
+                <!-- All Attendance Files -->
+                <a href="/attendance-file-list" class="service-card card-indigo">
+                    <div class="service-icon">
+                        <i class="fas fa-folder-open"></i>
+                    </div>
+                    <h4 id="allAttendanceFiles" data-en="All Attendance Files" data-ar="جميع ملفات الحضور">All Attendance Files</h4>
+                    <p id="allAttendanceFilesDesc" data-en="View all your uploaded attendance files" data-ar="عرض جميع ملفات الحضور المرفوعة الخاصة بك">View all your uploaded attendance files</p>
+                    <span class="service-arrow">
+                        <span id="viewMoreAttendance2" data-en="View files" data-ar="عرض الملفات">View files</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </span>
+                </a>
+            </div>
+    
+            <!-- Portal Forms Section -->
+            <div class="section-header">
+                <h3><i class="fas fa-file-contract"></i> <span id="portalFormsTitle" data-en="Portal Forms" data-ar="نماذج البوابة">Portal Forms</span></h3>
+            </div>
+            
+            <div class="services-grid">
+                <!-- Submit Portal Form -->
+                <a href="/employee-portal-form" class="service-card card-pink">
+                    <div class="service-icon">
+                        <i class="fas fa-file-upload"></i>
+                    </div>
+                    <h4 id="submitPortalForm" data-en="Submit Portal Form" data-ar="تقديم نموذج بوابة">Submit Portal Form</h4>
+                    <p id="submitPortalFormDesc" data-en="Download, fill, and upload signed forms for verification" data-ar="قم بتنزيل وملء ورفع النماذج الموقّعة للتحقق">Download, fill, and upload signed forms for verification</p>
+                    <span class="service-arrow">
+                        <span id="viewMorePortal1" data-en="Submit form" data-ar="تقديم النموذج">Submit form</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </span>
+                </a>
+    
+                <!-- All Portal Forms -->
+                <a href="/employee-portal-form-list" class="service-card card-purple">
+                    <div class="service-icon">
+                        <i class="fas fa-list-alt"></i>
+                    </div>
+                    <h4 id="allPortalForms" data-en="All Portal Forms" data-ar="جميع نماذج البوابة">All Portal Forms</h4>
+                    <p id="allPortalFormsDesc" data-en="View all your submitted portal forms and verification status" data-ar="عرض جميع نماذج البوابة المقدمة وحالة التحقق">View all your submitted portal forms and verification status</p>
+                    <span class="service-arrow">
+                        <span id="viewMorePortal2" data-en="View forms" data-ar="عرض النماذج">View forms</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </span>
+                </a>
+            </div>
+    
+            <!-- Personal & Support Section -->
+            <div class="section-header">
+                <h3><i class="fas fa-user-cog"></i> <span id="personalTitle">Personal & Support</span></h3>
+            </div>
+            
+            <div class="services-grid">
+                <!-- Profile -->
+                <a href="/my-profile" class="service-card card-blue">
+                    <div class="service-icon">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <h4 id="profileTitle">My Profile</h4>
+                    <p id="profileDesc">Manage your personal information and settings</p>
+                    <span class="service-arrow">
+                        <span id="viewMore9">Edit profile</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </span>
+                </a>
+    
+                <!-- Support Help -->
+                <a href="/support" class="service-card card-red">
+                    <div class="service-icon">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <h4 id="supportHelp">Support & Help</h4>
+                    <p id="supportHelpDesc" data-en="Step-by-step guides, FAQs, and contact information" data-ar="أدلة خطوة بخطوة والأسئلة الشائعة ومعلومات الاتصال">Step-by-step guides, FAQs, and contact information</p>
+                    <span class="service-arrow">
+                        <span id="viewMore10" data-en="Get help" data-ar="احصل على المساعدة">Get help</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </span>
+                </a>
+            </div>
+    
+            <!-- Quick Actions -->
+            <div class="section-header">
+                <h3><i class="fas fa-bolt"></i> <span id="quickActionsTitle">Quick Actions</span></h3>
+            </div>
+            
+            <div class="quick-actions-grid">
+                <a href="/my-profile?tab=loans" class="quick-action">
+                    <i class="fas fa-hand-holding-usd" style="color: #667eea;"></i>
+                    <span id="myLoans">My Loans</span>
+                </a>
+
+                <a href="/my-profile?tab=salary-slips" class="quick-action">
+                    <i class="fas fa-file-invoice-dollar" style="color: #20e3b2;"></i>
+                    <span id="payslips">Payslips</span>
+                </a>
+
+                <a href="/attendance-file-form" class="quick-action">
+                    <i class="fas fa-clock" style="color: #00f2fe;"></i>
+                    <span id="attendance">Attendance</span>
+                </a>
+
+                <a href="/support" class="quick-action">
+                    <i class="fas fa-headset" style="color: #f5576c;"></i>
+                    <span id="getHelp">Get Help</span>
+                </a>
+            </div>
+    
+        </div>
+    
+        </div>
+        <!-- End Dashboard Content -->
+    
+        <script>
+            // Theme Toggle Functionality
+            (function() {
+                const themeToggle = document.getElementById('themeToggle');
+                const themeIcon = document.getElementById('themeIcon');
+                const html = document.documentElement;
+                
+                // Get saved theme or default to light
+                const savedTheme = localStorage.getItem('employeePortalTheme') || 'light';
+                html.setAttribute('data-theme', savedTheme);
+                updateThemeIcon(savedTheme);
+                
+                function updateThemeIcon(theme) {
+                    if (!themeIcon) return;
+                    
+                    if (theme === 'dark') {
+                        themeIcon.className = 'fas fa-sun';
+                        themeIcon.style.color = '';
+                        themeToggle.setAttribute('title', 'Switch to Light Mode');
+                    } else {
+                        themeIcon.className = 'fas fa-moon';
+                        themeIcon.style.color = '';
+                        themeToggle.setAttribute('title', 'Switch to Dark Mode');
+                    }
+                }
+                
+                if (themeToggle) {
+                    themeToggle.addEventListener('click', function() {
+                        const currentTheme = html.getAttribute('data-theme');
+                        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                        html.setAttribute('data-theme', newTheme);
+                        localStorage.setItem('employeePortalTheme', newTheme);
+                        updateThemeIcon(newTheme);
+                    });
+                }
+            })();
+            
+            let currentLang = localStorage.getItem('employeePortalLang') || 'en';
+            let currentUser = null;
+            let employeeData = null;
+            let actualUserName = null; // Store actual user name to prevent translation override
+    
+            // Check authentication on page load
+            document.addEventListener('DOMContentLoaded', function() {
+                checkAuthentication();
+            });
+    
+            function checkAuthentication() {
+                frappe.call({
+                    method: 'frappe.auth.get_logged_user',
+                    callback: function(r) {
+                        if (r.message && r.message !== 'Guest') {
+                            currentUser = r.message;
+                            loadEmployeeData();
+                    } else {
+                        window.location.href = '/employee-login';
+                    }
+                    },
+                    error: function() {
+                    window.location.href = '/employee-login';
+                    }
+                });
+            }
+    
+            function loadEmployeeData() {
+                frappe.call({
+                    method: 'hr_services.portal.api.get_list',
+                    args: {
+                        doctype: 'Employee',
+                        filters: {
+                            user_id: currentUser
+                        },
+                        fields: ['name', 'employee_name']
+                    },
+                    callback: function(r) {
+                        if (r.message && r.message.length > 0) {
+                            employeeData = r.message[0];
+                            initializeDashboard();
+                            loadRequestStats();
+                        } else {
+                            // Still initialize dashboard even if employee not found
+                            initializeDashboard();
+                        }
+                    },
+                    error: function() {
+                        initializeDashboard();
+                    }
+                });
+            }
+    
+            function loadRequestStats() {
+                const employeeNo = employeeData?.name || '';
+                
+                if (!employeeNo) {
+                    // No employee found, show zeros
+                    updateStats(0, 0, 0, 0);
+                    return;
+                }
+                
+                // Fetch all requests and filter by employee
+                frappe.call({
+                    method: 'hr_services.portal.api.get_list',
+                    args: {
+                        doctype: 'Request For Payment',
+                        fields: ['name', 'workflow_state'],
+                        limit_page_length: 100,
+                        order_by: 'creation desc'
+                    },
+                    callback: function(r) {
+                        if (r.message && r.message.length > 0) {
+                            // Fetch detailed data to check employee in child tables
+                            fetchRequestsForStats(employeeNo, r.message);
+                        } else {
+                            updateStats(0, 0, 0, 0);
+                        }
+                    },
+                    error: function() {
+                        updateStats(0, 0, 0, 0);
+                    }
+                });
+            }
+            
+            function fetchRequestsForStats(employeeNo, requests) {
+                let totalCount = 0;
+                let completedCount = 0;
+                let pendingCount = 0;
+                let inProgressCount = 0;
+                
+                // Limit to recent requests for faster loading
+                const requestsToCheck = requests.slice(0, 30);
+                const BATCH_SIZE = 10;
+                let currentIndex = 0;
+                
+                function processBatch() {
+                    if (currentIndex >= requestsToCheck.length) {
+                        updateStats(totalCount, completedCount, pendingCount, inProgressCount);
+                        return;
+                    }
+                    
+                    const batch = requestsToCheck.slice(currentIndex, currentIndex + BATCH_SIZE);
+                    currentIndex += BATCH_SIZE;
+                    
+                    // Process batch in parallel
+                    const promises = batch.map(request => {
+                        return new Promise((resolve) => {
+                            frappe.call({
+                                method: 'hr_services.portal.api.get',
+                                args: {
+                                    doctype: 'Request For Payment',
+                                    name: request.name
+                                },
+                                callback: function(r) {
+                                    if (r.message) {
+                                        const doc = r.message;
+                                        let isEmployeeRequest = false;
+                                        
+                                        if (doc.items && doc.items.length > 0) {
+                                            isEmployeeRequest = doc.items.some(item => item.employee_no === employeeNo);
+                                        }
+                                        if (!isEmployeeRequest && doc.advances && doc.advances.length > 0) {
+                                            isEmployeeRequest = doc.advances.some(advance => advance.employee_no === employeeNo);
+                                        }
+                                        if (!isEmployeeRequest && doc.employees && doc.employees.length > 0) {
+                                            isEmployeeRequest = doc.employees.some(emp => emp.employee_no === employeeNo);
+                                        }
+                                        
+                                        if (isEmployeeRequest) {
+                                            totalCount++;
+                                            const workflowState = doc.workflow_state || '';
+                                            const status = workflowState.toLowerCase();
+                                            
+                                            // Completed: Workflow State == "Approved by FM"
+                                            if (workflowState === 'Approved by FM' || status === 'approved by fm') {
+                                                completedCount++;
+                                            } 
+                                            // Pending: Workflow State === "draft"
+                                            else if (workflowState === 'Draft' || workflowState === 'draft' || status === 'draft') {
+                                                pendingCount++;
+                                            } 
+                                            // In Progress: Workflow State != "draft" AND != "Approved by FM"
+                                            else if (workflowState && workflowState !== 'Draft' && workflowState !== 'draft' && workflowState !== 'Approved by FM' && workflowState !== 'approved by fm') {
+                                                inProgressCount++;
+                                            }
+                                        }
+                                    }
+                                    resolve();
+                                },
+                                error: function() {
+                                    resolve();
+                                }
+                            });
+                        });
+                    });
+                    
+                    Promise.all(promises).then(() => {
+                        // Update stats incrementally as we process
+                        updateStats(totalCount, completedCount, pendingCount, inProgressCount);
+                        // Process next batch
+                        setTimeout(processBatch, 10);
+                    });
+                }
+                
+                // Start processing
+                processBatch();
+            }
+            
+            function updateStats(total, completed, pending, inProgress) {
+                document.getElementById('totalRequestsCount').textContent = total;
+                document.getElementById('completedCount').textContent = completed;
+                document.getElementById('pendingCount').textContent = pending;
+                document.getElementById('inProgressCount').textContent = inProgress;
+            }
+    
+            function initializeDashboard() {
+                // Use employee data if available, otherwise fetch user details
+                if (employeeData && employeeData.employee_name) {
+                    setupUserInfo({
+                        full_name: employeeData.employee_name,
+                        email: currentUser
+                    });
+                } else {
+                    // Fetch user details from ERPNext
+                    frappe.call({
+                        method: 'hr_services.portal.api.get',
+                        args: {
+                            doctype: 'User',
+                            name: currentUser
+                        },
+                        callback: function(r) {
+                            if (r.message) {
+                                const user = r.message;
+                                setupUserInfo(user);
+                            } else {
+                                setupUserInfo({
+                                    full_name: currentUser.split('@')[0] || currentUser,
+                                    email: currentUser
+                                });
+                            }
+                        },
+                        error: function() {
+                            setupUserInfo({
+                                full_name: currentUser.split('@')[0] || currentUser,
+                                email: currentUser
+                            });
+                        }
+                    });
+                }
+            }
+    
+            function setupUserInfo(user) {
+                // Get user initials for avatar
+                const fullName = user.full_name || user.email || currentUser;
+                actualUserName = fullName; // Store actual user name
+                
+                const nameParts = fullName.split(' ');
+                const initials = nameParts.length >= 2 
+                    ? (nameParts[0][0] + nameParts[1][0]).toUpperCase()
+                    : fullName.substring(0, 2).toUpperCase();
+    
+                // Update user info in header
+                document.getElementById('userName').textContent = fullName;
+                document.getElementById('userAvatar').textContent = initials;
+    
+                // Hide loading, show dashboard
+                document.getElementById('loadingOverlay').classList.add('hidden');
+                document.getElementById('dashboardContent').classList.remove('hidden');
+    
+                // Apply saved language (but preserve actual user name)
+                applyLanguage(currentLang);
+            }
+    
+            // Language translations
+            const translations = {
+                en: {
+                    portalTitle: "ERC Employee Portal",
+                    companyName: "Elite Resources Center",
+                    welcomeTitle: "Welcome back, Sarib! 👋",
+                    welcomeText: "Your employee self-service portal. Manage your requests, track status, and access important documents all in one place.",
+                    userName: "Sarib Khan",
+                    userRole: "Employee",
+                    totalRequests: "Total Requests",
+                    completedRequests: "Completed",
+                    pendingRequests: "Pending",
+                    upcomingTasks: "In Progress",
+                    servicesTitle: "Core Services",
+                    submitRequest: "Submit New Request",
+                    submitRequestDesc: "Create and submit new service requests for approvals",
+                    allRequests: "All Requests",
+                    allRequestsDesc: "View complete history of all your submitted requests",
+                    pendingRequestsTitle: "Pending Requests",
+                    pendingRequestsDesc: "Track requests awaiting approval or processing",
+                    myRecords: "In Progress Requests",
+                    myRecordsDesc: "View requests that are currently in progress",
+                    approvedRequestsTitle: "Approved Requests",
+                    approvedRequestsDesc: "View requests that have been approved by FM",
+                    personalTitle: "Personal & Support",
+                    profileTitle: "My Profile",
+                    profileDesc: "Manage your personal information and settings",
+                    supportHelp: "Support & Help",
+                    supportHelpDesc: "Get assistance and contact HR department",
+                    quickActionsTitle: "Quick Actions",
+                    myLoans: "My Loans",
+                    payslips: "Payslips",
+                    attendance: "Attendance",
+                    getHelp: "Get Help",
+                    cocRequest: "COC",
+                    loanRequest: "Loan Request",
+                    portalGuide: "Portal Guide",
+                    viewMore1: "Learn more",
+                    viewMore2: "View details",
+                    viewMore3: "Check status",
+                    viewMore4: "View requests",
+                    viewMore5: "View approved",
+                    viewMore6: "View requests",
+                    viewMore7: "Book now",
+                    viewMore8: "Request leave",
+                    viewMore9: "Edit profile",
+                    viewMore10: "Get help",
+                    portalFormsTitle: "Portal Forms",
+                    submitPortalForm: "Submit Portal Form",
+                    submitPortalFormDesc: "Download, fill, and upload signed forms for verification",
+                    allPortalForms: "All Portal Forms",
+                    allPortalFormsDesc: "View all your submitted portal forms and verification status",
+                    viewMorePortal1: "Submit form",
+                    viewMorePortal2: "View forms"
+                },
+                ar: {
+                    portalTitle: "بوابة موظفي مج",
+                    // companyName: "مجموعة مدارس الرياض",
+                    welcomeTitle: "مرحباً بعودتك، سارب! 👋",
+                    welcomeText: "بوابة الخدمة الذاتية للموظفين. إدارة طلباتك، تتبع الحالة، والوصول إلى المستندات المهمة في مكان واحد.",
+                    userName: "سارب خان",
+                    userRole: "موظف",
+                    totalRequests: "إجمالي الطلبات",
+                    completedRequests: "مكتمل",
+                    pendingRequests: "قيد الانتظار",
+                    upcomingTasks: "قيد التنفيذ",
+                    servicesTitle: "الخدمات الأساسية",
+                    submitRequest: "تقديم طلب جديد",
+                    submitRequestDesc: "إنشاء وتقديم طلبات خدمة جديدة للموافقات",
+                    allRequests: "جميع الطلبات",
+                    allRequestsDesc: "عرض السجل الكامل لجميع طلباتك المقدمة",
+                    pendingRequestsTitle: "الطلبات المعلقة",
+                    pendingRequestsDesc: "تتبع الطلبات في انتظار الموافقة أو المعالجة",
+                    myRecords: "الطلبات قيد التنفيذ",
+                    myRecordsDesc: "عرض الطلبات التي قيد التنفيذ حالياً",
+                    approvedRequestsTitle: "الطلبات المعتمدة",
+                    approvedRequestsDesc: "عرض الطلبات التي تمت الموافقة عليها من قبل المدير المالي",
+                    personalTitle: "الشخصية والدعم",
+                    profileTitle: "ملفي الشخصي",
+                    profileDesc: "إدارة معلوماتك الشخصية والإعدادات",
+                    supportHelp: "الدعم والمساعدة",
+                    supportHelpDesc: "احصل على المساعدة واتصل بقسم الموارد البشرية",
+                    quickActionsTitle: "إجراءات سريعة",
+                    myLoans: "قروضي",
+                    payslips: "قسائم الرواتب",
+                    attendance: "الحضور",
+                    getHelp: "احصل على المساعدة",
+                    cocRequest: "شهادة الخبرة",
+                    loanRequest: "طلب قرض",
+                    portalGuide: "دليل البوابة",
+                    viewMore1: "اعرف المزيد",
+                    viewMore2: "عرض التفاصيل",
+                    viewMore3: "تحقق من الحالة",
+                    viewMore4: "عرض الطلبات",
+                    viewMore5: "عرض المعتمدة",
+                    viewMore6: "عرض الطلبات",
+                    viewMore7: "احجز الآن",
+                    viewMore8: "طلب إجازة",
+                    viewMore9: "تعديل الملف الشخصي",
+                    viewMore10: "احصل على المساعدة",
+                    portalFormsTitle: "نماذج البوابة",
+                    submitPortalForm: "تقديم نموذج بوابة",
+                    submitPortalFormDesc: "قم بتنزيل وملء ورفع النماذج الموقّعة للتحقق",
+                    allPortalForms: "جميع نماذج البوابة",
+                    allPortalFormsDesc: "عرض جميع نماذج البوابة المقدمة وحالة التحقق",
+                    viewMorePortal1: "تقديم النموذج",
+                    viewMorePortal2: "عرض النماذج"
+                }
+            };
+    
+            // Language switcher
+            document.querySelectorAll('.lang-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const lang = this.textContent.includes('English') ? 'en' : 'ar';
+                    currentLang = lang;
+                    localStorage.setItem('employeePortalLang', lang);
+                    
+                    document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    applyLanguage(lang);
+                });
+            });
+    
+            function applyLanguage(lang) {
+                const html = document.documentElement;
+                const body = document.body;
+                
+                // Update active button
+                document.querySelectorAll('.lang-btn').forEach(btn => {
+                    if ((lang === 'en' && btn.textContent.includes('English')) ||
+                        (lang === 'ar' && btn.textContent.includes('العربية'))) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+                
+                // Set direction and language
+                if (lang === 'ar') {
+                    body.classList.add('rtl');
+                    html.setAttribute('dir', 'rtl');
+                } else {
+                    body.classList.remove('rtl');
+                    html.setAttribute('dir', 'ltr');
+                }
+                html.setAttribute('lang', lang);
+                
+                // Update all text content from data attributes
+                document.querySelectorAll('[data-' + lang + ']').forEach(element => {
+                    const text = element.getAttribute('data-' + lang);
+                    if (text) {
+                        if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
+                            element.value = text;
+                        } else {
+                    element.textContent = text;
+                        }
+                    }
+                });
+                
+                // Update elements by ID using translations object
+                // Exclude userName to preserve actual logged-in user name
+                if (translations[lang]) {
+                    const trans = translations[lang];
+                    Object.keys(trans).forEach(key => {
+                        // Skip userName to preserve actual user name
+                        if (key === 'userName') {
+                            return;
+                        }
+                        const element = document.getElementById(key);
+                        if (element) {
+                            element.textContent = trans[key];
+                        }
+                    });
+                }
+                
+                // Always restore actual user name after translation
+                if (actualUserName) {
+                    const userNameElement = document.getElementById('userName');
+                    if (userNameElement) {
+                        userNameElement.textContent = actualUserName;
+                    }
+                }
+            }
+    
+            // Logout functionality
+            function handleLogout() {
+                if (confirm(currentLang === 'ar' ? 'هل أنت متأكد أنك تريد تسجيل الخروج؟' : 'Are you sure you want to logout?')) {
+                    fetch('/api/method/logout', {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(() => {
+                        window.location.href = '/employee-login';
+                    })
+                    .catch(() => {
+                        window.location.href = '/employee-login';
+                    });
+                }
+            }
+    
+            // Service cards now use direct href links, no need for click handlers
+        </script>
+    
+    </body>
+    </html>{% endraw %}
+</article>
+</div>
+{% endblock %}

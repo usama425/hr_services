@@ -1,0 +1,1137 @@
+{% extends "templates/web.html" %}
+
+{% block page_content %}
+<div class="webpage-content">
+<article class="web-page-content" id="employee-portal-form-list" style="text-align: Left">
+{% raw %}<style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap');
+    
+    /* Hide default ERPNext header */
+    .navbar, .page-header, .page-head, .web-footer, header {
+        display: none !important;
+    }
+    
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    
+    /* Unified Color System - Light Mode (Default) */
+    :root {
+        --primary-color: #084887;
+        --primary-dark: #063a6b;
+        --primary-light: #0a5ba8;
+        --text-primary: #0f172a;
+        --text-secondary: #64748b;
+        --bg-primary: #ffffff;
+        --bg-secondary: #f8fafc;
+        --bg-tertiary: #f1f5f9;
+        --border-color: #e2e8f0;
+        --success-color: #10b981;
+        --error-color: #ef4444;
+        --warning-color: #f59e0b;
+    }
+    
+    /* Dark Mode */
+    [data-theme="dark"] {
+        --primary-color: #0d6efd;
+        --primary-dark: #084887;
+        --primary-light: #3d8bfd;
+        --text-primary: #ffffff;
+        --text-secondary: #cbd5e1;
+        --bg-primary: #1e293b;
+        --bg-secondary: #334155;
+        --bg-tertiary: #475569;
+        --border-color: rgba(148, 163, 184, 0.3);
+        --success-color: #10b981;
+        --error-color: #ef4444;
+        --warning-color: #f59e0b;
+    }
+    
+    body {
+        font-family: 'Inter', sans-serif;
+        background: var(--bg-secondary);
+        min-height: 100vh;
+        padding: 0;
+        padding-top: 0 !important;
+        transition: background 0.3s ease;
+    }
+    
+    body.rtl {
+        font-family: 'Cairo', sans-serif;
+        direction: rtl;
+    }
+    
+    /* Top Header Bar */
+    .top-header {
+        background: var(--bg-primary);
+        padding: 16px 48px;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+    
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+    
+    .back-button {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        background: transparent;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 500;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+    
+    .back-button:hover {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+    }
+    
+    .page-title-section h1 {
+        font-size: 18px;
+        color: var(--text-primary);
+        font-weight: 600;
+    }
+    
+    .page-title-section p {
+        font-size: 12px;
+        color: var(--text-secondary);
+        margin-top: 2px;
+    }
+    
+    .header-right {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+    
+    .theme-toggle {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 16px;
+        color: var(--text-primary);
+    }
+    
+    .theme-toggle:hover {
+        background: var(--bg-tertiary);
+        transform: scale(1.05);
+    }
+    
+    .lang-switcher {
+        display: flex;
+        gap: 4px;
+        background: var(--bg-secondary);
+        padding: 4px;
+        border-radius: 8px;
+    }
+    
+    .lang-btn {
+        padding: 6px 14px;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        border-radius: 6px;
+        font-weight: 500;
+        font-size: 13px;
+        color: var(--text-secondary);
+        transition: all 0.2s;
+    }
+    
+    .lang-btn.active {
+        background: var(--bg-primary);
+        color: var(--primary-color);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .user-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: var(--primary-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 14px;
+    }
+    
+    /* Main Container */
+    .main-container {
+        max-width: 1400px;
+        margin: 24px auto;
+        padding: 0 24px;
+    }
+    
+    /* Filters Section */
+    .filters-section {
+        background: var(--bg-primary);
+        padding: 20px 24px;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        margin-bottom: 20px;
+    }
+    
+    .filters-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 16px;
+        cursor: pointer;
+        user-select: none;
+    }
+    
+    .filters-toggle {
+        margin-left: auto;
+        transition: transform 0.3s;
+    }
+    
+    .filters-title.collapsed .filters-toggle {
+        transform: rotate(-90deg);
+    }
+    
+    .filters-content {
+        display: block;
+    }
+    
+    .filters-content.collapsed {
+        display: none;
+    }
+    
+    .filters-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+    }
+    
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    
+    .filter-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-secondary);
+    }
+    
+    .filter-input,
+    .filter-select {
+        padding: 8px 12px;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        font-size: 13px;
+        font-family: inherit;
+    }
+    
+    .filter-actions {
+        grid-column: 1 / -1;
+        flex-direction: row;
+        align-items: flex-end;
+        gap: 8px;
+    }
+    
+    .btn-filter {
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .btn-filter-primary {
+        background: var(--primary-color);
+        color: white;
+    }
+    
+    .btn-filter-primary:hover {
+        background: var(--primary-dark);
+    }
+    
+    .btn-filter-secondary {
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
+    }
+    
+    .btn-filter-secondary:hover {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+    }
+    
+    /* Requests Section */
+    .requests-section {
+        background: var(--bg-primary);
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        overflow: hidden;
+    }
+    
+    .section-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid var(--border-color);
+        background: var(--bg-secondary);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .section-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .requests-count {
+        font-size: 13px;
+        color: var(--text-secondary);
+        margin-top: 4px;
+    }
+    
+    .btn-add-new {
+        padding: 10px 20px;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s;
+    }
+    
+    .btn-add-new:hover {
+        background: var(--primary-dark);
+    }
+    
+    /* Table */
+    .requests-table-container {
+        overflow-x: auto;
+    }
+    
+    .requests-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .requests-table thead {
+        background: var(--bg-secondary);
+    }
+    
+    .requests-table th {
+        padding: 12px 16px;
+        text-align: left;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-primary);
+        border-bottom: 2px solid var(--border-color);
+        white-space: nowrap;
+    }
+    
+    .requests-table td {
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--border-color);
+        font-size: 13px;
+        color: var(--text-primary);
+    }
+    
+    .requests-table tbody tr:hover {
+        background: var(--bg-secondary);
+    }
+    
+    .requests-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+    
+    .form-type-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+    
+    .form-type-health {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+    
+    .form-type-istiqdam {
+        background: #fef3c7;
+        color: #92400e;
+    }
+    
+    .form-type-reimbursement {
+        background: #e0e7ff;
+        color: #3730a3;
+    }
+    
+    .verification-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+    
+    .verification-pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
+    
+    .verification-approved {
+        background: #d1fae5;
+        color: #065f46;
+    }
+    
+    .signed-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+    
+    .signed-true {
+        background: #d1fae5;
+        color: #065f46;
+    }
+    
+    .signed-false {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+    
+    .btn-view {
+        padding: 6px 14px;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        text-decoration: none;
+    }
+    
+    .btn-view:hover {
+        background: var(--primary-dark);
+    }
+    
+    /* Mobile Table View */
+    .mobile-table-view {
+        display: none;
+        padding: 12px;
+    }
+    
+    .mobile-table-row {
+        background: var(--bg-primary);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 12px;
+    }
+    
+    .mobile-row-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+    
+    .mobile-row-id {
+        font-weight: 600;
+        color: var(--primary-color);
+        font-size: 13px;
+    }
+    
+    .mobile-row-details {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-bottom: 8px;
+    }
+    
+    .mobile-row-detail-item {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+    }
+    
+    .mobile-row-label {
+        color: var(--text-secondary);
+        font-weight: 500;
+    }
+    
+    .mobile-row-value {
+        color: var(--text-primary);
+        font-weight: 600;
+    }
+    
+    .mobile-row-action {
+        margin-top: 8px;
+        padding-top: 8px;
+        border-top: 1px solid var(--border-color);
+    }
+    
+    /* Empty State */
+    .empty-state {
+        padding: 60px 24px;
+        text-align: center;
+    }
+    
+    .empty-state-icon {
+        width: 80px;
+        height: 80px;
+        background: var(--bg-secondary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        color: var(--text-secondary);
+        font-size: 32px;
+    }
+    
+    .empty-state-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+    }
+    
+    .empty-state-text {
+        font-size: 13px;
+        color: var(--text-secondary);
+    }
+    
+    /* Loading State */
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.95);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+    }
+    
+    [data-theme="dark"] .loading-overlay {
+        background: rgba(30, 41, 59, 0.95);
+    }
+    
+    .loading-spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid var(--border-color);
+        border-top-color: var(--primary-color);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    .hidden {
+        display: none;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .top-header {
+            padding: 8px 12px;
+            gap: 8px;
+        }
+        
+        .header-left {
+            gap: 8px;
+        }
+        
+        .back-button {
+            padding: 6px 12px;
+            font-size: 11px;
+        }
+        
+        .page-title-section h1 {
+            font-size: 14px;
+        }
+        
+        .page-title-section p {
+            font-size: 10px;
+        }
+        
+        .theme-toggle {
+            width: 32px;
+            height: 32px;
+            font-size: 14px;
+        }
+        
+        .lang-btn {
+            padding: 4px 10px;
+            font-size: 11px;
+        }
+        
+        .user-avatar {
+            width: 28px;
+            height: 28px;
+            font-size: 12px;
+        }
+        
+        .main-container {
+            padding: 12px;
+        }
+        
+        .filters-section {
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .filters-grid {
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+        
+        .requests-table-container {
+            display: none;
+        }
+        
+        .mobile-table-view {
+            display: block;
+        }
+        
+        .section-header {
+            padding: 12px 16px;
+        }
+    }
+    
+    /* RTL Support */
+    body.rtl .back-button {
+        flex-direction: row-reverse;
+    }
+    
+    body.rtl .requests-table th,
+    body.rtl .requests-table td {
+        text-align: right;
+    }
+</style>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-spinner"></div>
+</div>
+
+<!-- Main Content -->
+<div id="mainContent" class="hidden">
+    <!-- Top Header -->
+    <div class="top-header">
+        <div class="header-left">
+            <a href="/employee-portal-home" class="back-button">
+                <i class="fas fa-arrow-left"></i>
+                <span data-en="Back to Dashboard" data-ar="العودة إلى لوحة التحكم">Back to Dashboard</span>
+            </a>
+            <div class="page-title-section">
+                <h1 data-en="Portal Forms" data-ar="نماذج البوابة">Portal Forms</h1>
+                <p data-en="View all your submitted portal forms" data-ar="عرض جميع نماذج البوابة المقدمة">View all your submitted portal forms</p>
+            </div>
+        </div>
+        
+        <div class="header-right">
+            <button class="theme-toggle" id="themeToggle" title="Toggle Dark/Light Mode">
+                <i class="fas fa-moon" id="themeIcon"></i>
+            </button>
+            <div class="lang-switcher">
+                <button class="lang-btn active">English</button>
+                <button class="lang-btn">العربية</button>
+            </div>
+            
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">--</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Video Tutorial Link -->
+        <div style="margin-bottom: 20px; padding: 12px 16px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-video" style="color: var(--primary-color); font-size: 18px;"></i>
+                <span style="font-size: 13px; color: var(--text-secondary);" data-en="Need help? Watch how to view submitted forms" data-ar="تحتاج مساعدة؟ شاهد كيفية عرض النماذج المقدمة">Need help? Watch how to view submitted forms</span>
+            </div>
+            <a href="https://youtu.be/RIXIRHr9YDE" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: var(--primary-color); color: white; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 600; transition: all 0.2s;" onmouseover="this.style.background='var(--primary-dark)'" onmouseout="this.style.background='var(--primary-color)'">
+                <i class="fas fa-play"></i>
+                <span data-en="Watch Video" data-ar="شاهد الفيديو">Watch Video</span>
+            </a>
+        </div>
+        
+        <!-- Filters Section -->
+        <div class="filters-section" id="filtersSection">
+            <div class="filters-title collapsed" onclick="toggleFilters()">
+                <i class="fas fa-filter"></i>
+                <span data-en="Filters" data-ar="مرشحات">Filters</span>
+                <i class="fas fa-chevron-down filters-toggle" id="filtersToggle"></i>
+            </div>
+            <div class="filters-content collapsed" id="filtersContent">
+                <div class="filters-grid">
+                    <div class="filter-group">
+                        <label class="filter-label" data-en="Form Type" data-ar="نوع النموذج">Form Type</label>
+                        <select class="filter-select" id="filterFormType">
+                            <option value="">All Types</option>
+                            <option value="Health Declaration Form">Health Declaration Form</option>
+                            <option value="Istiqdam Form">Istiqdam Form</option>
+                            <option value="Reimbursement Form">Reimbursement Form</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label" data-en="Verification Status" data-ar="حالة التحقق">Verification Status</label>
+                        <select class="filter-select" id="filterVerification">
+                            <option value="">All Status</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Approved">Approved</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label" data-en="From Date" data-ar="من تاريخ">From Date</label>
+                        <input type="date" class="filter-input" id="filterFromDate" />
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label" data-en="To Date" data-ar="إلى تاريخ">To Date</label>
+                        <input type="date" class="filter-input" id="filterToDate" />
+                    </div>
+                    
+                    <div class="filter-group filter-actions">
+                        <button type="button" class="btn-filter btn-filter-primary" onclick="applyFilters()">
+                            <i class="fas fa-search"></i>
+                            <span data-en="Apply" data-ar="تطبيق">Apply</span>
+                        </button>
+                        <button type="button" class="btn-filter btn-filter-secondary" onclick="clearFilters()">
+                            <i class="fas fa-times"></i>
+                            <span data-en="Clear" data-ar="مسح">Clear</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Forms List -->
+        <div class="requests-section">
+            <div class="section-header">
+                <div>
+                    <div class="section-title">
+                        <i class="fas fa-list"></i>
+                        <span data-en="All Portal Forms" data-ar="جميع نماذج البوابة">All Portal Forms</span>
+                    </div>
+                    <div class="requests-count" id="formsCount" data-en="Loading..." data-ar="جاري التحميل...">Loading...</div>
+                </div>
+                <a href="/employee-portal-form" class="btn-add-new">
+                    <i class="fas fa-plus"></i>
+                    <span data-en="New Form" data-ar="نموذج جديد">New Form</span>
+                </a>
+            </div>
+            
+            <!-- Desktop Table View -->
+            <div class="requests-table-container">
+                <table class="requests-table">
+                    <thead>
+                        <tr>
+                            <th data-en="Form ID" data-ar="رقم النموذج">Form ID</th>
+                            <th data-en="Form Type" data-ar="نوع النموذج">Form Type</th>
+                            <th data-en="Verification" data-ar="التحقق">Verification</th>
+                            <th data-en="Signed" data-ar="موقّع">Signed</th>
+                            <th data-en="Submitted Date" data-ar="تاريخ التقديم">Submitted Date</th>
+                            <th data-en="Actions" data-ar="الإجراءات">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="formsTableBody">
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 40px;">
+                                <div class="empty-state">
+                                    <div class="empty-state-icon">
+                                        <i class="fas fa-spinner fa-spin"></i>
+                                    </div>
+                                    <div class="empty-state-title" data-en="Loading forms..." data-ar="جاري تحميل النماذج...">Loading forms...</div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Mobile Table View -->
+            <div class="mobile-table-view" id="mobileTableView">
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-spinner fa-spin"></i>
+                    </div>
+                    <div class="empty-state-title" data-en="Loading forms..." data-ar="جاري تحميل النماذج...">Loading forms...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+<script>
+// Theme Toggle Functionality
+(function() {
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const html = document.documentElement;
+    
+    const savedTheme = localStorage.getItem('employeePortalTheme') || 'light';
+    html.setAttribute('data-theme', savedTheme);
+    updateThemeIcon(savedTheme);
+    
+    function updateThemeIcon(theme) {
+        if (theme === 'dark') {
+            themeIcon.className = 'fas fa-sun';
+        } else {
+            themeIcon.className = 'fas fa-moon';
+        }
+    }
+    
+    if (themeToggle) {
+        themeToggle.addEventListener('click', function() {
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('employeePortalTheme', newTheme);
+            updateThemeIcon(newTheme);
+        });
+    }
+})();
+
+let currentLang = localStorage.getItem('employeePortalLang') || 'en';
+let currentUser = null;
+let employeeData = null;
+let allForms = [];
+let filteredForms = [];
+
+// Check authentication on page load
+document.addEventListener('DOMContentLoaded', function() {
+    checkAuthentication();
+});
+
+function checkAuthentication() {
+    frappe.call({
+        method: 'frappe.auth.get_logged_user',
+        callback: function(r) {
+            if (r.message && r.message !== 'Guest') {
+                currentUser = r.message;
+                loadEmployeeData();
+            } else {
+                window.location.href = '/employee-login';
+            }
+        },
+        error: function() {
+            window.location.href = '/employee-login';
+        }
+    });
+}
+
+function loadEmployeeData() {
+    frappe.call({
+        method: 'hr_services.portal.api.get_list',
+        args: {
+            doctype: 'Employee',
+            filters: {
+                user_id: currentUser
+            },
+            fields: ['name']
+        },
+        callback: function(r) {
+            if (r.message && r.message.length > 0) {
+                employeeData = { name: r.message[0].name };
+                const nameParts = (r.message[0].employee_name || '').split(' ');
+                const initials = nameParts.length >= 2 
+                    ? (nameParts[0][0] + nameParts[1][0]).toUpperCase()
+                    : (r.message[0].employee_name || 'U').substring(0, 2).toUpperCase();
+                document.getElementById('userAvatar').textContent = initials;
+                loadForms();
+            } else {
+                window.location.href = '/employee-login';
+            }
+        },
+        error: function() {
+            window.location.href = '/employee-login';
+        }
+    });
+}
+
+function loadForms() {
+    frappe.call({
+        method: 'hr_services.portal.api.get_list',
+        args: {
+            doctype: 'Employee Portal Form',
+            filters: {
+                employee: employeeData.name
+            },
+            fields: ['name', 'form_trype', 'verification', 'signed', 'creation', 'modified'],
+            order_by: 'creation desc',
+            limit_page_length: 9999
+        },
+        callback: function(r) {
+            if (r.message) {
+                allForms = r.message;
+                filteredForms = [...allForms];
+                displayForms();
+                document.getElementById('loadingOverlay').style.display = 'none';
+                document.getElementById('mainContent').classList.remove('hidden');
+                applyLanguage(currentLang);
+            }
+        },
+        error: function(err) {
+            console.error('Error loading forms:', err);
+            document.getElementById('loadingOverlay').style.display = 'none';
+            document.getElementById('mainContent').classList.remove('hidden');
+        }
+    });
+}
+
+function displayForms() {
+    const tbody = document.getElementById('formsTableBody');
+    const mobileView = document.getElementById('mobileTableView');
+    
+    if (filteredForms.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6" style="text-align: center; padding: 40px;">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="empty-state-title" data-en="No forms found" data-ar="لم يتم العثور على نماذج">No forms found</div>
+                        <div class="empty-state-text" data-en="You haven't submitted any portal forms yet" data-ar="لم تقم بتقديم أي نماذج بوابة بعد">You haven't submitted any portal forms yet</div>
+                    </div>
+                </td>
+            </tr>
+        `;
+        
+        mobileView.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state-icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <div class="empty-state-title" data-en="No forms found" data-ar="لم يتم العثور على نماذج">No forms found</div>
+                <div class="empty-state-text" data-en="You haven't submitted any portal forms yet" data-ar="لم تقم بتقديم أي نماذج بوابة بعد">You haven't submitted any portal forms yet</div>
+            </div>
+        `;
+    } else {
+        // Desktop view
+        tbody.innerHTML = filteredForms.map(form => {
+            const formType = form.form_trype || 'N/A';
+            const verification = form.verification || 'Pending';
+            const signed = form.signed || 'False';
+            const submittedDate = new Date(form.creation).toLocaleDateString();
+            
+            let formTypeClass = 'form-type-health';
+            if (formType.includes('Istiqdam')) formTypeClass = 'form-type-istiqdam';
+            if (formType.includes('Reimbursement')) formTypeClass = 'form-type-reimbursement';
+            
+            return `
+                <tr>
+                    <td style="font-weight: 600; color: var(--primary-color);">${form.name}</td>
+                    <td><span class="form-type-badge ${formTypeClass}">${formType}</span></td>
+                    <td><span class="verification-badge verification-${verification.toLowerCase()}">${verification}</span></td>
+                    <td><span class="signed-badge signed-${signed.toLowerCase()}">${signed}</span></td>
+                    <td>${submittedDate}</td>
+                    <td>
+                        <a href="/employee-portal-form-detail?name=${form.name}" class="btn-view">
+                            <i class="fas fa-eye"></i>
+                            <span data-en="View" data-ar="عرض">View</span>
+                        </a>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+        
+        // Mobile view
+        mobileView.innerHTML = filteredForms.map(form => {
+            const formType = form.form_trype || 'N/A';
+            const verification = form.verification || 'Pending';
+            const signed = form.signed || 'False';
+            const submittedDate = new Date(form.creation).toLocaleDateString();
+            
+            let formTypeClass = 'form-type-health';
+            if (formType.includes('Istiqdam')) formTypeClass = 'form-type-istiqdam';
+            if (formType.includes('Reimbursement')) formTypeClass = 'form-type-reimbursement';
+            
+            return `
+                <div class="mobile-table-row">
+                    <div class="mobile-row-header">
+                        <div class="mobile-row-id">${form.name}</div>
+                        <span class="verification-badge verification-${verification.toLowerCase()}">${verification}</span>
+                    </div>
+                    <div class="mobile-row-details">
+                        <div class="mobile-row-detail-item">
+                            <span class="mobile-row-label" data-en="Form Type" data-ar="نوع النموذج">Form Type:</span>
+                            <span class="form-type-badge ${formTypeClass}">${formType}</span>
+                        </div>
+                        <div class="mobile-row-detail-item">
+                            <span class="mobile-row-label" data-en="Signed" data-ar="موقّع">Signed:</span>
+                            <span class="signed-badge signed-${signed.toLowerCase()}">${signed}</span>
+                        </div>
+                        <div class="mobile-row-detail-item">
+                            <span class="mobile-row-label" data-en="Date" data-ar="التاريخ">Date:</span>
+                            <span class="mobile-row-value">${submittedDate}</span>
+                        </div>
+                    </div>
+                    <div class="mobile-row-action">
+                        <a href="/employee-portal-form-detail?name=${form.name}" class="btn-view" style="width: 100%; justify-content: center;">
+                            <i class="fas fa-eye"></i>
+                            <span data-en="View Details" data-ar="عرض التفاصيل">View Details</span>
+                        </a>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+    
+    // Update count
+    document.getElementById('formsCount').textContent = 
+        currentLang === 'ar' 
+            ? `${filteredForms.length} نموذج`
+            : `${filteredForms.length} form${filteredForms.length !== 1 ? 's' : ''}`;
+    
+    applyLanguage(currentLang);
+}
+
+function toggleFilters() {
+    const filtersTitle = document.querySelector('.filters-title');
+    const filtersContent = document.getElementById('filtersContent');
+    
+    filtersTitle.classList.toggle('collapsed');
+    filtersContent.classList.toggle('collapsed');
+}
+
+function applyFilters() {
+    const formType = document.getElementById('filterFormType').value;
+    const verification = document.getElementById('filterVerification').value;
+    const fromDate = document.getElementById('filterFromDate').value;
+    const toDate = document.getElementById('filterToDate').value;
+    
+    filteredForms = allForms.filter(form => {
+        if (formType && form.form_trype !== formType) return false;
+        if (verification && form.verification !== verification) return false;
+        
+        if (fromDate || toDate) {
+            const formDate = new Date(form.creation).toISOString().split('T')[0];
+            if (fromDate && formDate < fromDate) return false;
+            if (toDate && formDate > toDate) return false;
+        }
+        
+        return true;
+    });
+    
+    displayForms();
+}
+
+function clearFilters() {
+    document.getElementById('filterFormType').value = '';
+    document.getElementById('filterVerification').value = '';
+    document.getElementById('filterFromDate').value = '';
+    document.getElementById('filterToDate').value = '';
+    
+    filteredForms = [...allForms];
+    displayForms();
+}
+
+// Language Switcher
+document.querySelectorAll('.lang-btn').forEach(button => {
+    button.addEventListener('click', function() {
+        const lang = this.textContent.includes('English') ? 'en' : 'ar';
+        currentLang = lang;
+        localStorage.setItem('employeePortalLang', lang);
+        
+        document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+        this.classList.add('active');
+        
+        applyLanguage(lang);
+    });
+});
+
+function applyLanguage(lang) {
+    const body = document.body;
+    const html = document.documentElement;
+    
+    if (lang === 'ar') {
+        body.classList.add('rtl');
+        html.setAttribute('dir', 'rtl');
+    } else {
+        body.classList.remove('rtl');
+        html.setAttribute('dir', 'ltr');
+    }
+    html.setAttribute('lang', lang);
+    
+    document.querySelectorAll('[data-' + lang + ']').forEach(element => {
+        const text = element.getAttribute('data-' + lang);
+        if (text) {
+            element.textContent = text;
+        }
+    });
+}
+</script>
+
+{% endraw %}
+</article>
+</div>
+{% endblock %}
