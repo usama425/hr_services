@@ -120,6 +120,25 @@ def copy_attachments(source_doc, target_doc):
 		file_copy.insert()
 
 
+def _pdf_reader(content):
+	"""PdfReader over a copy rewritten by pikepdf (qpdf), which repairs damaged PDFs
+	PyPDF2 cannot write, e.g. signed PDFs missing a stream /Length ("Stream length
+	not defined"). Falls back to the original bytes if pikepdf cannot open the file.
+	"""
+	from io import BytesIO
+	from PyPDF2 import PdfReader
+	import pikepdf
+
+	try:
+		repaired = BytesIO()
+		with pikepdf.open(BytesIO(content)) as pdf:
+			pdf.save(repaired)
+		content = repaired.getvalue()
+	except Exception:
+		pass
+	return PdfReader(BytesIO(content))
+
+
 @frappe.whitelist()
 def merge_attachments_to_invoice(invoice, file_names, include_print=1, print_format=None):
 	"""Merge selected attachments (PDFs and/or images) of the Request For Payment(s)
@@ -193,9 +212,15 @@ def merge_attachments_to_invoice(invoice, file_names, include_print=1, print_for
 				with open(f.get_full_path(), "rb") as fh:
 					content = fh.read()
 			if ext == "pdf":
-				reader = PdfReader(BytesIO(content))
+				reader = _pdf_reader(content)
 				if reader.is_encrypted:
 					reader.decrypt("")
+				# PyPDF2 reads objects lazily, so a damaged file would otherwise only
+				# fail when the merged PDF is written, taking every other file with it.
+				# Writing it on its own first skips just that file.
+				part = PdfWriter()
+				part.append_pages_from_reader(reader)
+				part.write(BytesIO())
 				writer.append_pages_from_reader(reader)
 				merged_count += 1
 			elif ext in image_ext:
