@@ -3,6 +3,11 @@
 
 frappe.ui.form.on('Sales Invoice', {
 	refresh: function(frm) {
+		//posting date is always editable while the invoice is a draft
+		if(frm.doc.docstatus == 0){
+			frm.doc.set_posting_time = 1;
+			frm.toggle_display("set_posting_time", false);
+		}
 		//setting the return series if is_return is checked
 		if(frm.doc.is_return == 1){
 			frm.set_value("naming_series","ACC-SINV-RET-.YYYY.-")

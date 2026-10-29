@@ -125,10 +125,13 @@ has_permission = {
     "ERC Task Settings": "hr_services.permissions.notification_access.only_administrator",
     # A task is visible only to its assignee, its assigner and anyone CC'd.
     "ERC Task": "hr_services.permissions.erc_task.has_permission",
+    # Print formats only for document types the user can read.
+    "Print Format": "hr_services.permissions.print_format.has_permission",
 }
 
 permission_query_conditions = {
     "ERC Task": "hr_services.permissions.erc_task.get_permission_query_conditions",
+    "Print Format": "hr_services.permissions.print_format.get_permission_query_conditions",
 }
 
 # DocType Class
@@ -159,6 +162,9 @@ doc_events = {
     },
     "Sales Invoice": {
         "on_submit": "hr_services.custompy.sales_invoice.new_rec",
+        # Deletes the submitted draft once zatca_erpgulf's on_submit hook is done
+        "on_change": "hr_services.custompy.sales_invoice.remove_submitted_draft",
+        "before_validate": "hr_services.custompy.sales_invoice.allow_posting_date_edit",
         "before_insert": "hr_services.custompy.sales_invoice.check_outstanding",
         "on_update": "hr_services.custompy.sales_invoice.check_outstanding"
     },
@@ -239,7 +245,9 @@ scheduler_events = {
 # ------------------------------
 #
 override_whitelisted_methods = {
-    "frappe.desk.doctype.dashboard_chart.dashboard_chart.get": "hr_services.override_methods.dashboard_chart.get"
+    "frappe.desk.doctype.dashboard_chart.dashboard_chart.get": "hr_services.override_methods.dashboard_chart.get",
+    # Replaces the "Submit Draft Invoice" Server Script (Submit without ZATCA)
+    "submit_draft_invoice": "hr_services.custompy.sales_invoice.submit_draft_invoice",
 	#"frappe.desk.doctype.event.event.get_events": "hr_services.event.get_events"
 }
 #

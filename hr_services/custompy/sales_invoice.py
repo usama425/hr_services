@@ -3,36 +3,113 @@
 
 import frappe
 from frappe.utils import get_url_to_form
-from frappe.utils import flt, get_first_day, get_last_day, nowdate
+from frappe.utils import flt, get_first_day, get_last_day, getdate, nowdate
 from frappe import _
 
+def copy_draft(draft):
+	# Copy a Draft- series invoice into the ACC-SINV series
+	new_doc = frappe.copy_doc(draft)
+	new_doc.naming_series = 'ACC-SINV-.YYYY.-'
+	# posting_date/time are no_copy, so carry over the date chosen on the draft
+	new_doc.set_posting_time = 1
+	new_doc.posting_date = draft.posting_date
+	new_doc.posting_time = draft.posting_time
+	return new_doc
+
 def new_rec(doc, method):
-	if doc.docstatus == 1 and "Draft" in doc.name:
+	# on_submit: issue the ACC-SINV invoice for a submitted Draft- invoice. The
+	# draft itself is removed later, in remove_submitted_draft (on_change):
+	# zatca_erpgulf's on_submit hook runs after this one and reloads the draft,
+	# so deleting it here failed with "Sales Invoice Draft-... not found".
+	if doc.docstatus == 1 and "Draft" in doc.name and not doc.flags.issued_invoice:
 		# Create a new Sales Invoice with a different naming series
-		new_doc = frappe.copy_doc(doc)
-		new_doc.naming_series = 'ACC-SINV-.YYYY.-'
+		new_doc = copy_draft(doc)
 
 		# Save the new document
 		new_doc.insert(ignore_permissions=True)
 		new_doc.submit()
-		
+
 		# Copy attachments from the original draft to the new invoice
 		copy_attachments(doc, new_doc)
 
-		# Cancel the existing draft
-		frappe.get_doc('Sales Invoice', doc.name).cancel()
+		doc.flags.issued_invoice = new_doc.name
 
-		# Delete the existing draft
-		frappe.delete_doc('Sales Invoice', doc.name, ignore_permissions=True)
+def remove_submitted_draft(doc, method):
+	# on_change also fires from db_set calls inside on_submit hooks (ERPNext's
+	# KSA QR code), i.e. before zatca_erpgulf's hook. The flag is only set once
+	# new_rec has run, and is cleared so the draft is removed exactly once.
+	issued_invoice = doc.flags.issued_invoice
+	if not issued_invoice or doc.flags.draft_removed:
+		return
+	doc.flags.draft_removed = True
 
-		# Open the new Sales Invoice in the same tab
-		url = get_url_to_form("Sales Invoice", new_doc.name)
-		# Construct a message with a clickable link
-		message = f"Invoice Issued: <a href='{url}'>{new_doc.name}</a>"
+	# Cancel the existing draft
+	frappe.get_doc('Sales Invoice', doc.name).cancel()
 
-		# Display the message with a clickable link
-		frappe.msgprint(message, indicator='green')
-		
+	# Delete the existing draft
+	frappe.delete_doc('Sales Invoice', doc.name, ignore_permissions=True)
+
+	# Open the new Sales Invoice in the same tab
+	url = get_url_to_form("Sales Invoice", issued_invoice)
+	# Construct a message with a clickable link
+	message = f"Invoice Issued: <a href='{url}'>{issued_invoice}</a>"
+
+	# Display the message with a clickable link
+	frappe.msgprint(message, indicator='green')
+
+@frappe.whitelist()
+def submit_draft_invoice(invoice_name):
+	"""Actions > Submit without ZATCA. Replaces the "Submit Draft Invoice" Server
+	Script (via override_whitelisted_methods), which had no locking: a double
+	click created two submitted ACC-SINV invoices from one draft.
+
+	Locking the draft row makes a second request wait for the first, then find
+	the draft gone instead of copying it again.
+	"""
+	if not frappe.db.sql("select name from `tabSales Invoice` where name=%s for update", invoice_name):
+		frappe.throw(_("Sales Invoice {0} has already been submitted. Open the Sales Invoice list to find its ACC-SINV invoice.").format(invoice_name))
+
+	source_invoice = frappe.get_doc("Sales Invoice", invoice_name)
+	if source_invoice.docstatus != 0:
+		frappe.throw(_("Only draft invoices can be submitted"))
+
+	new_invoice = copy_draft(source_invoice)
+	new_invoice.amended_from = None
+
+	# Add default VAT tax if no taxes exist
+	if not source_invoice.taxes:
+		new_invoice.append("taxes", {
+			"charge_type": "On Net Total",
+			"account_head": "VAT 15% - ERC",
+			"description": "VAT 15%",
+			"rate": 15,
+		})
+
+	new_invoice.insert(ignore_permissions=True)
+	new_invoice.submit()
+
+	copy_attachments(source_invoice, new_invoice)
+
+	frappe.delete_doc("Sales Invoice", invoice_name, ignore_permissions=True)
+
+	return new_invoice.name
+
+def allow_posting_date_edit(doc, method):
+	# Posting date is editable on drafts, so keep whatever date was entered
+	# instead of letting ERPNext reset it to today on save or submit.
+	if doc.docstatus == 0 or doc.get("_action") == "submit":
+		doc.set_posting_time = 1
+
+		# A due date before the posting date fails ERPNext's validation
+		# ("Due Date cannot be before Posting / Supplier Invoice Date"), so pull
+		# it forward to the posting date, i.e. due on the invoice date.
+		posting_date = getdate(doc.posting_date)
+		if doc.due_date and getdate(doc.due_date) < posting_date:
+			doc.due_date = posting_date
+		for row in doc.get("payment_schedule") or []:
+			if row.due_date and getdate(row.due_date) < posting_date:
+				row.due_date = posting_date
+
 def copy_attachments(source_doc, target_doc):
 	# Copy attachments from the source document to the target document
 	for attachment in frappe.get_all('File', filters={'attached_to_doctype': source_doc.doctype, 'attached_to_name': source_doc.name}):
