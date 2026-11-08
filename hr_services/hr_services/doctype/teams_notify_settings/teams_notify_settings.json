@@ -1,0 +1,172 @@
+{
+ "actions": [],
+ "creation": "2026-11-07 17:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "enabled",
+  "section_microsoft",
+  "tenant_id",
+  "client_id",
+  "column_break_microsoft",
+  "client_secret",
+  "secret_expires_on",
+  "section_timing",
+  "quiet_minutes",
+  "max_wait_minutes",
+  "column_break_timing",
+  "card_language",
+  "max_changes_per_card",
+  "max_cards_per_update",
+  "section_limits",
+  "max_file_mb",
+  "column_break_limits",
+  "max_cells",
+  "section_status",
+  "overview_html"
+ ],
+ "fields": [
+  {
+   "default": "1",
+   "description": "Untick to pause all checks and Teams messages.",
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Enabled"
+  },
+  {
+   "fieldname": "section_microsoft",
+   "fieldtype": "Section Break",
+   "label": "Microsoft Entra app"
+  },
+  {
+   "description": "Entra admin center → App registrations → your app → Overview.",
+   "fieldname": "tenant_id",
+   "fieldtype": "Data",
+   "label": "Directory (tenant) ID"
+  },
+  {
+   "fieldname": "client_id",
+   "fieldtype": "Data",
+   "label": "Application (client) ID"
+  },
+  {
+   "fieldname": "column_break_microsoft",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "The secret's Value (shown once when created), not its Secret ID.",
+   "fieldname": "client_secret",
+   "fieldtype": "Password",
+   "label": "Client secret value"
+  },
+  {
+   "description": "For your own reminder. Create a new secret before this date.",
+   "fieldname": "secret_expires_on",
+   "fieldtype": "Date",
+   "label": "Secret expires on"
+  },
+  {
+   "fieldname": "section_timing",
+   "fieldtype": "Section Break",
+   "label": "Timing and messages"
+  },
+  {
+   "default": "5",
+   "description": "Edits are collected until nobody has changed the file for this long, then sent as one message.",
+   "fieldname": "quiet_minutes",
+   "fieldtype": "Int",
+   "label": "Send after no edits for (minutes)",
+   "non_negative": 1
+  },
+  {
+   "default": "30",
+   "fieldname": "max_wait_minutes",
+   "fieldtype": "Int",
+   "label": "During long edits, send at least every (minutes)",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "column_break_timing",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "English",
+   "fieldname": "card_language",
+   "fieldtype": "Select",
+   "label": "Message language",
+   "options": "English\nArabic"
+  },
+  {
+   "default": "25",
+   "fieldname": "max_changes_per_card",
+   "fieldtype": "Int",
+   "label": "Changes per message",
+   "non_negative": 1
+  },
+  {
+   "default": "3",
+   "description": "Anything beyond this is summarised as '…and N more changes'.",
+   "fieldname": "max_cards_per_update",
+   "fieldtype": "Int",
+   "label": "Messages per update",
+   "non_negative": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "section_limits",
+   "fieldtype": "Section Break",
+   "label": "Limits"
+  },
+  {
+   "default": "25",
+   "fieldname": "max_file_mb",
+   "fieldtype": "Int",
+   "label": "Largest file to compare (MB)",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "column_break_limits",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "500000",
+   "fieldname": "max_cells",
+   "fieldtype": "Int",
+   "label": "Most filled cells to compare",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "section_status",
+   "fieldtype": "Section Break",
+   "label": "Status"
+  },
+  {
+   "fieldname": "overview_html",
+   "fieldtype": "HTML",
+   "label": "Overview"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-11-07 17:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "HR Services",
+ "name": "Teams Notify Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

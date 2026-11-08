@@ -1,0 +1,160 @@
+{
+ "actions": [],
+ "autoname": "hash",
+ "creation": "2026-11-07 17:00:00.000000",
+ "description": "Working data for each watched file. Managed by the app; delete a row to make the next check start fresh.",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "watch",
+  "baseline_taken_at",
+  "last_checked_at",
+  "column_break_1",
+  "session_started_at",
+  "last_change_at",
+  "session_editors",
+  "section_errors",
+  "error_count",
+  "last_error_at",
+  "column_break_2",
+  "last_error",
+  "section_tags",
+  "baseline_ctag",
+  "column_break_3",
+  "last_ctag",
+  "baseline_data",
+  "session_data"
+ ],
+ "fields": [
+  {
+   "fieldname": "watch",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Watch",
+   "options": "Teams Excel Watch",
+   "read_only": 1,
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "baseline_taken_at",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Starting point saved",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_checked_at",
+   "fieldtype": "Datetime",
+   "label": "Last checked",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "session_started_at",
+   "fieldtype": "Datetime",
+   "label": "Edits started",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_change_at",
+   "fieldtype": "Datetime",
+   "label": "Last edit seen",
+   "read_only": 1
+  },
+  {
+   "fieldname": "session_editors",
+   "fieldtype": "Small Text",
+   "label": "Editing now",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_errors",
+   "fieldtype": "Section Break",
+   "label": "Errors"
+  },
+  {
+   "fieldname": "error_count",
+   "fieldtype": "Int",
+   "label": "Errors in a row",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_error_at",
+   "fieldtype": "Datetime",
+   "label": "Last error at",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "last_error",
+   "fieldtype": "Small Text",
+   "label": "Last error",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "section_tags",
+   "fieldtype": "Section Break",
+   "label": "Content tags"
+  },
+  {
+   "fieldname": "baseline_ctag",
+   "fieldtype": "Data",
+   "label": "Starting point tag",
+   "length": 255,
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "last_ctag",
+   "fieldtype": "Data",
+   "label": "Last seen tag",
+   "length": 255,
+   "read_only": 1
+  },
+  {
+   "fieldname": "baseline_data",
+   "fieldtype": "Long Text",
+   "hidden": 1,
+   "label": "Starting point data",
+   "read_only": 1
+  },
+  {
+   "fieldname": "session_data",
+   "fieldtype": "Long Text",
+   "hidden": 1,
+   "label": "Pending changes data",
+   "read_only": 1
+  }
+ ],
+ "in_create": 1,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-11-07 17:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "HR Services",
+ "name": "Teams Excel Watch State",
+ "naming_rule": "Random",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "delete": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager"
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

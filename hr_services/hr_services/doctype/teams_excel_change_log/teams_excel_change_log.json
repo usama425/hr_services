@@ -1,0 +1,201 @@
+{
+ "actions": [],
+ "autoname": "TXL-.YYYY.-.#####",
+ "creation": "2026-11-07 17:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "watch",
+  "department",
+  "file_name",
+  "column_break_1",
+  "status",
+  "sent_at",
+  "attempts",
+  "section_who",
+  "editors",
+  "column_break_2",
+  "session_start",
+  "session_end",
+  "change_count",
+  "section_changes",
+  "summary",
+  "section_technical",
+  "cards_total",
+  "cards_sent",
+  "column_break_3",
+  "response",
+  "section_json",
+  "changes_json",
+  "cards_json"
+ ],
+ "fields": [
+  {
+   "fieldname": "watch",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Watch",
+   "options": "Teams Excel Watch",
+   "read_only": 1
+  },
+  {
+   "fieldname": "department",
+   "fieldtype": "Data",
+   "in_standard_filter": 1,
+   "label": "Department",
+   "read_only": 1
+  },
+  {
+   "fieldname": "file_name",
+   "fieldtype": "Data",
+   "label": "File",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Pending",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Pending\nSent\nFailed",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sent_at",
+   "fieldtype": "Datetime",
+   "label": "Sent at",
+   "read_only": 1
+  },
+  {
+   "fieldname": "attempts",
+   "fieldtype": "Int",
+   "label": "Attempts",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_who",
+   "fieldtype": "Section Break",
+   "label": "Who and when"
+  },
+  {
+   "fieldname": "editors",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Edited by",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "session_start",
+   "fieldtype": "Datetime",
+   "label": "First edit seen",
+   "read_only": 1
+  },
+  {
+   "fieldname": "session_end",
+   "fieldtype": "Datetime",
+   "label": "Compared at",
+   "read_only": 1
+  },
+  {
+   "fieldname": "change_count",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Changes",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_changes",
+   "fieldtype": "Section Break",
+   "label": "Changes"
+  },
+  {
+   "fieldname": "summary",
+   "fieldtype": "Long Text",
+   "label": "Changes",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "section_technical",
+   "fieldtype": "Section Break",
+   "label": "Technical details"
+  },
+  {
+   "fieldname": "cards_total",
+   "fieldtype": "Int",
+   "label": "Messages",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cards_sent",
+   "fieldtype": "Int",
+   "label": "Messages posted",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "response",
+   "fieldtype": "Small Text",
+   "label": "Last response from Teams",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "section_json",
+   "fieldtype": "Section Break",
+   "label": "Data"
+  },
+  {
+   "fieldname": "changes_json",
+   "fieldtype": "Code",
+   "label": "Changes (JSON)",
+   "options": "JSON",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cards_json",
+   "fieldtype": "Code",
+   "label": "Teams cards (JSON)",
+   "options": "JSON",
+   "read_only": 1
+  }
+ ],
+ "in_create": 1,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-11-07 17:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "HR Services",
+ "name": "Teams Excel Change Log",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "watch"
+}

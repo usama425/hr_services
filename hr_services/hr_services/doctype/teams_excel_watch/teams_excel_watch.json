@@ -1,0 +1,271 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:watch_name",
+ "creation": "2026-11-07 17:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "watch_name",
+  "department",
+  "enabled",
+  "column_break_top",
+  "status",
+  "last_checked_at",
+  "last_notified_at",
+  "section_file",
+  "file_link",
+  "file_name",
+  "file_web_url",
+  "section_teams",
+  "webhook_url",
+  "column_break_teams",
+  "channel_label",
+  "section_compare",
+  "header_row",
+  "label_columns",
+  "sheets",
+  "column_break_compare",
+  "ignore_columns",
+  "ignore_formula_cells",
+  "include_hidden_sheets",
+  "section_ids",
+  "drive_id",
+  "column_break_ids",
+  "item_id",
+  "section_status",
+  "pending_editors",
+  "column_break_status",
+  "last_error"
+ ],
+ "fields": [
+  {
+   "description": "For example: Finance – Employee tracker.",
+   "fieldname": "watch_name",
+   "fieldtype": "Data",
+   "label": "Watch name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "department",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Department"
+  },
+  {
+   "default": "1",
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Enabled"
+  },
+  {
+   "fieldname": "column_break_top",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "New",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "no_copy": 1,
+   "options": "New\nWatching\nChanges Pending\nError\nDisabled",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_checked_at",
+   "fieldtype": "Datetime",
+   "label": "Last checked",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_notified_at",
+   "fieldtype": "Datetime",
+   "label": "Last message sent",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_file",
+   "fieldtype": "Section Break",
+   "label": "Excel file"
+  },
+  {
+   "description": "In Teams open the department's Files tab, click ⋯ next to the file, choose Copy link and paste it here. Save to connect.",
+   "fieldname": "file_link",
+   "fieldtype": "Small Text",
+   "label": "File link",
+   "mandatory_depends_on": "eval:doc.enabled"
+  },
+  {
+   "fieldname": "file_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "File",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "file_web_url",
+   "fieldtype": "Small Text",
+   "label": "File address",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_teams",
+   "fieldtype": "Section Break",
+   "label": "Teams channel"
+  },
+  {
+   "description": "From the channel's Workflows → 'Send webhook alerts to a channel'. Anyone with this URL can post to the channel, so treat it like a password.",
+   "fieldname": "webhook_url",
+   "fieldtype": "Password",
+   "label": "Workflow URL",
+   "length": 1000,
+   "mandatory_depends_on": "eval:doc.enabled",
+   "no_copy": 1
+  },
+  {
+   "fieldname": "column_break_teams",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "For your reference, e.g. Finance › General.",
+   "fieldname": "channel_label",
+   "fieldtype": "Data",
+   "label": "Channel"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "section_compare",
+   "fieldtype": "Section Break",
+   "label": "What to compare"
+  },
+  {
+   "default": "1",
+   "description": "The row with the column names. Use 0 if the sheet has no header row.",
+   "fieldname": "header_row",
+   "fieldtype": "Int",
+   "label": "Header row",
+   "non_negative": 1
+  },
+  {
+   "default": "A",
+   "description": "Column letter(s) whose values name a row in messages, e.g. A, or B, C for ID and name.",
+   "fieldname": "label_columns",
+   "fieldtype": "Data",
+   "label": "Row name column(s)"
+  },
+  {
+   "description": "One sheet name per line. Leave empty to watch every visible sheet.",
+   "fieldname": "sheets",
+   "fieldtype": "Small Text",
+   "label": "Only these sheets"
+  },
+  {
+   "fieldname": "column_break_compare",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Header names, one per line, e.g. Last updated.",
+   "fieldname": "ignore_columns",
+   "fieldtype": "Small Text",
+   "label": "Ignore these columns"
+  },
+  {
+   "default": "0",
+   "description": "Skip cells whose value is calculated by a formula, such as totals.",
+   "fieldname": "ignore_formula_cells",
+   "fieldtype": "Check",
+   "label": "Ignore formula cells"
+  },
+  {
+   "default": "0",
+   "fieldname": "include_hidden_sheets",
+   "fieldtype": "Check",
+   "label": "Include hidden sheets"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "section_ids",
+   "fieldtype": "Section Break",
+   "label": "Microsoft file IDs"
+  },
+  {
+   "description": "Filled in from the link when you save.",
+   "fieldname": "drive_id",
+   "fieldtype": "Data",
+   "label": "Drive ID",
+   "length": 255,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "column_break_ids",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "item_id",
+   "fieldtype": "Data",
+   "label": "Item ID",
+   "length": 255,
+   "no_copy": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "section_status",
+   "fieldtype": "Section Break",
+   "label": "Status details"
+  },
+  {
+   "fieldname": "pending_editors",
+   "fieldtype": "Small Text",
+   "label": "Editing now",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_status",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "last_error",
+   "fieldtype": "Small Text",
+   "label": "Last error",
+   "no_copy": 1,
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-11-07 17:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "HR Services",
+ "name": "Teams Excel Watch",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "search_fields": "department,file_name",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "watch_name",
+ "track_changes": 1
+}

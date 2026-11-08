@@ -78,6 +78,11 @@ doctype_list_js = {"Employee": "customjs/employee_list.js"}
 # before_install = "hr_services.install.before_install"
 # after_install = "hr_services.install.after_install"
 
+# Teams Excel Notify polls every minute; don't write a Scheduled Job Log row each time
+# (errors still go to the Error Log).
+after_sync = ["hr_services.teams_excel_notify.install.quiet_scheduler_log"]
+after_migrate = ["hr_services.teams_excel_notify.install.quiet_scheduler_log"]
+
 # Uninstallation
 # ------------
 
@@ -217,6 +222,10 @@ scheduler_events = {
             "hr_services.cron_auto_email.contract_expiry_notification.send_contract_expiry_notifications",
             "hr_services.cron_auto_email.po_expiry_notification.send_po_expiry_notifications",
             "hr_services.cron_auto_email.task_notifications.send_due_and_reminder_emails"
+        ],
+        # Teams Excel Notify: check every watched Excel file once a minute.
+        "* * * * *": [
+            "hr_services.teams_excel_notify.tasks.poll_all"
         ],
     },
 	"daily": [
