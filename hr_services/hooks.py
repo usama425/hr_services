@@ -80,6 +80,11 @@ doctype_list_js = {"Employee": "customjs/employee_list.js"}
 
 # Teams Excel Notify polls every minute; don't write a Scheduled Job Log row each time
 # (errors still go to the Error Log).
+# While a site is in maintenance mode with `show_expiry_notice` set in its
+# site_config, show the "ERPNext version is about to expire" page instead of
+# Frappe's default "Updating" page. See hr_services/expiry_notice.py.
+page_renderer = ["hr_services.expiry_notice.ExpiryNoticePage"]
+
 after_sync = ["hr_services.teams_excel_notify.install.quiet_scheduler_log"]
 after_migrate = ["hr_services.teams_excel_notify.install.quiet_scheduler_log"]
 
