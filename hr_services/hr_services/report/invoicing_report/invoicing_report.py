@@ -105,7 +105,7 @@ def get_invoices_amt(customers):
 	shared_with_clients = frappe.get_all('Sales Invoice',
 										 filters={'customer': ('in', [customer['name'] for customer in customers]),
 												  'docstatus': 1, 'is_shared_with_client': 1, 'custom_not_for_tracker': 0},
-										 fields=['customer', 'sum(outstanding_amount) as outstanding_amount'],
+										 fields=['customer', {"SUM": "outstanding_amount", "as": "outstanding_amount"}],
 										 group_by='customer')
 
 	# Fetch outstanding amounts of not shared with client ivoices and show in report = 1 for non po customers
@@ -143,7 +143,7 @@ def get_invoices_amt(customers):
 										 filters={'customer': ('in', [customer['name'] for customer in po_customers]),
 												  'docstatus': 1, 'is_shared_with_client': 1, 'custom_not_for_tracker': 0,
 												  'po_no': ('!=', '')},
-										 fields=['customer', 'sum(outstanding_amount) as outstanding_amount'],
+										 fields=['customer', {"SUM": "outstanding_amount", "as": "outstanding_amount"}],
 										 group_by='customer')
 	# Fetch outstanding amounts of without po invoices of po customer
 	without_po = frappe.db.sql("""
