@@ -90,7 +90,10 @@ before_install = "hr_services.install.before_install"
 page_renderer = ["hr_services.expiry_notice.ExpiryNoticePage"]
 
 after_sync = ["hr_services.teams_excel_notify.install.quiet_scheduler_log"]
-after_migrate = ["hr_services.teams_excel_notify.install.quiet_scheduler_log"]
+after_migrate = [
+	"hr_services.teams_excel_notify.install.quiet_scheduler_log",
+	"hr_services.lending_compat.sync_advance_type_field",
+]
 
 # Uninstallation
 # ------------
@@ -104,7 +107,7 @@ after_migrate = ["hr_services.teams_excel_notify.install.quiet_scheduler_log"]
 # Name of the app being installed is passed as an argument
 
 # before_app_install = "hr_services.utils.before_app_install"
-# after_app_install = "hr_services.utils.after_app_install"
+after_app_install = "hr_services.lending_compat.after_app_install"
 
 # Integration Cleanup
 # -------------------
@@ -112,7 +115,7 @@ after_migrate = ["hr_services.teams_excel_notify.install.quiet_scheduler_log"]
 # Name of the app being uninstalled is passed as an argument
 
 # before_app_uninstall = "hr_services.utils.before_app_uninstall"
-# after_app_uninstall = "hr_services.utils.after_app_uninstall"
+after_app_uninstall = "hr_services.lending_compat.after_app_uninstall"
 
 # Desk Notifications
 # ------------------
