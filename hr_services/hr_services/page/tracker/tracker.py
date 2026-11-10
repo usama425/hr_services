@@ -53,7 +53,7 @@ def get_outstanding_customers():
 			`tabLoan`
 		WHERE
 			docstatus = 1 
-			and loan_type != 'Housing Advance' 
+			and loan_product != 'Housing Advance' 
 			and applicant IN (
 				SELECT
 					name

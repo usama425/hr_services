@@ -7,6 +7,9 @@ app_description = "HR Additional Services"
 app_email = "usamanaveed9263@gmail.com"
 app_license = "MIT"
 
+# Installed before this app. Loan Management lives in the Lending app since v15.
+required_apps = ["erpnext", "hrms", "lending"]
+
 # Includes in <head>
 # ------------------
 

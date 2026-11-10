@@ -40,8 +40,8 @@ SCOPED = {
 # Shared lookup data the request forms need. Only these fields are returned.
 REFERENCE = {
 	"Item": {"fields": ("name", "item_name", "item_amount", "description")},
-	"Loan Type": {
-		"fields": ("name", "loan_name", "amount", "description", "custom_descriptiona_arabic", "show_in_portal"),
+	"Loan Product": {
+		"fields": ("name", "product_name", "amount", "description", "custom_descriptiona_arabic", "show_in_portal"),
 		"filters": {"show_in_portal": "True"},
 	},
 }

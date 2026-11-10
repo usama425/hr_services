@@ -242,7 +242,7 @@ class RequestForPayment(Document):
 				ln.applicant_name = adv.employee_name
 				ln.posting_date = self.date
 				ln.repay_from_salary = 1
-				ln.loan_type = adv.advance_type
+				ln.loan_product = adv.advance_type
 				ln.loan_amount = adv.advance_amount
 				ln.repayment_method = "Repay Fixed Amount per Period"
 				ln.monthly_repayment_amount = adv.monthly_repay_amount
@@ -303,9 +303,9 @@ class RequestForPayment(Document):
 
 				#adjustment rows for the loans
 				for ad in self.advances:
-					disbursement_account = frappe.db.get_value("Loan Type",{"name":ad.advance_type},"disbursement_account")
+					disbursement_account = frappe.db.get_value("Loan Product",{"name":ad.advance_type},"disbursement_account")
 					if not disbursement_account:
-						frappe.throw(_(f"Disbursement Account is not set on Loan Type <b>{ad.advance_type}</b>. Please set it before approving."))
+						frappe.throw(_(f"Disbursement Account is not set on Loan Product <b>{ad.advance_type}</b>. Please set it before approving."))
 					row = new_doc.append("accounts",{})
 					row.account = disbursement_account
 					row.debit_in_account_currency = ad.advance_amount
@@ -353,7 +353,7 @@ class RequestForPayment(Document):
 				ln.applicant_name = adv.employee_name
 				ln.posting_date = self.date
 				ln.repay_from_salary = 1
-				ln.loan_type = adv.advance_type
+				ln.loan_product = adv.advance_type
 				ln.loan_amount = adv.advance_amount
 				ln.repayment_method = "Repay Fixed Amount per Period"
 				ln.monthly_repayment_amount = adv.monthly_repay_amount

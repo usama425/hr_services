@@ -17,10 +17,10 @@ from erpnext.accounts.report.general_ledger.general_ledger import (
 	get_data_with_opening_closing,
 	get_gl_entries,
 	get_result_as_list,
+	get_totals_dict,
 	initialize_gle_map,
 	set_bill_no,
 	set_account_currency,
-	update_translations,
 	validate_filters,
 	validate_party,
 )
@@ -58,8 +58,6 @@ def execute(filters=None):
 	filters, account_details = prepare_filters(filters)
 
 	columns = get_columns(filters)
-
-	update_translations()
 
 	res = get_result(filters, account_details)
 
@@ -177,17 +175,20 @@ def export_sheet_per_account(filters):
 	filters = _dict(frappe.parse_json(filters) or {})
 	# validate as consolidated: ERPNext rejects an Account filter with Group by Account
 	filters.group_by = "Group by Voucher (Consolidated)"
+	filters.pop("categorize_by", None)
 	filters, _account_details = prepare_filters(filters)
+	# ERPNext v15 reads `categorize_by`; it is only derived from `group_by` when unset.
 	filters.group_by = "Group by Account"
-	update_translations()
+	filters.categorize_by = "Categorize by Account"
 	columns = [c for c in get_columns(filters) if not c.get("hidden")]
 
 	# Same as the report's Group by Account, but an account with an opening and no
 	# entries in the period is kept too (the report skips it), so the sheets add up.
 	accounting_dimensions, gl_entries = get_entries(filters)
 	set_bill_no(gl_entries)
-	gle_map = initialize_gle_map(gl_entries, filters)
-	totals, _entries = get_accountwise_gle(filters, accounting_dimensions, gl_entries, gle_map)
+	totals_dict = get_totals_dict()
+	gle_map = initialize_gle_map(gl_entries, filters, totals_dict)
+	totals, _entries = get_accountwise_gle(filters, accounting_dimensions, gl_entries, gle_map, totals_dict)
 
 	blocks = []
 	for account, acc_dict in gle_map.items():

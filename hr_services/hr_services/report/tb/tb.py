@@ -58,7 +58,8 @@ def get_data(filters):
 
 	gl_entries_by_account = {}
 
-	opening_balances = get_opening_balances(filters)
+	ignore_is_opening = get_ignore_is_opening()
+	opening_balances = get_opening_balances(filters, ignore_is_opening)
 
 	# add filter inside list so that the query in financial_statements.py doesn't break
 	if filters.project:
@@ -68,15 +69,21 @@ def get_data(filters):
 		filters.company,
 		filters.from_date,
 		filters.to_date,
-		min_lft,
-		max_rgt,
-		filters,
-		gl_entries_by_account,
+		filters=filters,
+		gl_entries_by_account=gl_entries_by_account,
+		root_lft=min_lft,
+		root_rgt=max_rgt,
 		ignore_closing_entries=not flt(filters.with_period_closing_entry),
 		ignore_opening_entries=True,
 	)
 
-	calculate_values(accounts, gl_entries_by_account, opening_balances, filters.get("show_net_values"))
+	calculate_values(
+		accounts,
+		gl_entries_by_account,
+		opening_balances,
+		filters.get("show_net_values"),
+		ignore_is_opening=ignore_is_opening,
+	)
 	accumulate_values_into_parents(accounts, accounts_by_name)
 
 	data = prepare_data(accounts, filters, parent_children_map, company_currency)
@@ -91,9 +98,13 @@ def use_custom_opening(filters):
 	return filters.company in OPENING_BALANCES and getdate(filters.from_date) >= getdate(OPENING_DATE)
 
 
-def get_opening_balances(filters):
+def get_ignore_is_opening():
+	return frappe.db.get_single_value("Accounts Settings", "ignore_is_opening_check_for_reporting")
+
+
+def get_opening_balances(filters, ignore_is_opening=0):
 	if not use_custom_opening(filters):
-		return trial_balance.get_opening_balances(filters)
+		return trial_balance.get_opening_balances(filters, ignore_is_opening)
 
 	opening = frappe._dict()
 
@@ -115,7 +126,12 @@ def get_opening_balances(filters):
 		accounting_dimensions = get_accounting_dimensions(as_list=False)
 		for report_type in ("Balance Sheet", "Profit and Loss"):
 			for d in get_opening_balance(
-				"GL Entry", filters, report_type, accounting_dimensions, start_date=OPENING_DATE
+				"GL Entry",
+				filters,
+				report_type,
+				accounting_dimensions,
+				start_date=OPENING_DATE,
+				ignore_is_opening=ignore_is_opening,
 			):
 				add(d.account, d.debit, d.credit)
 

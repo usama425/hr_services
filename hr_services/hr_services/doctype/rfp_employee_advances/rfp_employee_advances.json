@@ -40,7 +40,7 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Advance Type",
-   "options": "Loan Type"
+   "options": "Loan Product"
   },
   {
    "fieldname": "column_break_nht8u",
@@ -76,7 +76,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-02-07 16:25:53.766693",
+ "modified": "2026-11-10 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "HR Services",
  "name": "RFP Employee Advances",

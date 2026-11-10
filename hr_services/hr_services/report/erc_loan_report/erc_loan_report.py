@@ -5,9 +5,6 @@ from frappe import _
 from frappe.utils import add_days, flt, getdate
 
 import erpnext
-from erpnext.loan_management.report.applicant_wise_loan_security_exposure.applicant_wise_loan_security_exposure import (
-	get_loan_security_details,
-)
 
 
 def execute(filters=None):
@@ -40,10 +37,10 @@ def get_columns():
 			"width": 120,
 		},
 		{
-			"label": _("Loan Type"),
-			"fieldname": "loan_type",
+			"label": _("Loan Product"),
+			"fieldname": "loan_product",
 			"fieldtype": "Link",
-			"options": "Loan Type",
+			"options": "Loan Product",
 			"width": 140,
 		},
 		{
@@ -98,7 +95,7 @@ def get_active_loan_details(filters):
 			"applicant_type",
 			"applicant as applicant_id",
 			"applicant_name",
-			"loan_type",
+			"loan_product",
 			"disbursed_amount",
 			"rate_of_interest",
 			"total_payment",
@@ -237,7 +234,7 @@ def get_interest_accruals(loans, filters):
 
 def get_penal_interest_rate_map():
 	return frappe._dict(
-		frappe.get_all("Loan Type", fields=["name", "penalty_interest_rate"], as_list=1)
+		frappe.get_all("Loan Product", fields=["name", "penalty_interest_rate"], as_list=1)
 	)
 
 
@@ -293,6 +290,11 @@ def get_loan_wise_pledges(filters):
 
 
 def get_loan_wise_security_value(filters, current_pledges):
+	# Loan Management moved out of ERPNext into the Lending app in v15.
+	from lending.loan_management.report.applicant_wise_loan_security_exposure.applicant_wise_loan_security_exposure import (
+		get_loan_security_details,
+	)
+
 	loan_security_details = get_loan_security_details()
 	loan_wise_security_value = {}
 

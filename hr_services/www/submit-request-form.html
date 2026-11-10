@@ -1820,7 +1820,7 @@
             frappe.call({
                 method: 'hr_services.portal.api.get_list',
                 args: {
-                    doctype: 'Loan Type',
+                    doctype: 'Loan Product',
                     fields: ['name', 'show_in_portal'],
                     filters: {
                         show_in_portal: 'True' // Only load loan types where show_in_portal is True
@@ -2218,13 +2218,13 @@
             // Get the description display element
             const descriptionDiv = card.querySelector('.advance-description');
 
-            // Fetch full Loan Type details to get the amount and description fields
+            // Fetch full Loan Product details to get the amount and description fields
             frappe.call({
                 method: 'hr_services.portal.api.get',
                 args: {
-                    doctype: 'Loan Type',
+                    doctype: 'Loan Product',
                     name: loan.name,
-                    fields: ['loan_name', 'amount', 'description', 'custom_descriptiona_arabic']
+                    fields: ['product_name', 'amount', 'description', 'custom_descriptiona_arabic']
                 },
                 callback: function(r) {
                     if (r.message) {
@@ -2266,7 +2266,7 @@
                     }
                 },
                 error: function(err) {
-                    console.error('Error fetching Loan Type details:', err);
+                    console.error('Error fetching Loan Product details:', err);
                     descriptionDiv.innerHTML = '<strong style="color: var(--text-primary);">' +
                         (currentLang === 'ar' ? 'الوصف: ' : 'Description: ') +
                         '</strong> <em style="color: var(--text-muted);">' +

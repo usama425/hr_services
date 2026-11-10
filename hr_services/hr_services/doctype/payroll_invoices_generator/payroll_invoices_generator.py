@@ -224,7 +224,7 @@ def generate_invoices(project,due_date,customer,invoice_type,employees,month_nam
 			sslp_doc = frappe.get_doc("Salary Slip",emp["salary_slip"])
 			if sslp_doc.loans:
 				for loan in sslp_doc.loans:
-					if loan.loan_type == "Housing Advance":
+					if loan.loan_product == "Housing Advance":
 						housing_adv_loan = housing_adv_loan + loan.total_payment
 
 			total_mp = total_mp + sslp_doc.net_pay + sslp_doc.total_loan_repayment - housing_adv_loan + frappe.db.get_value("Employee", {"name":emp["employee"]}, "custom_elite_monthly_fee")
@@ -870,7 +870,7 @@ def manpower_cost_calculation(emp_id,salary_slip_id):
 	sslp_doc = frappe.get_doc("Salary Slip",salary_slip_id)
 	if sslp_doc.loans:
 		for loan in sslp_doc.loans:
-			if loan.loan_type == "Housing Advance":
+			if loan.loan_product == "Housing Advance":
 				housing_adv_loan = housing_adv_loan + loan.total_payment
 
 	if employee_doc.nationality == "Saudi Arabia" and employee_doc.added_to_gosi == 1:

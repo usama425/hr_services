@@ -1408,7 +1408,7 @@ function loadLoans() {
                 applicant: employeeNo,
                 status: ['in', ['Disbursed', 'Loan Closure Requested']]
             },
-            fields: ['name', 'loan_type', 'loan_amount', 'total_payment', 'total_amount_paid', 'monthly_repayment_amount', 'status'],
+            fields: ['name', 'loan_product', 'loan_amount', 'total_payment', 'total_amount_paid', 'monthly_repayment_amount', 'status'],
             limit_page_length: 9999
         },
         callback: function(r) {
@@ -1436,7 +1436,7 @@ function displayLoans(loans) {
             return `
                 <div class="loan-card">
                     <div class="loan-header">
-                        <div class="loan-type">${loan.loan_type || 'N/A'}</div>
+                        <div class="loan-type">${loan.loan_product || 'N/A'}</div>
                         <div class="loan-status disbursed">Active</div>
                     </div>
                     <div class="loan-details">
