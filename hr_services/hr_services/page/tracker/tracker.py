@@ -23,14 +23,14 @@ def get_outstanding_customers():
 	paid_outstanding_amounts = frappe.get_all('Sales Invoice',
 										 filters={'customer': ('in', [customer['name'] for customer in customers]),
 												  'docstatus': 1, 'custom_not_for_tracker': 0},
-										 fields=['customer', 'sum(outstanding_amount) as outstanding_amount'],
+										 fields=['customer', {"SUM": "outstanding_amount", "as": "outstanding_amount"}],
 										 group_by='customer')
 	
 	# Fetch draft outstanding amounts
 	draft_outstanding_amounts = frappe.get_all('Sales Invoice',
 										 filters={'customer': ('in', [customer['name'] for customer in customers]),
 												  'docstatus': 0,'show_in_report':1},
-										 fields=['customer', 'sum(outstanding_amount) as outstanding_amount'],
+										 fields=['customer', {"SUM": "outstanding_amount", "as": "outstanding_amount"}],
 										 group_by='customer')
 
 	for customer in customers:

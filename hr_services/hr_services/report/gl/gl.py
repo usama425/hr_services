@@ -17,7 +17,7 @@ from erpnext.accounts.report.general_ledger.general_ledger import (
 	get_data_with_opening_closing,
 	get_gl_entries,
 	get_result_as_list,
-	get_totals_dict,
+	get_translated_labels_for_totals,
 	initialize_gle_map,
 	set_bill_no,
 	set_account_currency,
@@ -177,7 +177,7 @@ def export_sheet_per_account(filters):
 	filters.group_by = "Group by Voucher (Consolidated)"
 	filters.pop("categorize_by", None)
 	filters, _account_details = prepare_filters(filters)
-	# ERPNext v15 reads `categorize_by`; it is only derived from `group_by` when unset.
+	# ERPNext v15+ reads `categorize_by`; it is only derived from `group_by` when unset.
 	filters.group_by = "Group by Account"
 	filters.categorize_by = "Categorize by Account"
 	columns = [c for c in get_columns(filters) if not c.get("hidden")]
@@ -186,18 +186,28 @@ def export_sheet_per_account(filters):
 	# entries in the period is kept too (the report skips it), so the sheets add up.
 	accounting_dimensions, gl_entries = get_entries(filters)
 	set_bill_no(gl_entries)
-	totals_dict = get_totals_dict()
-	gle_map = initialize_gle_map(gl_entries, filters, totals_dict)
-	totals, _entries = get_accountwise_gle(filters, accounting_dimensions, gl_entries, gle_map, totals_dict)
+	gle_map = initialize_gle_map(gl_entries, filters)
+	totals, _entries = get_accountwise_gle(filters, accounting_dimensions, gl_entries, gle_map)
+
+	# ERPNext v16 keys gle_map by a tuple of the group-by fields and leaves the
+	# total rows unlabelled (the report adds the labels itself).
+	labels = get_translated_labels_for_totals()
+
+	def labelled(row, key):
+		return _dict(row, account=labels[key])
 
 	blocks = []
 	for account, acc_dict in gle_map.items():
+		account = account[0] if isinstance(account, tuple) else account
 		t = acc_dict.totals
 		if not acc_dict.entries and not any(flt(t.opening.get(k), 2) for k in ("debit", "credit")):
 			continue
-		block = get_result_as_list([t.opening, *acc_dict.entries, t.total, t.closing], filters)
+		block = get_result_as_list(
+			[labelled(t.opening, "opening"), *acc_dict.entries, labelled(t.total, "total"), labelled(t.closing, "closing")],
+			filters,
+		)
 		blocks.append((account, block))
-	grand_total, grand_closing = totals.total, totals.closing
+	grand_total, grand_closing = labelled(totals.total, "total"), labelled(totals.closing, "closing")
 
 	bold = Font(bold=True)
 	wb = Workbook()

@@ -210,7 +210,7 @@ def get_tax_data_for_each_vat_setting(vat_setting, filters, doctype):
 				"docstatus": 1,
 				"parent": invoice.name,
 			},
-			fields=["item_code", "sum(base_net_amount) as base_net_amount"],
+			fields=["item_code", {"SUM": "base_net_amount", "as": "base_net_amount"}],
 			group_by="item_code",
 		)
 
