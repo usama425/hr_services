@@ -106,7 +106,7 @@ after_migrate = [
 # To set up dependencies/integrations with other apps
 # Name of the app being installed is passed as an argument
 
-# before_app_install = "hr_services.utils.before_app_install"
+before_app_install = "hr_services.lending_compat.before_app_install"
 after_app_install = "hr_services.lending_compat.after_app_install"
 
 # Integration Cleanup

@@ -67,3 +67,30 @@ def after_app_install(app_name):
 def after_app_uninstall(app_name):
 	if app_name == "lending":
 		sync_advance_type_field()
+
+
+def remove_orphan_loan_doctypes():
+	"""Delete leftover ERPNext v14 Loan Management DocType records (records only).
+
+	ERPNext v15's remove_loan_management_module patch deletes these when a v14
+	site is upgraded without Lending, but some sites keep (or get back) records
+	such as Loan / Loan Type / Loan Repayment. Lending's install then fails with
+	"Duplicate entry 'Loan Product'" while converting Loan Type -> Loan Product
+	and leaves the site half converted. Deleting a DocType record does not drop
+	its table, so all loan data stays and Lending converts it on install.
+	"""
+	if has_lending():
+		return
+
+	orphans = frappe.get_all("DocType", filters={"module": "Loan Management", "custom": 0}, pluck="name")
+	for name in orphans:
+		frappe.delete_doc("DocType", name, force=True, ignore_missing=True)
+
+	if orphans:
+		frappe.db.commit()
+		print(f"hr_services: removed leftover v14 Loan Management DocType records: {', '.join(orphans)}")
+
+
+def before_app_install(app_name):
+	if app_name == "lending":
+		remove_orphan_loan_doctypes()
