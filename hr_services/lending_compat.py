@@ -14,7 +14,9 @@ LENDING_DOCTYPES = ("Loan", "Loan Product", "Loan Repayment", "Loan Disbursement
 
 
 def has_lending():
-	return bool(frappe.db.exists("DocType", "Loan"))
+	# Check the installed app, not the DocType: sites upgraded from v14 can still
+	# have the old ERPNext "Loan" DocType record without the Lending app.
+	return "lending" in frappe.get_installed_apps()
 
 
 def require_lending(feature=None):
