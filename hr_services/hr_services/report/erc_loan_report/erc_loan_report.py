@@ -7,7 +7,11 @@ from frappe.utils import add_days, flt, getdate
 import erpnext
 
 
+from hr_services.lending_compat import require_lending
+
+
 def execute(filters=None):
+	require_lending(_("This report"))
 	columns = get_columns()
 	data = get_active_loan_details(filters)
 	return columns, data

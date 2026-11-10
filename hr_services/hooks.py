@@ -7,8 +7,9 @@ app_description = "HR Additional Services"
 app_email = "usamanaveed9263@gmail.com"
 app_license = "MIT"
 
-# Installed before this app. Loan Management lives in the Lending app since v15.
-required_apps = ["erpnext", "hrms", "lending"]
+# Installed before this app. The Lending app (Loan Management since v15) is optional:
+# install it to use employee advances and the loan reports (see lending_compat.py).
+required_apps = ["erpnext", "hrms"]
 
 # Includes in <head>
 # ------------------
@@ -78,7 +79,7 @@ doctype_list_js = {"Employee": "customjs/employee_list.js"}
 # Installation
 # ------------
 
-# before_install = "hr_services.install.before_install"
+before_install = "hr_services.install.before_install"
 # after_install = "hr_services.install.after_install"
 
 # Teams Excel Notify polls every minute; don't write a Scheduled Job Log row each time

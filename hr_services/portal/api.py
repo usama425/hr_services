@@ -22,6 +22,8 @@ import frappe
 from frappe import _
 from frappe.model import default_fields
 
+from hr_services.lending_compat import LENDING_DOCTYPES, has_lending
+
 # How each doctype is tied to the logged-in employee. "field" doctypes have a
 # link to Employee; "self" is the Employee record itself; Request For Payment
 # links employees through its child tables.
@@ -197,6 +199,9 @@ def get_list(doctype, fields=None, filters=None, order_by=None, limit_page_lengt
 		if not isinstance(filters, dict):
 			frappe.throw(_("Not permitted"), frappe.PermissionError)
 		return get_attachments(filters.get("attached_to_doctype"), filters.get("attached_to_name"))
+
+	if doctype in LENDING_DOCTYPES and not has_lending():
+		return []
 
 	if doctype in REFERENCE:
 		rule = REFERENCE[doctype]

@@ -6,8 +6,15 @@ from frappe.model.document import Document
 from frappe import _, msgprint, qb
 import json
 
+from hr_services.lending_compat import require_lending
+
+
 class RequestForPayment(Document):
 	def on_submit(self):
+		if self.get("advances"):
+			# advances become Loans + Loan Disbursements
+			require_lending(_("Employee advances"))
+
 		if self.expense_type == "Operational Expense" or self.expense_type == "Recruitment Expense" or self.expense_type == "Reimbursement Expense":
 			#creating journal entry on the approval of request of payment
 			if self.coa_for_jv:

@@ -5,7 +5,11 @@ import frappe
 from frappe import _
 
 
+from hr_services.lending_compat import require_lending
+
+
 def execute(filters=None):
+	require_lending(_("This report"))
 	columns = get_columns()
 	data = get_data(filters)
 	return columns, data

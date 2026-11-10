@@ -1,5 +1,7 @@
 import frappe
 
+from hr_services.lending_compat import has_lending
+
 @frappe.whitelist()
 def get_outstanding_customers():
 	# Fetch customers according to projects
@@ -44,6 +46,10 @@ def get_outstanding_customers():
 		if frappe.db.exists("Payment Received No Breakdown",customer['project_id']):
 			payment_received_doc = frappe.get_doc("Payment Received No Breakdown", customer['project_id'])
 			customer['outstanding_amount'] = customer['outstanding_amount'] - payment_received_doc.total_received_amount
+
+	if not has_lending():
+		no_loans = [{"total_advance_outstanding": 0}]
+		return customers, no_loans, no_loans
 
 	#Fetch Client employees Total Outstanding of loans except Elite HQ and Loan type: Housing Advance
 	query = """
