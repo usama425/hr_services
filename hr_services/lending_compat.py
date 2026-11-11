@@ -114,7 +114,20 @@ def convert_v14_loans_if_needed():
 	if not frappe.db.sql("select count(*) from `tabLoan Type`")[0][0]:
 		return
 
-	from lending.install import get_post_install_patches, run_patches
+	try:
+		from lending.install import get_post_install_patches, run_patches
+	except ImportError:
+		# Only Lending's version-15 branch converts ERPNext v14 loans; develop /
+		# version-16 (built for Frappe 16+) don't. Don't block the migrate.
+		msg = (
+			"ERPNext v14 loans are not converted yet (Loan Product is empty). The Lending app on "
+			"this bench is not the version-15 branch, which is the one that converts them. "
+			"Switch Lending to version-15 and migrate again. Do NOT uninstall Lending: that "
+			"would delete the loan tables."
+		)
+		print(f"hr_services: WARNING: {msg}")
+		frappe.log_error(title="Lending: v14 loans not converted", message=msg)
+		return
 
 	run_patches(get_post_install_patches())
 	frappe.db.commit()
