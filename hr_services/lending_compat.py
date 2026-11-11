@@ -117,19 +117,13 @@ def convert_v14_loans_if_needed():
 	try:
 		from lending.install import get_post_install_patches, run_patches
 	except ImportError:
-		# Only Lending's version-15 branch converts ERPNext v14 loans; develop /
-		# version-16 (built for Frappe 16+) don't. Don't block the migrate.
-		msg = (
-			"ERPNext v14 loans are not converted yet (Loan Product is empty). The Lending app on "
-			"this bench is not the version-15 branch, which is the one that converts them. "
-			"Switch Lending to version-15 and migrate again. Do NOT uninstall Lending: that "
-			"would delete the loan tables."
-		)
-		print(f"hr_services: WARNING: {msg}")
-		frappe.log_error(title="Lending: v14 loans not converted", message=msg)
-		return
+		# Lending's version-1 / version-16 / develop lines keep the conversion
+		# patches but no longer run them on install (and a fresh install marks
+		# them as done), so do the same conversion here.
+		_convert_v14_loans()
+	else:
+		run_patches(get_post_install_patches())
 
-	run_patches(get_post_install_patches())
 	frappe.db.commit()
 	print(
 		"hr_services: converted v14 loans for Lending -",
@@ -140,3 +134,176 @@ def convert_v14_loans_if_needed():
 		frappe.db.count("Loan"),
 		"loans linked",
 	)
+
+
+# ---------------------------------------------------------------------------
+# v14 -> Lending conversion for Lending lines without get_post_install_patches.
+# Same steps as Lending's own v15_0 patches, done on the data so they work after
+# the fact (those patches expect to run during the v14 -> v15 migrate).
+
+LOAN_STATUS_TO_SCHEDULE_STATUS = {
+	"Sanctioned": "Initiated",
+	"Partially Disbursed": "Active",
+	"Disbursed": "Active",
+	"Loan Closure Requested": "Active",
+	"Closed": "Closed",
+	"Draft": "Draft",
+	"Cancelled": "Cancelled",
+	"Rejected": "Rejected",
+}
+
+
+def _columns(doctype):
+	return set(frappe.db.get_table_columns(doctype))
+
+
+def _convert_v14_loans():
+	_rename_loan_type_to_loan_product()
+	_copy_loan_type_to_loan_product()
+	_make_repayment_schedules()
+
+	# Lending's own data fixes for v15 schedules / disbursements (idempotent).
+	for patch in (
+		"lending.patches.v15_0.update_maturity_date",
+		"lending.patches.v15_0.loan_repayment_schedule_status_patch",
+		"lending.patches.v15_0.loan_disbursement_status_patch",
+		"lending.patches.v1_0.link_disbursement_to_legacy_repayment_schedule",
+	):
+		try:
+			execute = frappe.get_attr(f"{patch}.execute")
+		except (ImportError, AttributeError):
+			continue
+		execute()
+
+
+def _rename_loan_type_to_loan_product():
+	# Loan Product is empty here (checked by the caller): put the old Loan Type
+	# table in its place, which keeps every row and name, then sync the columns.
+	frappe.db.sql_ddl("DROP TABLE `tabLoan Product`")
+	frappe.db.sql_ddl("RENAME TABLE `tabLoan Type` TO `tabLoan Product`")
+
+	# customizations and references that still point at "Loan Type"
+	frappe.db.sql(
+		"""update `tabCustom Field` set dt='Loan Product', name=concat('Loan Product-', fieldname)
+		where dt='Loan Type' and not exists (
+			select 1 from (select name from `tabCustom Field`) cf where cf.name=concat('Loan Product-', `tabCustom Field`.fieldname))"""
+	)
+	frappe.db.sql(
+		"update `tabProperty Setter` set doc_type='Loan Product', name=replace(name, 'Loan Type-', 'Loan Product-') where doc_type='Loan Type'"
+	)
+	frappe.db.sql("update `tabCustom DocPerm` set parent='Loan Product' where parent='Loan Type'")
+	frappe.db.sql("update `tabCustom Field` set options='Loan Product' where options='Loan Type' and fieldtype='Link'")
+	frappe.db.sql(
+		"update `tabProperty Setter` set value='Loan Product' where property='options' and value='Loan Type'"
+	)
+	for doctype, field in (
+		("File", "attached_to_doctype"),
+		("Comment", "reference_doctype"),
+		("Version", "ref_doctype"),
+		("Communication", "reference_doctype"),
+	):
+		frappe.db.sql(f"update `tab{doctype}` set `{field}`='Loan Product' where `{field}`='Loan Type'")
+
+	frappe.reload_doc("loan_management", "doctype", "loan_product", force=True)
+	frappe.clear_cache(doctype="Loan Product")
+
+	cols = _columns("Loan Product")
+	if "loan_name" in cols:
+		frappe.db.sql("update `tabLoan Product` set product_name=loan_name where ifnull(product_name, '')=''")
+	frappe.db.sql("update `tabLoan Product` set product_code=name where ifnull(product_code, '')=''")
+	frappe.db.sql("update `tabLoan Product` set docstatus=0")
+
+	# new accounts, as Lending's update_loan_types / update_loan_product_accounts
+	for target, source in (
+		("interest_receivable_account", "loan_account"),
+		("charges_receivable_account", "loan_account"),
+		("penalty_receivable_account", "loan_account"),
+		("suspense_interest_income", "interest_income_account"),
+		("suspense_collection_account", "payment_account"),
+		("interest_accrued_account", "interest_income_account"),
+		("penalty_accrued_account", "penalty_income_account"),
+	):
+		if target in cols and source in cols:
+			frappe.db.sql(
+				f"update `tabLoan Product` set `{target}`=`{source}` where ifnull(`{target}`, '')=''"
+			)
+
+
+def _copy_loan_type_to_loan_product():
+	tables = frappe.db.sql(
+		"""select table_name from information_schema.columns
+		where table_schema=database() and column_name in ('loan_type', 'loan_product')
+		group by table_name having count(*)=2""",
+		pluck=True,
+	)
+	for table in tables:
+		frappe.db.sql(
+			f"""update `{table}` set loan_product=loan_type
+			where ifnull(loan_product, '')='' and ifnull(loan_type, '')!=''"""
+		)
+
+	# rows that never had a loan_type (e.g. disbursements): take it from their Loan
+	for doctype, link in (
+		("Loan Disbursement", "against_loan"),
+		("Loan Repayment", "against_loan"),
+		("Loan Interest Accrual", "loan"),
+		("Loan Repayment Schedule", "loan"),
+		("Salary Slip Loan", "loan"),
+	):
+		if frappe.db.table_exists(doctype) and {"loan_product", link} <= _columns(doctype):
+			frappe.db.sql(
+				f"""update `tab{doctype}` t join `tabLoan` l on l.name=t.`{link}`
+				set t.loan_product=l.loan_product
+				where ifnull(t.loan_product, '')='' and ifnull(l.loan_product, '')!=''"""
+			)
+
+
+def _make_repayment_schedules():
+	if not frappe.db.table_exists("Repayment Schedule"):
+		return
+
+	loan_cols = _columns("Loan")
+	schedule_cols = _columns("Loan Repayment Schedule")
+	copy = [
+		f
+		for f in (
+			"company",
+			"loan_amount",
+			"monthly_repayment_amount",
+			"posting_date",
+			"repayment_method",
+			"repayment_periods",
+			"repayment_start_date",
+			"rate_of_interest",
+			"repayment_schedule_type",
+			"disbursed_amount",
+		)
+		if f in loan_cols and f in schedule_cols
+	]
+	skip_row_fields = {"name", "parent", "parenttype", "parentfield", "idx", "doctype", "owner", "creation", "modified", "modified_by", "docstatus"}
+	has_schedule = set(frappe.get_all("Loan Repayment Schedule", filters={"docstatus": ("!=", 2)}, pluck="loan"))
+
+	for loan in frappe.get_all(
+		"Loan",
+		filters={"is_term_loan": 1, "docstatus": ("!=", 2)},
+		fields=["name", "loan_product", "status", *copy],
+	):
+		if loan.name in has_schedule:
+			continue
+
+		rows = frappe.db.get_all(
+			"Repayment Schedule", {"parent": loan.name, "parenttype": "Loan"}, "*", order_by="idx"
+		)
+		schedule = frappe.new_doc("Loan Repayment Schedule")
+		schedule.flags.ignore_validate = True  # keep the v14 schedule as it is
+		schedule.flags.ignore_links = True
+		schedule.flags.ignore_permissions = True
+		schedule.flags.ignore_mandatory = True
+		schedule.loan = loan.name
+		schedule.loan_product = loan.loan_product
+		schedule.status = LOAN_STATUS_TO_SCHEDULE_STATUS.get(loan.status)
+		for f in copy:
+			schedule.set(f, loan.get(f))
+		for row in rows:
+			schedule.append("repayment_schedule", {k: v for k, v in row.items() if k not in skip_row_fields})
+		schedule.submit()
