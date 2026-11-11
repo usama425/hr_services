@@ -92,6 +92,7 @@ page_renderer = ["hr_services.expiry_notice.ExpiryNoticePage"]
 after_sync = ["hr_services.teams_excel_notify.install.quiet_scheduler_log"]
 after_migrate = [
 	"hr_services.teams_excel_notify.install.quiet_scheduler_log",
+	"hr_services.lending_compat.convert_v14_loans_if_needed",
 	"hr_services.lending_compat.sync_advance_type_field",
 ]
 

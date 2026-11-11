@@ -62,6 +62,9 @@ def sync_advance_type_field():
 def after_app_install(app_name):
 	if app_name in ("lending", "hr_services"):
 		sync_advance_type_field()
+	if app_name == "lending":
+		# runs after Lending's own after_install
+		convert_v14_loans_if_needed()
 
 
 def after_app_uninstall(app_name):
@@ -94,3 +97,33 @@ def remove_orphan_loan_doctypes():
 def before_app_install(app_name):
 	if app_name == "lending":
 		remove_orphan_loan_doctypes()
+
+
+def convert_v14_loans_if_needed():
+	"""Run Lending's own v14 -> Lending conversion if it was skipped.
+
+	Seen on production: Lending installed, but Loan Product empty, every loan
+	with an empty loan_product and the old tabLoan Type table left behind.
+	Only acts in exactly that state (Lending installed, tabLoan Type with rows,
+	Loan Product empty), so it is a cheap no-op on every other migrate.
+	"""
+	if not has_lending():
+		return
+	if not frappe.db.table_exists("Loan Type") or frappe.db.count("Loan Product"):
+		return
+	if not frappe.db.sql("select count(*) from `tabLoan Type`")[0][0]:
+		return
+
+	from lending.install import get_post_install_patches, run_patches
+
+	run_patches(get_post_install_patches())
+	frappe.db.commit()
+	print(
+		"hr_services: converted v14 loans for Lending -",
+		frappe.db.count("Loan Product"),
+		"loan products,",
+		frappe.db.count("Loan", {"loan_product": ("is", "set")}),
+		"of",
+		frappe.db.count("Loan"),
+		"loans linked",
+	)
