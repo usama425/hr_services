@@ -321,9 +321,16 @@ def download_salary_slip(name):
 	_assert_in_scope("Salary Slip", name, employee)
 
 	frappe.local.response.filename = name.replace("/", "-") + ".pdf"
-	frappe.local.response.filecontent = frappe.get_print(
-		"Salary Slip", name, SALARY_SLIP_PRINT_FORMAT, as_pdf=True, no_letterhead=0
-	)
+	# Portal users have no Salary Slip print permission; ownership was checked
+	# just above, so skip Frappe's own print permission check (as attach_print does).
+	previous = frappe.flags.ignore_print_permissions
+	frappe.flags.ignore_print_permissions = True
+	try:
+		frappe.local.response.filecontent = frappe.get_print(
+			"Salary Slip", name, SALARY_SLIP_PRINT_FORMAT, as_pdf=True, no_letterhead=0
+		)
+	finally:
+		frappe.flags.ignore_print_permissions = previous
 	frappe.local.response.type = "pdf"
 
 

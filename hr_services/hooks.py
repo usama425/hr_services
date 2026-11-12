@@ -95,6 +95,7 @@ after_migrate = [
 	"hr_services.lending_compat.convert_v14_loans_if_needed",
 	"hr_services.lending_compat.fix_converted_loan_data",
 	"hr_services.lending_compat.sync_advance_type_field",
+	"hr_services.upgrade_compat.after_migrate",
 ]
 
 # Uninstallation

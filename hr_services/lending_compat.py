@@ -66,6 +66,10 @@ def after_app_install(app_name):
 		# runs after Lending's own after_install
 		convert_v14_loans_if_needed()
 		fix_converted_loan_data()
+		# a Lending install can add fields linking to DocTypes another version removed
+		from hr_services.upgrade_compat import remove_broken_link_custom_fields
+
+		remove_broken_link_custom_fields()
 
 
 def after_app_uninstall(app_name):

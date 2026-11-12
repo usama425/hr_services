@@ -101,6 +101,14 @@ def get_allow_po_mgt_employees(project,start_date,end_date,type=None):
 @frappe.whitelist()
 def generate_invoices(project,due_date,customer,invoice_type,employees,month_name,my_in_arabic,year):
 	emps = json.loads(employees)
+	if invoice_type in ("Employee Wise Invoices with PO from PO Mgt", "Employee Wise Invoices without PO from PO Mgt"):
+		# Working Days is typed per row; an empty value isn't sent at all.
+		missing = [emp.get("employee_name") or emp.get("employee") for emp in emps if not flt(emp.get("working_days"))]
+		if missing:
+			frappe.throw(
+				_("Enter Working Days for these employees before generating: {0}").format(", ".join(map(str, missing))),
+				title=_("Working Days missing"),
+			)
 	if invoice_type == "One Invoice with all employees details":
 		si = create_si_without_item(customer,due_date,project)
 
@@ -718,7 +726,7 @@ def generate_invoices(project,due_date,customer,invoice_type,employees,month_nam
 							order_by='creation asc'
 						)
 
-			r_wd = emp["working_days"]
+			r_wd = flt(emp.get("working_days"))
 			for po_mgt in po_mgt_list:
 				po_mdoc = frappe.get_doc("PO Management", po_mgt.name)
 				invoicing_rate = po_mdoc.invoicing_rate
@@ -807,7 +815,7 @@ def generate_invoices(project,due_date,customer,invoice_type,employees,month_nam
 			
 			po_mdoc = frappe.get_doc("PO Management", po_mgt_list[0])
 			invoicing_rate = po_mdoc.invoicing_rate
-			emp_working_days = emp["working_days"]
+			emp_working_days = flt(emp.get("working_days"))
 				
 			si = create_si_without_item(customer,due_date,project)
 

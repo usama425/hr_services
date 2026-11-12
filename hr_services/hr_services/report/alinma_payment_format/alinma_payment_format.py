@@ -153,7 +153,7 @@ def get_salary_slips(filters, company_currency):
 
 	if filters.get("docstatus"):
 		val_status = doc_status[filters.get("docstatus")]
-		conditions.append(f"docstatus = {val_status}")
+		conditions.append(f"and docstatus = {val_status}")
 
 	if filters.get("from_date"):
 		conditions.append(f"and start_date >= '{filters.from_date}'")
@@ -181,7 +181,8 @@ def get_salary_slips(filters, company_currency):
 	if filters.get("department"):
 		conditions.append(f"and department = '{filters.department}'")		
 
-	con = "{}".format(" ".join(conditions)) if conditions else ""
+	# 1=1 so the "and ..." conditions stay valid when Document Status is empty
+	con = "1=1 " + " ".join(conditions)
 
 	salary_slips = frappe.db.sql(
 					"""
