@@ -65,6 +65,7 @@ def after_app_install(app_name):
 	if app_name == "lending":
 		# runs after Lending's own after_install
 		convert_v14_loans_if_needed()
+		fix_converted_loan_data()
 
 
 def after_app_uninstall(app_name):
@@ -140,6 +141,29 @@ def convert_v14_loans_if_needed():
 # v14 -> Lending conversion for Lending lines without get_post_install_patches.
 # Same steps as Lending's own v15_0 patches, done on the data so they work after
 # the fact (those patches expect to run during the v14 -> v15 migrate).
+
+def fix_converted_loan_data():
+	"""Fill gaps left in converted v14 loan data. Idempotent: only empty values.
+
+	- loan_product on rows that had none in v14 (disbursements, salary slip
+	  loans, ...), taken from loan_type or from their Loan.
+	- Loan Interest Accrual.due_date (new in Lending; v14 had none) =
+	  posting_date, as Lending's own update_due_date_in_accruals patch does. A
+	  fresh Lending install marks that patch as done without running it, and
+	  salary slips only pick up accruals with due_date <= end date, so without
+	  this no loan is deducted in payroll. v14 matched accruals on posting_date,
+	  so this gives the same deductions as before.
+	"""
+	if not has_lending():
+		return
+
+	_copy_loan_type_to_loan_product()
+
+	if frappe.db.table_exists("Loan Interest Accrual") and "due_date" in _columns("Loan Interest Accrual"):
+		frappe.db.sql(
+			"update `tabLoan Interest Accrual` set due_date=posting_date where ifnull(due_date, '')=''"
+		)
+
 
 LOAN_STATUS_TO_SCHEDULE_STATUS = {
 	"Sanctioned": "Initiated",
@@ -249,6 +273,9 @@ def _copy_loan_type_to_loan_product():
 		("Loan Interest Accrual", "loan"),
 		("Loan Repayment Schedule", "loan"),
 		("Salary Slip Loan", "loan"),
+		("Loan Write Off", "loan"),
+		("Loan Refund", "loan"),
+		("Loan Balance Adjustment", "loan"),
 	):
 		if frappe.db.table_exists(doctype) and {"loan_product", link} <= _columns(doctype):
 			frappe.db.sql(

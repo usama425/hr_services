@@ -93,6 +93,7 @@ after_sync = ["hr_services.teams_excel_notify.install.quiet_scheduler_log"]
 after_migrate = [
 	"hr_services.teams_excel_notify.install.quiet_scheduler_log",
 	"hr_services.lending_compat.convert_v14_loans_if_needed",
+	"hr_services.lending_compat.fix_converted_loan_data",
 	"hr_services.lending_compat.sync_advance_type_field",
 ]
 

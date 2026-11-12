@@ -5,7 +5,6 @@ import json
 
 import frappe
 from frappe import _
-from frappe.utils import get_url_to_list
 
 
 def execute(filters=None):
@@ -60,6 +59,33 @@ def get_columns():
 	]
 
 
+def get_ksa_vat_setting(company):
+	"""KSA VAT Setting (sales / purchase VAT accounts) for a company.
+
+	ERPNext v15 dropped the KSA regional DocTypes, but the tables and their data
+	are still there after an upgrade from v14, so read them directly.
+	"""
+	if not frappe.db.table_exists("KSA VAT Setting") or not frappe.db.sql(
+		"select name from `tabKSA VAT Setting` where name=%s", company
+	):
+		return None
+
+	def rows(child_doctype, parentfield):
+		if not frappe.db.table_exists(child_doctype):
+			return []
+		return frappe.db.sql(
+			f"""select account, title, item_tax_template from `tab{child_doctype}`
+			where parent=%s and parentfield=%s order by idx""",
+			(company, parentfield),
+			as_dict=True,
+		)
+
+	return frappe._dict(
+		ksa_vat_sales_accounts=rows("KSA VAT Sales Account", "ksa_vat_sales_accounts"),
+		ksa_vat_purchase_accounts=rows("KSA VAT Purchase Account", "ksa_vat_purchase_accounts"),
+	)
+
+
 def get_data(filters):
 	data = []
 
@@ -67,12 +93,10 @@ def get_data(filters):
 	company = filters.get("company")
 	company_currency = frappe.get_cached_value("Company", company, "default_currency")
 
-	if frappe.db.exists("KSA VAT Setting", company) is None:
-		url = get_url_to_list("KSA VAT Setting")
-		frappe.msgprint(_('Create <a href="{}">KSA VAT Setting</a> for this company').format(url))
+	ksa_vat_setting = get_ksa_vat_setting(company)
+	if not ksa_vat_setting:
+		frappe.msgprint(_("No KSA VAT Setting found for company {0}.").format(frappe.bold(company)))
 		return data
-
-	ksa_vat_setting = frappe.get_doc("KSA VAT Setting", company)
 
 	# Sales Heading
 	append_data(data, "VAT on Sales", "", "", "", "", company_currency)

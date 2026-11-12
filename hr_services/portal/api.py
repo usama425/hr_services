@@ -244,8 +244,11 @@ def get(doctype, name=None, filters=None, fields=None):
 
 	if doctype in REFERENCE:
 		rule = REFERENCE[doctype]
+		# skip site-specific fields this site doesn't have (e.g. custom_descriptiona_arabic)
+		meta = frappe.get_meta(doctype)
+		fields = [f for f in rule["fields"] if f == "name" or meta.has_field(f)]
 		values = frappe.db.get_value(
-			doctype, {**rule.get("filters", {}), "name": name}, rule["fields"], as_dict=True
+			doctype, {**rule.get("filters", {}), "name": name}, fields, as_dict=True
 		)
 		if not values:
 			frappe.throw(_("Not found"), frappe.DoesNotExistError)
