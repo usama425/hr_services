@@ -85,6 +85,12 @@ doctype_list_js = {"Employee": "customjs/employee_list.js"}
 # Frappe's default "Updating" page. See hr_services/expiry_notice.py.
 page_renderer = ["hr_services.expiry_notice.ExpiryNoticePage"]
 
+# Scheduled maintenance (see hr_services/scheduled_maintenance.py): a countdown banner
+# on the desk and login page, then every request is blocked from the start time.
+app_include_js = ["/assets/hr_services/js/maintenance_banner.js"]
+web_include_js = ["/assets/hr_services/js/maintenance_banner.js"]
+before_request = ["hr_services.scheduled_maintenance.before_request"]
+
 after_sync = ["hr_services.teams_excel_notify.install.quiet_scheduler_log"]
 after_migrate = ["hr_services.teams_excel_notify.install.quiet_scheduler_log"]
 

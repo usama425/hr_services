@@ -31,7 +31,13 @@ TEMPLATE = os.path.join(os.path.dirname(__file__), "templates", "expiry_notice.h
 class ExpiryNoticePage(BaseRenderer):
 	def can_render(self):
 		conf = frappe.local.conf or {}
-		return self.path == "message" and bool(conf.get("maintenance_mode")) and bool(conf.get("show_expiry_notice"))
+		if self.path != "message":
+			return False
+		if conf.get("maintenance_mode") and conf.get("show_expiry_notice"):
+			return True
+		from hr_services.scheduled_maintenance import is_locked
+
+		return is_locked()
 
 	def render(self):
 		with open(TEMPLATE, encoding="utf-8") as f:
