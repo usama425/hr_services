@@ -33,24 +33,29 @@ def fill_contract_party_full_name():
 	party, i.e. "job applicant_name", and the v14 -> v15 migrate fails with
 	"Unknown column 'job applicant_name'". Fill those rows first so the patch
 	skips them (it only touches rows with an empty party_full_name).
+
+	Runs before the schema sync, so on older v14 sites (e.g. ERPNext 14.82)
+	the party_full_name column doesn't exist yet: create it as ERPNext v15
+	defines it (Data -> varchar(140)). Columns are read from the database,
+	not Frappe's cache, which can be stale during a restore.
 	"""
-	if not frappe.db.table_exists("Contract") or "party_full_name" not in frappe.db.get_table_columns(
-		"Contract"
-	):
+	if not _db_has_table("Contract"):
 		return
+	if not _db_has_column("Contract", "party_full_name"):
+		frappe.db.sql_ddl("alter table `tabContract` add column `party_full_name` varchar(140)")
 
 	party_types = frappe.db.sql_list(
 		"select distinct party_type from `tabContract` where ifnull(party_full_name, '') = '' and ifnull(party_type, '') != ''"
 	)
 	for party_type in party_types:
-		if party_type == "Job Applicant" and frappe.db.table_exists("Job Applicant"):
+		if party_type == "Job Applicant" and _db_has_column("Job Applicant", "applicant_name"):
 			frappe.db.sql(
 				"""update `tabContract` c join `tabJob Applicant` j on j.name = c.party_name
 				set c.party_full_name = j.applicant_name
 				where c.party_type = 'Job Applicant' and ifnull(c.party_full_name, '') = ''"""
 			)
 		field = party_type.lower() + "_name"  # what ERPNext's patch reads
-		if not frappe.db.table_exists(party_type) or field not in frappe.db.get_table_columns(party_type):
+		if not _db_has_column(party_type, field):
 			# the patch would fail on this party type: fall back to the party's ID
 			frappe.db.sql(
 				"""update `tabContract` set party_full_name = party_name
@@ -58,6 +63,25 @@ def fill_contract_party_full_name():
 				party_type,
 			)
 	frappe.db.commit()
+
+
+def _db_has_table(doctype):
+	return bool(
+		frappe.db.sql(
+			"select 1 from information_schema.tables where table_schema = database() and table_name = %s",
+			f"tab{doctype}",
+		)
+	)
+
+
+def _db_has_column(doctype, column):
+	return bool(
+		frappe.db.sql(
+			"""select 1 from information_schema.columns
+			where table_schema = database() and table_name = %s and column_name = %s""",
+			(f"tab{doctype}", column),
+		)
+	)
 
 
 def after_migrate():
