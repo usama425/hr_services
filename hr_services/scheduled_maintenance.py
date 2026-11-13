@@ -9,7 +9,7 @@ with `message` and a live countdown. From `start` onwards every request gets the
 "Please wait..." page (hr_services/templates/expiry_notice.html) and nobody can log
 in or use the API. It stays that way until the setting is removed:
 
-    bench --site <site> set-config -p scheduled_maintenance null
+    bench --site <site> execute frappe.installer.update_site_config --args "['scheduled_maintenance', 'None']"
 """
 
 import frappe
