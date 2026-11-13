@@ -9,6 +9,7 @@ Request For Payment, loan reports, loan figures on the Tracker page) need it.
 
 import frappe
 from frappe import _
+from frappe.utils import flt, getdate
 
 LENDING_DOCTYPES = ("Loan", "Loan Product", "Loan Repayment", "Loan Disbursement")
 
@@ -338,3 +339,133 @@ def _make_repayment_schedules():
 		for row in rows:
 			schedule.append("repayment_schedule", {k: v for k, v in row.items() if k not in skip_row_fields})
 		schedule.submit()
+
+
+# ---------------------------------------------------------------------------
+# Lending v16 bills loans through Loan Demands. Installments accrued on v15 and
+# still unpaid have no demand (Lending's own conversion,
+# loan_interest_accrual_changes, is disabled), so v16 payroll would silently
+# stop deducting them. Create the missing principal demands.
+
+
+def convert_v15_accruals_to_demands():
+	"""Create v16 Loan Demands for unpaid v15 principal accruals. Idempotent.
+
+	Only on Lending lines that bill through Loan Demands (the v15 accrual's
+	payable_principal_amount is no longer a field) while the old columns are
+	still in the table. Principal demands post no GL entries, so this only
+	makes the amounts collectible; unpaid interest is reported, not converted
+	(v15 already booked it and an interest demand would book it again).
+	"""
+	if not has_lending() or not frappe.db.exists("DocType", "Loan Demand"):
+		return
+	if frappe.get_meta("Loan Interest Accrual").has_field("payable_principal_amount"):
+		return  # Lending v15: accruals still bill the loan
+	cols = _columns("Loan Interest Accrual")
+	if not {"payable_principal_amount", "paid_principal_amount"} <= cols:
+		return
+
+	from lending.loan_management.doctype.loan_demand.loan_demand import create_loan_demand
+
+	due = "ifnull(a.due_date, a.posting_date)" if "due_date" in cols else "a.posting_date"
+	link = "a.repayment_schedule_name" if "repayment_schedule_name" in cols else "null"
+	accruals = frappe.db.sql(
+		f"""select a.name, a.loan, {due} as demand_date, {link} as schedule_row,
+			a.payable_principal_amount - a.paid_principal_amount as unpaid
+		from `tabLoan Interest Accrual` a join `tabLoan` l on l.name = a.loan
+		where a.docstatus = 1 and l.docstatus = 1 and l.status not in ('Closed', 'Written Off')
+			and a.payable_principal_amount - a.paid_principal_amount > 0.005
+		order by a.loan, demand_date""",
+		as_dict=True,
+	)
+
+	accrued_flag = "demand_generated" if "demand_generated" in _columns("Repayment Schedule") else "is_accrued"
+	created, amount, used_rows = 0, 0.0, set()
+	for row in accruals:
+		# already converted? (marker: imported principal demand for this loan, date and amount)
+		if frappe.db.sql(
+			"""select 1 from `tabLoan Demand` where loan = %s and demand_subtype = 'Principal'
+			and docstatus = 1 and is_imported = 1 and date(demand_date) = %s
+			and abs(demand_amount - %s) < 0.01 limit 1""",
+			(row.loan, getdate(row.demand_date), row.unpaid),
+		):
+			continue
+
+		schedule = frappe.db.get_value(
+			"Loan Repayment Schedule",
+			{"loan": row.loan, "docstatus": 1, "status": ("not in", ("Cancelled", "Restructured", "Rescheduled"))},
+			["name", "loan_disbursement"],
+			as_dict=True,
+			order_by="creation desc",
+		) or frappe._dict()
+		detail = _find_schedule_row(schedule.name, row, accrued_flag)
+		if detail in used_rows or (
+			detail and frappe.db.exists("Loan Demand", {"repayment_schedule_detail": detail, "docstatus": 1})
+		):
+			detail = None  # don't link two demands to one schedule row
+		if detail:
+			used_rows.add(detail)
+
+		create_loan_demand(
+			row.loan,
+			row.demand_date,
+			"EMI",
+			"Principal",
+			row.unpaid,
+			loan_repayment_schedule=schedule.name,
+			loan_disbursement=schedule.get("loan_disbursement"),
+			repayment_schedule_detail=detail,
+			is_imported=True,
+		)
+		created += 1
+		amount += flt(row.unpaid)
+
+	unpaid_interest = frappe.db.sql(
+		"""select count(*), ifnull(sum(a.interest_amount - a.paid_interest_amount), 0)
+		from `tabLoan Interest Accrual` a join `tabLoan` l on l.name = a.loan
+		where a.docstatus = 1 and l.docstatus = 1 and l.status not in ('Closed', 'Written Off')
+			and a.interest_amount - a.paid_interest_amount > 0.005"""
+	)[0] if {"interest_amount", "paid_interest_amount"} <= cols else (0, 0)
+
+	if created or unpaid_interest[0]:
+		frappe.db.commit()
+		print(f"hr_services: created {created} Loan Demands for unpaid v15 installments, total {amount:.2f}")
+		if unpaid_interest[0]:
+			msg = (
+				f"{unpaid_interest[0]} v15 accruals still have unpaid interest ({flt(unpaid_interest[1]):.2f}); "
+				"not converted to Loan Demands (v15 already booked it). Collect it manually."
+			)
+			print(f"hr_services: WARNING: {msg}")
+			frappe.log_error(title="Lending: unpaid v15 interest not converted", message=msg)
+
+
+def _find_schedule_row(schedule, accrual, accrued_flag):
+	"""The repayment schedule row a v15 accrual billed: its own link, the same date,
+	or (accruals posted mid-month) the already-accrued row in the same month."""
+	if not schedule:
+		return None
+	if accrual.schedule_row and frappe.db.exists(
+		"Repayment Schedule", {"name": accrual.schedule_row, "parent": schedule}
+	):
+		return accrual.schedule_row
+	date = getdate(accrual.demand_date)
+	row = frappe.db.get_value("Repayment Schedule", {"parent": schedule, "payment_date": date}, "name")
+	if row:
+		return row
+	rows = frappe.db.sql(
+		f"""select name from `tabRepayment Schedule` where parent = %s
+		and year(payment_date) = %s and month(payment_date) = %s
+		order by `{accrued_flag}` desc, payment_date""",
+		(schedule, date.year, date.month),
+		pluck=True,
+	)
+	return rows[0] if rows else None
+
+
+def ensure_loan_accrual_frequency():
+	"""Lending v16 needs Company.loan_accrual_frequency, or payroll deducts no loans."""
+	if not has_lending() or not frappe.get_meta("Company").has_field("loan_accrual_frequency"):
+		return
+	for company in frappe.get_all("Company", filters={"loan_accrual_frequency": ("is", "not set")}, pluck="name"):
+		frappe.db.set_value("Company", company, "loan_accrual_frequency", "Monthly")
+		print(f"hr_services: set Loan Accrual Frequency = Monthly on {company}")
