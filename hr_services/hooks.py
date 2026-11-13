@@ -96,6 +96,8 @@ web_include_js = ["/assets/hr_services/js/maintenance_banner.js"]
 before_request = ["hr_services.scheduled_maintenance.before_request"]
 
 after_sync = ["hr_services.teams_excel_notify.install.quiet_scheduler_log"]
+# Runs before any app's patches (see upgrade_compat.fill_contract_party_full_name).
+before_migrate = ["hr_services.upgrade_compat.before_migrate"]
 after_migrate = [
 	"hr_services.teams_excel_notify.install.quiet_scheduler_log",
 	"hr_services.lending_compat.convert_v14_loans_if_needed",
