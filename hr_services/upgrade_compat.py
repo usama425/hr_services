@@ -22,7 +22,57 @@ SITE_CUSTOM_FIELDS = {
 
 
 def before_migrate():
+	preserve_site_made_doctypes()
 	fill_contract_party_full_name()
+
+
+# Modules whose standard DocTypes can only have been made on the site when their
+# code file is missing (apps maintained here, plus Frappe's Core / Custom).
+OWN_APPS = ("hr_services", "erc_payroll_automation", "teams_excel_notify")
+SITE_MODULES = ("Core", "Custom")
+# Standard DocTypes Frappe itself removed (v14 -> v15) that must still go.
+REMOVED_BY_FRAPPE = ("Error Snapshot",)
+
+
+def preserve_site_made_doctypes():
+	"""Keep DocTypes that were created on the site in developer mode.
+
+	Production made DocTypes like Monthly Payroll Report, Employee Master List
+	or Project User Creator as standard (custom=0) DocTypes in developer mode,
+	but their code files never reached the app's repository. Frappe v15's
+	migrate deletes such "orphan" DocTypes (remove_orphan_doctypes). Their data
+	stays in the tables, but the DocType, its workspace links and scripts break.
+	Marking them custom keeps them working: custom DocTypes need no code files.
+	"""
+	from frappe.model.document import get_controller
+
+	module_app = dict(frappe.db.sql("select name, app_name from `tabModule Def`"))
+	rows = frappe.db.sql(
+		"select name, module, creation from `tabDocType` where ifnull(custom, 0) = 0", as_dict=True
+	)
+	kept = []
+	for row in rows:
+		app = module_app.get(row.module)
+		own = app in OWN_APPS
+		site_module = row.module in SITE_MODULES and str(row.creation) >= "2020-01-01"
+		if not (own or site_module) or row.name in REMOVED_BY_FRAPPE:
+			continue
+		try:
+			get_controller(row.name)
+			continue  # has its code: a real standard DocType
+		except ImportError:
+			pass
+		except Exception:
+			continue
+		frappe.db.sql("update `tabDocType` set custom = 1 where name = %s", row.name)
+		kept.append(row.name)
+
+	if kept:
+		frappe.db.commit()
+		frappe.clear_cache()
+		print("hr_services: kept site-made DocTypes (marked custom):", ", ".join(sorted(kept)))
+
+
 
 
 def fill_contract_party_full_name():
