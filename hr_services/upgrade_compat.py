@@ -21,6 +21,45 @@ SITE_CUSTOM_FIELDS = {
 }
 
 
+def before_migrate():
+	fill_contract_party_full_name()
+
+
+def fill_contract_party_full_name():
+	"""Fill Contract.party_full_name where ERPNext's patch can't.
+
+	hr_services adds "Job Applicant" as a Contract party type. ERPNext's
+	v14_0.update_full_name_in_contract patch reads `<party type>_name` from the
+	party, i.e. "job applicant_name", and the v14 -> v15 migrate fails with
+	"Unknown column 'job applicant_name'". Fill those rows first so the patch
+	skips them (it only touches rows with an empty party_full_name).
+	"""
+	if not frappe.db.table_exists("Contract") or "party_full_name" not in frappe.db.get_table_columns(
+		"Contract"
+	):
+		return
+
+	party_types = frappe.db.sql_list(
+		"select distinct party_type from `tabContract` where ifnull(party_full_name, '') = '' and ifnull(party_type, '') != ''"
+	)
+	for party_type in party_types:
+		if party_type == "Job Applicant" and frappe.db.table_exists("Job Applicant"):
+			frappe.db.sql(
+				"""update `tabContract` c join `tabJob Applicant` j on j.name = c.party_name
+				set c.party_full_name = j.applicant_name
+				where c.party_type = 'Job Applicant' and ifnull(c.party_full_name, '') = ''"""
+			)
+		field = party_type.lower() + "_name"  # what ERPNext's patch reads
+		if not frappe.db.table_exists(party_type) or field not in frappe.db.get_table_columns(party_type):
+			# the patch would fail on this party type: fall back to the party's ID
+			frappe.db.sql(
+				"""update `tabContract` set party_full_name = party_name
+				where party_type = %s and ifnull(party_full_name, '') = ''""",
+				party_type,
+			)
+	frappe.db.commit()
+
+
 def after_migrate():
 	remove_broken_link_custom_fields()
 	ensure_site_custom_fields()
