@@ -32,7 +32,11 @@ def is_locked():
 
 
 def before_request():
-	"""Block every request once the maintenance start time has passed."""
+	"""Block every request once the maintenance start time has passed, or the site has moved."""
+	from hr_services.expiry_notice import moved_to
+
+	if moved_to():
+		raise frappe.SessionStopped("Site moved")
 	if is_locked():
 		raise frappe.SessionStopped("Scheduled maintenance")
 
