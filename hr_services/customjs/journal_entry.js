@@ -1,17 +1,28 @@
 // HRMS v16 hides every Payroll Entry already referenced by a Journal Entry (including its
 // own accrual JV), so the salary payment JV cannot be linked. Use our query for the
 // "Payroll Entry" reference type only and keep the existing query for everything else.
-frappe.ui.form.on("Journal Entry", {
-	setup(frm) {
-		const grid_field = frm.fields_dict.accounts.grid.get_field("reference_name");
-		const previous_query = grid_field && grid_field.get_query;
+// HRMS (re)sets its query in `refresh`, so ours is applied there too; it runs after HRMS.
+const hr_services_set_payroll_entry_query = (frm) => {
+	const grid_field = frm.fields_dict.accounts.grid.get_field("reference_name");
+	const previous_query = grid_field && grid_field.get_query;
+	if (previous_query && previous_query.hr_services_payroll_query) return;
 
-		frm.set_query("reference_name", "accounts", function (doc, cdt, cdn) {
-			const row = locals[cdt][cdn];
-			if (row.reference_type === "Payroll Entry") {
-				return { query: "hr_services.custompy.payroll_entry.get_payroll_entries_for_jv" };
-			}
-			return previous_query ? previous_query(doc, cdt, cdn) : {};
-		});
+	const query = function (doc, cdt, cdn) {
+		const row = locals[cdt][cdn];
+		if (row.reference_type === "Payroll Entry") {
+			return { query: "hr_services.custompy.payroll_entry.get_payroll_entries_for_jv" };
+		}
+		return previous_query ? previous_query(doc, cdt, cdn) : {};
+	};
+	query.hr_services_payroll_query = true;
+	frm.set_query("reference_name", "accounts", query);
+};
+
+frappe.ui.form.on("Journal Entry", {
+	onload(frm) {
+		hr_services_set_payroll_entry_query(frm);
+	},
+	refresh(frm) {
+		hr_services_set_payroll_entry_query(frm);
 	},
 });
