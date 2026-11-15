@@ -41,3 +41,17 @@ class CustomPayrollEntry(PayrollEntry):
 			self.number_of_employees = len(self.employees)
 
 		return self.get_employees_with_unmarked_attendance()
+
+	def validate_payroll_payable_account(self):
+		# HRMS v16 insists the payroll payable account is of type "Payable". ERPNext then
+		# demands Party Type/Party (Employee) on every JV row hitting that account, which
+		# breaks our bank entries and manual accrual JVs unless employee-wise payroll
+		# accounting is enabled. We keep 2230101 Accrued Expenses - Salaries with no account
+		# type (as for all payrolls before the upgrade), so accept a blank type as well.
+		account_type = frappe.db.get_value("Account", self.payroll_payable_account, "account_type")
+		if account_type not in (None, "", "Payable"):
+			frappe.throw(
+				_("Payroll payable account {0} must have account type Payable or no account type").format(
+					frappe.bold(self.payroll_payable_account)
+				)
+			)
