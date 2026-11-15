@@ -183,3 +183,44 @@ def get_existing_salary_slips_not_in(employees, args):
 		% ("%s", "%s", "%s", "%s", ", ".join(["%s"] * len(employees))),
 		[args.company, args.payroll_entry, args.start_date, args.end_date] + employees,
 	)	
+
+@frappe.whitelist()
+@frappe.validate_and_sanitize_search_inputs
+def get_payroll_entries_for_jv(doctype, txt, searchfield, start, page_len, filters):
+	"""Payroll Entries that can still be linked on a Journal Entry row.
+
+	HRMS v16 hides every Payroll Entry already referenced by any Journal Entry, which
+	includes the accrual JV that HRMS itself creates, so almost nothing can be picked
+	for the salary payment JV. Instead, list a submitted Payroll Entry while the
+	salaries accrued on its payroll payable account are not fully paid, and every
+	submitted Payroll Entry that has no Journal Entry yet.
+	"""
+	if searchfield not in ("name", "posting_date", "company", "payroll_payable_account"):
+		searchfield = "name"
+	return frappe.db.sql(
+		f"""
+		select pe.name
+		from `tabPayroll Entry` pe
+		left join (
+			select jea.reference_name, jea.account,
+				sum(jea.credit_in_account_currency - jea.debit_in_account_currency) as balance
+			from `tabJournal Entry Account` jea
+			join `tabJournal Entry` je on je.name = jea.parent and je.docstatus = 1
+			where jea.reference_type = 'Payroll Entry'
+			group by jea.reference_name, jea.account
+		) linked on linked.reference_name = pe.name and linked.account = pe.payroll_payable_account
+		where pe.docstatus = 1
+			and pe.`{searchfield}` like %(txt)s
+			and (
+				linked.balance > 0.01
+				or not exists (
+					select 1 from `tabJournal Entry Account` x
+					join `tabJournal Entry` xj on xj.name = x.parent and xj.docstatus = 1
+					where x.reference_type = 'Payroll Entry' and x.reference_name = pe.name
+				)
+			)
+		order by pe.name desc
+		limit %(page_len)s offset %(start)s
+		""",
+		{"txt": f"%{txt}%", "page_len": page_len, "start": start},
+	)
