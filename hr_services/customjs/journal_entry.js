@@ -10,7 +10,12 @@ const hr_services_set_payroll_entry_query = (frm) => {
 	const query = function (doc, cdt, cdn) {
 		const row = locals[cdt][cdn];
 		if (row.reference_type === "Payroll Entry") {
-			return { query: "hr_services.custompy.payroll_entry.get_payroll_entries_for_jv" };
+			// credit row = accrual side (any submitted payroll); debit row = payment (unpaid only)
+			const entry_side = flt(row.credit_in_account_currency) > 0 ? "credit" : "debit";
+			return {
+				query: "hr_services.custompy.payroll_entry.get_payroll_entries_for_jv",
+				filters: { entry_side: entry_side },
+			};
 		}
 		return previous_query ? previous_query(doc, cdt, cdn) : {};
 	};

@@ -197,6 +197,21 @@ def get_payroll_entries_for_jv(doctype, txt, searchfield, start, page_len, filte
 	"""
 	if searchfield not in ("name", "posting_date", "company", "payroll_payable_account"):
 		searchfield = "name"
+
+	filters = frappe.parse_json(filters) if isinstance(filters, str) else (filters or {})
+	if filters.get("entry_side") == "credit":
+		# Accrual side (e.g. a corrected accrual JV): any submitted Payroll Entry can be linked,
+		# even one whose earlier accrual was reversed and so looks fully paid.
+		return frappe.db.sql(
+			f"""
+			select pe.name from `tabPayroll Entry` pe
+			where pe.docstatus = 1 and pe.`{searchfield}` like %(txt)s
+			order by pe.name desc
+			limit %(page_len)s offset %(start)s
+			""",
+			{"txt": f"%{txt}%", "page_len": page_len, "start": start},
+		)
+
 	return frappe.db.sql(
 		f"""
 		select pe.name
