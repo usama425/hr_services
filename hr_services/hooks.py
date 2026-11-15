@@ -191,6 +191,9 @@ doc_events = {
         "on_update": "hr_services.custompy.employee.update_salary",
         "before_insert": "hr_services.custompy.employee.check_id"
     },
+    "Journal Entry": {
+        "on_update_after_submit": "hr_services.custompy.journal_entry.repost_if_references_changed"
+    },
     "Sales Invoice": {
         "on_submit": "hr_services.custompy.sales_invoice.new_rec",
         # Deletes the submitted draft once zatca_erpgulf's on_submit hook is done
