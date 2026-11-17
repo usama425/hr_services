@@ -94,7 +94,12 @@ page_renderer = ["hr_services.expiry_notice.ExpiryNoticePage"]
 # on the desk and login page, then every request is blocked from the start time.
 app_include_js = ["/assets/hr_services/js/maintenance_banner.js"]
 web_include_js = ["/assets/hr_services/js/maintenance_banner.js"]
-before_request = ["hr_services.scheduled_maintenance.before_request"]
+before_request = [
+	"hr_services.scheduled_maintenance.before_request",
+	# General Ledger shows the audited 31-12-2024 closing (see custompy/audited_closing.py)
+	"hr_services.custompy.audited_closing.patch_general_ledger",
+]
+before_job = ["hr_services.custompy.audited_closing.patch_general_ledger"]
 
 after_sync = ["hr_services.teams_excel_notify.install.quiet_scheduler_log"]
 # Runs before any app's patches (see upgrade_compat.fill_contract_party_full_name).
@@ -193,6 +198,11 @@ doc_events = {
     },
     "Journal Entry": {
         "on_update_after_submit": "hr_services.custompy.journal_entry.repost_if_references_changed"
+    },
+    # The audited 2024 closing snapshot can only be removed via audited_closing.undo
+    "Period Closing Voucher": {
+        "before_cancel": "hr_services.custompy.audited_closing.protect_snapshot",
+        "on_trash": "hr_services.custompy.audited_closing.protect_snapshot",
     },
     "Sales Invoice": {
         "on_submit": "hr_services.custompy.sales_invoice.new_rec",
