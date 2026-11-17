@@ -354,9 +354,51 @@ def _adjust_gl_entries(filters, gl_entries):
 	return gl_entries
 
 
+def _only_sole_company_restriction():
+	"""True when the user's only GL Entry restriction is a Company user permission that
+	already allows every company (589 users have "Company = Elite Resources Center", the
+	only company). ERPNext then wrongly skips the closing snapshot for them."""
+	from frappe.core.doctype.user_permission.user_permission import get_user_permissions
+
+	if frappe.get_hooks("permission_query_conditions").get("GL Entry"):
+		return False
+
+	link_targets = {df.options for df in frappe.get_meta("GL Entry").get_link_fields()}
+	link_targets |= {"Company"}
+	allowed_companies = set()
+	for allow, perms in (get_user_permissions(frappe.session.user) or {}).items():
+		relevant = [p for p in perms if not p.get("applicable_for") or p.get("applicable_for") == "GL Entry"]
+		if allow not in link_targets or not relevant:
+			continue
+		if allow != "Company":
+			return False
+		allowed_companies |= {p.get("doc") for p in relevant}
+
+	return set(frappe.get_all("Company", pluck="name")) <= allowed_companies
+
+
+def _wrap_restriction_check(original):
+	def has_gl_entry_restrictions():
+		if not original():
+			return False
+		if _find_snapshot() and _only_sole_company_restriction():
+			return False
+		return True
+
+	has_gl_entry_restrictions.erc_audited_closing = True
+	return has_gl_entry_restrictions
+
+
 def patch_general_ledger(*args, **kwargs):
-	"""before_request / before_job hook: wrap General Ledger's GL fetch once per process."""
+	"""before_request / before_job hook: patch the reports once per process."""
+	from erpnext.accounts.report import financial_statements
 	from erpnext.accounts.report.general_ledger import general_ledger
+	from erpnext.accounts.report.trial_balance import trial_balance
+
+	# Trial Balance / financial statements decide here whether to use the closing snapshot.
+	for module in (trial_balance, financial_statements):
+		if not getattr(module.has_gl_entry_restrictions, "erc_audited_closing", False):
+			module.has_gl_entry_restrictions = _wrap_restriction_check(module.has_gl_entry_restrictions)
 
 	if getattr(general_ledger.get_gl_entries, "erc_audited_closing", False):
 		return
