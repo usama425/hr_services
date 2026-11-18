@@ -810,9 +810,14 @@ def generate_invoices(project,due_date,customer,invoice_type,employees,month_nam
 								'po_type': 'Manpower'
 							},
 							pluck='name',
-							order_by='creation asc'
+							# Newest first: a rate change is a new or amended PO, and an
+							# older PO left Active must not supply the rate (ACC-SINV-2026-04319
+							# was billed at a 2024 rate this way).
+							order_by='creation desc'
 						)
-			
+			if not po_mgt_list:
+				frappe.throw(_("No Active Manpower PO Management found for {0} in project {1}").format(emp.get("employee_name") or emp["employee"], project))
+
 			po_mdoc = frappe.get_doc("PO Management", po_mgt_list[0])
 			invoicing_rate = po_mdoc.invoicing_rate
 			emp_working_days = flt(emp.get("working_days"))

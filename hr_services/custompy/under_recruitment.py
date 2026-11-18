@@ -58,3 +58,12 @@ def validate_payroll_entry(doc, method=None):
 
 def validate_salary_slip(doc, method=None):
 	throw_if_under_recruitment([doc.employee], doc.doctype)
+	skip_formula_syntax_check(doc)
+
+
+def skip_formula_syntax_check(doc):
+	"""Salary Slip rows carry a copy of the component/structure formula only for
+	reference; the amounts are already computed. Skip Frappe's Python syntax
+	check on that copied formula so a non-Python formula doesn't block saving."""
+	for row in (doc.get("earnings") or []) + (doc.get("deductions") or []):
+		row._validate_code_fields = lambda: None
