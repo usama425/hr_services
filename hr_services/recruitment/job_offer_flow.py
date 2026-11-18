@@ -131,6 +131,9 @@ def set_defaults(doc):
 	if not doc.get("custom_recruiter"):
 		# Free text; start with the creator's name, HR can type any name.
 		doc.custom_recruiter = frappe.utils.get_fullname(doc.owner or frappe.session.user)
+	elif "@" in doc.custom_recruiter and frappe.db.exists("User", doc.custom_recruiter):
+		# Old offers stored the user's email; amended copies carry it over.
+		doc.custom_recruiter = frappe.utils.get_fullname(doc.custom_recruiter)
 	if not doc.get("custom_hiring_route"):
 		doc.custom_hiring_route = {OVERSEAS: "MOFA", LOCAL: "Sponsorship Transfer", SAUDI: "Saudi Hire"}.get(
 			doc.get("custom_candidate_category")

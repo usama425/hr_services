@@ -1,0 +1,21 @@
+<div class="rsb">
+  <div class="rsb-head">
+    <div class="rsb-title">Recruitment Status Board</div>
+    <div class="rsb-sub">Click any stage to open those Job Offers. The controls filter the board and the list it opens.</div>
+  </div>
+  <div class="rsb-controls">
+    <label>Category
+      <select data-f="category"><option value="">All</option><option>Overseas</option><option>Local</option><option>Saudi</option></select>
+    </label>
+    <label>Recruiter <select data-f="recruiter"><option value="">All</option></select></label>
+    <label>Project <select data-f="project"><option value="">All</option></select></label>
+    <label>Created from <input type="date" data-f="from_date"></label>
+    <label>to <input type="date" data-f="to_date"></label>
+    <label class="rsb-check"><input type="checkbox" data-f="include_old"> Include old offers</label>
+    <button class="btn btn-default btn-xs rsb-reset">Reset</button>
+  </div>
+  <div class="rsb-bar"></div>
+  <div class="rsb-group" data-group="in_progress"><div class="rsb-group-title">In progress <span class="rsb-total"></span></div><div class="rsb-tiles"></div></div>
+  <div class="rsb-group" data-group="finished"><div class="rsb-group-title">Finished <span class="rsb-total"></span></div><div class="rsb-tiles"></div></div>
+  <div class="rsb-group" data-group="old"><div class="rsb-group-title">Old offers (before the new flow) <span class="rsb-total"></span></div><div class="rsb-tiles"></div></div>
+</div>
