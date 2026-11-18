@@ -93,6 +93,9 @@ def validate(doc, method=None):
 		log_latest_update(doc)
 		return
 
+	# The form enforces this too, but its rule is JavaScript and the server can't evaluate it.
+	if not doc.get("custom_candidate_category"):
+		frappe.throw(_("Candidate Category is required."), frappe.MandatoryError, title=_("Missing Fields"))
 	sync_legacy_fields(doc)
 	set_defaults(doc)
 	check_stage_requirements(doc)
