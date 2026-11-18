@@ -123,7 +123,14 @@ def sync_legacy_fields(doc):
 		doc.custom_country = country if country and country != "Saudi Arabia" else None
 
 
+# New offers go to Elite HQ for now.
+DEFAULT_PROJECT, DEFAULT_PROJECT_NAME = "PROJ-0018", "Elite HQ"
+
+
 def set_defaults(doc):
+	if doc.docstatus == 0 and not doc.get("custom_project"):
+		doc.custom_project = DEFAULT_PROJECT
+		doc.custom_project_name = DEFAULT_PROJECT_NAME
 	if not doc.get("custom_recruiter"):
 		# Free text; start with the creator's name, HR can type any name.
 		doc.custom_recruiter = frappe.utils.get_fullname(doc.owner or frappe.session.user)
