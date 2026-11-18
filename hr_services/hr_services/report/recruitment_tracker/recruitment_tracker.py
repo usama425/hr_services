@@ -3,6 +3,8 @@
 
 """Recruitment Tracker: HR's recruitment Excel sheet, live from the system."""
 
+import frappe
+
 from hr_services.recruitment.tracker import build_rows, get_offers, report_columns
 
 
@@ -24,7 +26,11 @@ def execute(filters=None):
 		if filters.get(key):
 			conditions[field] = filters[key]
 	if filters.get("recruiter"):
-		conditions["custom_recruiter"] = ["like", f"%{filters['recruiter']}%"]
+		# Recruiter is free text; older offers hold the user's email, so match names too.
+		text = f"%{filters['recruiter']}%"
+		users = frappe.get_all("User", or_filters={"full_name": ["like", text], "name": ["like", text]}, pluck="name")
+		values = frappe.get_all("Job Offer", filters={"custom_recruiter": ["like", text]}, pluck="custom_recruiter", distinct=True)
+		conditions["custom_recruiter"] = ["in", list(set(values) | set(users)) or [""]]
 	if not filters.get("include_legacy") and not filters.get("stage"):
 		conditions["workflow_state"] = ["not like", "Legacy%"]
 
