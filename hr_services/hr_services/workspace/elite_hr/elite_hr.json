@@ -1,6 +1,6 @@
 {
  "charts": [],
- "content": "[{\"id\":\"7oBmWXjUJv\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Your Shortcuts</b></span>\",\"col\":12}},{\"id\":\"n7NV5VftwL\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"HR Dashboard\",\"col\":3}},{\"id\":\"R4d9orJByH\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Employee Master List\",\"col\":4}},{\"id\":\"fp81SfLg8s\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"Znd8_lhvlw\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Reports &amp; Masters</b></span>\",\"col\":12}},{\"id\":\"syHx0bB3nC\",\"type\":\"card\",\"data\":{\"card_name\":\"ERC Forms\",\"col\":4}},{\"id\":\"8CtLVWVyi6\",\"type\":\"card\",\"data\":{\"card_name\":\"Project Wise Reports\",\"col\":4}},{\"id\":\"rLb0sxn4st\",\"type\":\"card\",\"data\":{\"card_name\":\"Employees Wise Reports\",\"col\":4}},{\"id\":\"saWfkepALY\",\"type\":\"card\",\"data\":{\"card_name\":\"Other Reports\",\"col\":4}},{\"id\":\"c9_kFJw0V-\",\"type\":\"card\",\"data\":{\"card_name\":\"Setup\",\"col\":3}}]",
+ "content": "[{\"id\": \"kPeZ3nlbjv\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Recruitment Dashboard\", \"col\": 3}}, {\"id\": \"7oBmWXjUJv\", \"type\": \"header\", \"data\": {\"text\": \"\\u003cspan class=\\\"h4\\\"\\u003e\\u003cb\\u003eYour Shortcuts\\u003c/b\\u003e\\u003c/span\\u003e\", \"col\": 12}}, {\"id\": \"n7NV5VftwL\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"HR Dashboard\", \"col\": 3}}, {\"id\": \"R4d9orJByH\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Employee Master List\", \"col\": 4}}, {\"id\": \"r6rbyD5WBC\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Total Inactive \", \"col\": 3}}, {\"id\": \"5AGKVzb40Z\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Contractual Active\", \"col\": 3}}, {\"id\": \"dfXucUbbWE\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Contractual Inactive\", \"col\": 4}}, {\"id\": \"QN6Dhuc6QQ\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Full Time Active\", \"col\": 3}}, {\"id\": \"AI0wMhLYZa\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Full Time inactive\", \"col\": 3}}, {\"id\": \"m1We5ekO1Q\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Part Time Active\", \"col\": 3}}, {\"id\": \"o7bmOfgnxd\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Part Time Inactive\", \"col\": 3}}, {\"id\": \"DorNiE4tQb\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Type-less Inactive\", \"col\": 5}}, {\"id\": \"fv0zxz2d9v\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Type-less Active\", \"col\": 3}}, {\"id\": \"fp81SfLg8s\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"Znd8_lhvlw\", \"type\": \"header\", \"data\": {\"text\": \"\\u003cspan class=\\\"h4\\\"\\u003e\\u003cb\\u003eReports &amp; Masters\\u003c/b\\u003e\\u003c/span\\u003e\", \"col\": 12}}, {\"id\": \"syHx0bB3nC\", \"type\": \"card\", \"data\": {\"card_name\": \"ERC Forms\", \"col\": 4}}, {\"id\": \"8CtLVWVyi6\", \"type\": \"card\", \"data\": {\"card_name\": \"Project Wise Reports\", \"col\": 4}}, {\"id\": \"rLb0sxn4st\", \"type\": \"card\", \"data\": {\"card_name\": \"Employees Wise Reports\", \"col\": 4}}, {\"id\": \"saWfkepALY\", \"type\": \"card\", \"data\": {\"card_name\": \"Other Reports\", \"col\": 4}}, {\"id\": \"c9_kFJw0V-\", \"type\": \"card\", \"data\": {\"card_name\": \"Setup\", \"col\": 3}}]",
  "creation": "2024-05-20 13:21:33.933999",
  "custom_blocks": [],
  "docstatus": 0,
@@ -180,7 +180,7 @@
    "type": "Link"
   }
  ],
- "modified": "2024-07-31 15:16:15.370235",
+ "modified": "2026-11-18 10:07:19.309681",
  "modified_by": "Administrator",
  "module": "HR Services",
  "name": "Elite HR",
@@ -210,13 +210,96 @@
    "type": "DocType"
   },
   {
+   "color": "Red",
+   "doc_view": "List",
+   "label": "Full Time inactive",
+   "link_to": "Employee",
+   "stats_filter": "{\"employment_type\":[\"=\",\"Full-time\"],\"status\":[\"=\",\"Inactive\"]}",
+   "type": "DocType"
+  },
+  {
+   "color": "Red",
+   "doc_view": "List",
+   "label": "Type-less Inactive",
+   "link_to": "Employee",
+   "stats_filter": "{\"status\":[\"=\",\"Inactive\"],\"employment_type\":[\"=\",\"\"]}",
+   "type": "DocType"
+  },
+  {
+   "color": "Green",
+   "doc_view": "List",
+   "label": "Full Time Active",
+   "link_to": "Employee",
+   "stats_filter": "{\"status\":[\"=\",\"Active\"],\"employment_type\":[\"=\",\"Full-time\"]}",
+   "type": "DocType"
+  },
+  {
+   "color": "Green",
+   "doc_view": "List",
+   "label": "Type-less Active",
+   "link_to": "Employee",
+   "stats_filter": "{\"status\":[\"=\",\"Active\"],\"employment_type\":[\"=\",\"\"]}",
+   "type": "DocType"
+  },
+  {
+   "color": "Red",
+   "doc_view": "List",
+   "format": "{} Inactive",
+   "label": "Contractual Inactive",
+   "link_to": "Employee",
+   "stats_filter": "{\"status\":[\"=\",\"Inactive\"],\"employment_type\":[\"=\",\"Contract\"]}",
+   "type": "DocType"
+  },
+  {
+   "color": "Red",
+   "doc_view": "List",
+   "format": "{} Inactive",
+   "label": "Total Inactive ",
+   "link_to": "Employee",
+   "stats_filter": "{\"status\":[\"=\",\"Inactive\"]}",
+   "type": "DocType"
+  },
+  {
+   "color": "Green",
+   "doc_view": "List",
+   "label": "Contractual Active",
+   "link_to": "Employee",
+   "stats_filter": "{\"employment_type\":[\"=\",\"Contract\"],\"status\":[\"=\",\"Active\"]}",
+   "type": "DocType"
+  },
+  {
+   "color": "Green",
+   "doc_view": "List",
+   "label": "Part Time Active",
+   "link_to": "Employee",
+   "stats_filter": "{\"employment_type\":[\"=\",\"Part-time\"],\"status\":[\"=\",\"Active\"]}",
+   "type": "DocType"
+  },
+  {
    "doc_view": "",
    "format": "{} Open",
    "label": "HR Dashboard",
    "link_to": "Human Resource",
    "stats_filter": "{\n    \"status\": \"Open\"\n}",
    "type": "Dashboard"
+  },
+  {
+   "color": "Red",
+   "doc_view": "List",
+   "label": "Part Time Inactive",
+   "link_to": "Employee",
+   "stats_filter": "{\"employment_type\":[\"=\",\"Part-time\"],\"status\":[\"=\",\"Inactive\"]}",
+   "type": "DocType"
+  },
+  {
+   "color": "Blue",
+   "doc_view": "",
+   "label": "Recruitment Dashboard",
+   "type": "URL",
+   "url": "/desk/recruitment-dashboard"
   }
  ],
- "title": "Elite HR"
+ "standard": 1,
+ "title": "Elite HR",
+ "type": "Workspace"
 }

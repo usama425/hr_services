@@ -203,7 +203,8 @@ doc_events = {
     "Job Offer": {
         "validate": "hr_services.recruitment.job_offer_flow.validate",
         "before_update_after_submit": "hr_services.recruitment.job_offer_flow.validate",
-        "on_change": "hr_services.recruitment.job_offer_flow.on_change"
+        "on_change": "hr_services.recruitment.job_offer_flow.on_change",
+        "on_cancel": "hr_services.recruitment.job_offer_flow.on_cancel"
     },
     "Journal Entry": {
         "on_update_after_submit": "hr_services.custompy.journal_entry.repost_if_references_changed"

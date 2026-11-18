@@ -1,6 +1,6 @@
 {
  "charts": [],
- "content": "[{\"id\":\"TrRgFLeATn\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Dashboard\",\"col\":3}},{\"id\":\"o7HUxtuiAQ\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Employee Master List\",\"col\":4}},{\"id\":\"BSfCSxeOZN\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"ouzRaGAJJl\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Masters &amp; Reports</b></span>\",\"col\":12}},{\"id\":\"0akZyj1E4k\",\"type\":\"card\",\"data\":{\"card_name\":\"Jobs\",\"col\":4}},{\"id\":\"Q4msp7F8vF\",\"type\":\"card\",\"data\":{\"card_name\":\"Reports\",\"col\":4}},{\"id\":\"yRajwfh0bN\",\"type\":\"card\",\"data\":{\"card_name\":\"Setup\",\"col\":4}}]",
+ "content": "[{\"id\": \"8NK0YSqzFb\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Recruitment Dashboard\", \"col\": 3}}, {\"id\": \"TrRgFLeATn\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Dashboard\", \"col\": 3}}, {\"id\": \"o7HUxtuiAQ\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Employee Master List\", \"col\": 4}}, {\"id\": \"BSfCSxeOZN\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"ouzRaGAJJl\", \"type\": \"header\", \"data\": {\"text\": \"\\u003cspan class=\\\"h4\\\"\\u003e\\u003cb\\u003eMasters &amp; Reports\\u003c/b\\u003e\\u003c/span\\u003e\", \"col\": 12}}, {\"id\": \"0akZyj1E4k\", \"type\": \"card\", \"data\": {\"card_name\": \"Jobs\", \"col\": 4}}, {\"id\": \"Q4msp7F8vF\", \"type\": \"card\", \"data\": {\"card_name\": \"Reports\", \"col\": 4}}, {\"id\": \"yRajwfh0bN\", \"type\": \"card\", \"data\": {\"card_name\": \"Setup\", \"col\": 4}}]",
  "creation": "2024-04-25 11:11:46.004914",
  "custom_blocks": [],
  "docstatus": 0,
@@ -180,7 +180,7 @@
    "type": "Link"
   }
  ],
- "modified": "2024-10-08 09:54:16.560169",
+ "modified": "2026-11-18 10:07:19.374395",
  "modified_by": "Administrator",
  "module": "HR Services",
  "name": "Elite Recruitment",
@@ -217,7 +217,16 @@
    "link_to": "Employee",
    "stats_filter": "[[\"Employee\",\"status\",\"=\",\"Active\",false]]",
    "type": "DocType"
+  },
+  {
+   "color": "Blue",
+   "doc_view": "",
+   "label": "Recruitment Dashboard",
+   "type": "URL",
+   "url": "/desk/recruitment-dashboard"
   }
  ],
- "title": "Elite Recruitment"
+ "standard": 1,
+ "title": "Elite Recruitment",
+ "type": "Workspace"
 }

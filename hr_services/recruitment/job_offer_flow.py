@@ -90,6 +90,10 @@ def _required_fields(doc):
 def validate(doc, method=None):
 	"""Runs on draft saves (validate) and on submitted saves (before_update_after_submit)."""
 	if is_legacy(doc.get(WORKFLOW_FIELD)):
+		check_new_request(doc)
+		if cint(doc.get(NEW_REQUEST_FIELD)):
+			sync_legacy_fields(doc)
+			set_defaults(doc)
 		log_latest_update(doc)
 		return
 
@@ -175,9 +179,54 @@ def log_latest_update(doc):
 
 
 def on_change(doc, method=None):
+	if doc.docstatus < 2 and is_legacy(doc.get(WORKFLOW_FIELD)) and cint(doc.get(NEW_REQUEST_FIELD)):
+		# HR ticked "New Request" on an old offer: it joins the new flow at the stage it has reached.
+		_set_offer_state(doc.name, _entry_state(doc), _("Moved into the new recruitment flow"))
+		return
+
 	from hr_services.recruitment.excel_sync import enqueue_offer_sync
 
 	enqueue_offer_sync(doc.name)
+
+
+NEW_REQUEST_FIELD = "custom_new_request"
+
+
+def on_cancel(doc, method=None):
+	"""Frappe's own Cancel doesn't move the workflow stage; keep it in step."""
+	state = doc.get(WORKFLOW_FIELD)
+	if state in ("Legacy Cancelled", "Withdrawn"):
+		return
+	if is_legacy(state):
+		doc.db_set(WORKFLOW_FIELD, "Legacy Cancelled", update_modified=False)
+	else:
+		doc.set(WORKFLOW_FIELD, "Withdrawn")
+		_set_offer_state(doc.name, "Withdrawn", _("Job Offer cancelled"))
+
+
+def check_new_request(doc):
+	"""Old offer with "New Request" ticked: make sure it can join the new flow."""
+	if not cint(doc.get(NEW_REQUEST_FIELD)):
+		return
+	if doc.get(WORKFLOW_FIELD) == "Legacy Cancelled":
+		frappe.throw(_("A cancelled offer can't be moved into the new flow."), title=_("New Request"))
+	if not doc.get("custom_candidate_category"):
+		frappe.throw(
+			_("Select the Candidate Category before ticking New Request."), frappe.MandatoryError, title=_("New Request")
+		)
+
+
+def _entry_state(doc):
+	"""Where an old offer starts in the new flow."""
+	if doc.docstatus == 0:
+		return "New Request"
+	if doc.get("custom_employee") or frappe.db.exists("Employee", {"job_offer": doc.name}):
+		return EMPLOYEE_CREATED
+	if doc.status == "Rejected":
+		return "Rejected by Candidate"
+	if doc.status == "Accepted" or doc.get("custom_signed_job_offer"):
+		return OFFER_SIGNED
+	return "Pending Candidate Signature"
 
 
 # --------------------------------------------------------------------------- Contract hooks
