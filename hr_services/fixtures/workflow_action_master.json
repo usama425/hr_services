@@ -208,12 +208,5 @@
   "modified": "2026-02-20 09:40:06.867583",
   "name": "Converted to Application",
   "workflow_action_name": "Converted to Application"
- },
- {
-  "docstatus": 0,
-  "doctype": "Workflow Action Master",
-  "modified": "2023-07-28 02:05:22.501108",
-  "name": "Create Employee",
-  "workflow_action_name": "Create Employee"
  }
 ]

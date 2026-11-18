@@ -233,17 +233,22 @@ function convert_into_hijri(frm){
 // Recruitment flow (workflow "Job Offer Recruitment"): the stage buttons come from the
 // workflow; these add the contract / employee shortcuts at the right stages.
 function add_recruitment_buttons(frm) {
-	// The employee comes from the workflow's "Create Employee" action (Actions menu)
-	// at Visa Issued / Transfer Completed, not from ERPNext's own button.
+	// The employee is created automatically when the contract is signed.
 	frm.remove_custom_button(__('Create Employee'));
+	const ready_for_contract = ['Visa Issued', 'Transfer Completed'].includes(frm.doc.workflow_state);
+	if (ready_for_contract && frm.doc.docstatus === 1) {
+		frm.add_custom_button(__('Create Contract'), function () {
+			erpnext.job_offer.make_contract(frm);
+		}).addClass('btn-primary');
+	}
 	if (frm.doc.custom_employee) {
 		frm.add_custom_button(__('Show Employee'), function () {
 			frappe.set_route("Form", "Employee", frm.doc.custom_employee);
 		});
 	}
-	if (['Visa Issued', 'Transfer Completed'].includes(frm.doc.workflow_state) && !frm.doc.custom_employee) {
+	if (frm.doc.workflow_state == 'Contract Sent') {
 		frm.dashboard.set_headline(
-			__('Ready: use Actions → Create Employee to create the employee (status Under Recruitment).')
+			__('Waiting for the contract to be signed. Tick "Is Signed" on the contract and attach the signed copy; the employee is then created automatically (Under Recruitment).')
 		);
 	}
 }

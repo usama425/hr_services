@@ -227,8 +227,14 @@ doc_events = {
         "before_insert": "hr_services.custompy.purchase_invoice.check_inv"
     },
     "Contract": {
-        "before_insert": "hr_services.custompy.contract.check_job_offer",
-        "on_update": "hr_services.custompy.contract.validate_after_save"
+        "before_insert": [
+            "hr_services.custompy.contract.check_job_offer",
+            "hr_services.recruitment.job_offer_flow.contract_before_insert"
+        ],
+        "on_update": "hr_services.custompy.contract.validate_after_save",
+        # Submitted -> offer "Contract Sent"; marked signed -> Under Recruitment employee.
+        "on_submit": "hr_services.recruitment.job_offer_flow.contract_on_submit",
+        "on_update_after_submit": "hr_services.recruitment.job_offer_flow.contract_on_update_after_submit"
     },
     "Payroll Entry": {
         # NOTE: do NOT hook on_submit to create salary slips — the HRMS core
