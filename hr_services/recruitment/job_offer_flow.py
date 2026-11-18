@@ -423,3 +423,31 @@ def relax_mandatory_while_under_recruitment(doc, method=None):
 	"""Employee validate: personal details are optional until the employee is activated."""
 	if doc.status == UNDER_RECRUITMENT:
 		doc.flags.ignore_mandatory = True
+
+
+# Documents an employee needs before HR can activate them (Under Recruitment -> Active).
+ACTIVATION_DOCUMENTS = (
+	("iban", "IBAN"),
+	("custom_iban_certificate", "IBAN Certificate"),
+	("custom_certificate_diploma", "Certificate / Diploma"),
+	("custom_passport", "Passport"),
+	("custom_cv", "CV/Resume"),
+	("custom_jo", "Job Offer"),
+)
+
+
+def require_documents_to_activate(doc, method=None):
+	"""Employee validate: activating an employee (from Under Recruitment, or creating one
+	as Active) needs the documents above. Existing active employees are not re-checked."""
+	if doc.status != "Active":
+		return
+	before = None if doc.is_new() else doc.get_doc_before_save()
+	if before and before.status != UNDER_RECRUITMENT:
+		return
+	missing = [_(label) for field, label in ACTIVATION_DOCUMENTS if not doc.get(field)]
+	if missing:
+		frappe.throw(
+			_("Before activating this employee, add:") + "<br>• " + "<br>• ".join(missing),
+			frappe.MandatoryError,
+			title=_("Documents missing"),
+		)

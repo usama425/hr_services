@@ -198,7 +198,11 @@ doc_events = {
         "on_update": "hr_services.custompy.employee.update_salary",
         "before_insert": "hr_services.custompy.employee.check_id",
         # Personal details become required only once the employee leaves Under Recruitment.
-        "validate": "hr_services.recruitment.job_offer_flow.relax_mandatory_while_under_recruitment"
+        "validate": [
+            "hr_services.recruitment.job_offer_flow.relax_mandatory_while_under_recruitment",
+            # IBAN, IBAN Certificate, Certificate/Diploma, Passport, CV and Job Offer to activate.
+            "hr_services.recruitment.job_offer_flow.require_documents_to_activate",
+        ]
     },
     # Recruitment flow (workflow "Job Offer Recruitment"): stage checks, update log,
     # and the recruitment Excel sheet sync.

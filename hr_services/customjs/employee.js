@@ -219,7 +219,35 @@ function toggle_under_recruitment_reqd(frm) {
 	});
 }
 
+// Needed to activate an employee (Under Recruitment -> Active); checked on the server too.
+const ACTIVATION_DOCUMENTS = {
+	iban: 'IBAN', custom_iban_certificate: 'IBAN Certificate', custom_certificate_diploma: 'Certificate / Diploma',
+	custom_passport: 'Passport', custom_cv: 'CV/Resume', custom_jo: 'Job Offer',
+};
+
+function toggle_activation_documents(frm) {
+	const activating = frm.doc.status === 'Active' && (frm.is_new() || frm._loaded_status === 'Under Recruitment');
+	Object.keys(ACTIVATION_DOCUMENTS).forEach((f) => {
+		const base = (frm.meta.fields.find((df) => df.fieldname === f) || {}).reqd;
+		if (activating) frm.toggle_reqd(f, true);
+		else if (!base) frm.toggle_reqd(f, false);
+	});
+	if (frm.doc.status === 'Under Recruitment' && !frm.is_new()) {
+		const missing = Object.entries(ACTIVATION_DOCUMENTS).filter(([f]) => !frm.doc[f]).map(([, l]) => __(l));
+		frm.dashboard.set_headline(missing.length
+			? __('To activate this employee, add: {0}', [missing.join(', ')])
+			: __('All documents are in. Change the status to Active to activate this employee.'));
+	}
+}
+
 frappe.ui.form.on('Employee', {
-	refresh: toggle_under_recruitment_reqd,
-	status: toggle_under_recruitment_reqd,
+	refresh(frm) {
+		frm._loaded_status = frm.doc.status;
+		toggle_under_recruitment_reqd(frm);
+		toggle_activation_documents(frm);
+	},
+	status(frm) {
+		toggle_under_recruitment_reqd(frm);
+		toggle_activation_documents(frm);
+	},
 });
