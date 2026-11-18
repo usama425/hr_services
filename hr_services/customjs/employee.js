@@ -220,20 +220,30 @@ function toggle_under_recruitment_reqd(frm) {
 }
 
 // Needed to activate an employee (Under Recruitment -> Active); checked on the server too.
-const ACTIVATION_DOCUMENTS = {
+const BASE_ACTIVATION_DOCUMENTS = {
 	iban: 'IBAN', custom_iban_certificate: 'IBAN Certificate', custom_certificate_diploma: 'Certificate / Diploma',
-	custom_passport: 'Passport', custom_cv: 'CV/Resume', custom_jo: 'Job Offer',
+	custom_cv: 'CV/Resume', custom_jo: 'Job Offer',
 };
+// Saudis give their National ID instead of a passport.
+const ID_DOCUMENTS = { custom_passport: 'Passport', iqama_national_id: 'National ID Number', custom_muqeem_pdf: 'National ID Copy (Muqeem / ID)' };
+
+function activation_documents(frm) {
+	const saudi = frm.doc.nationality === 'Saudi Arabia';
+	return Object.assign({}, BASE_ACTIVATION_DOCUMENTS, saudi
+		? { iqama_national_id: ID_DOCUMENTS.iqama_national_id, custom_muqeem_pdf: ID_DOCUMENTS.custom_muqeem_pdf }
+		: { custom_passport: ID_DOCUMENTS.custom_passport });
+}
 
 function toggle_activation_documents(frm) {
 	const activating = frm.doc.status === 'Active' && (frm.is_new() || frm._loaded_status === 'Under Recruitment');
-	Object.keys(ACTIVATION_DOCUMENTS).forEach((f) => {
+	const docs = activation_documents(frm);
+	Object.keys(Object.assign({}, BASE_ACTIVATION_DOCUMENTS, ID_DOCUMENTS)).forEach((f) => {
 		const base = (frm.meta.fields.find((df) => df.fieldname === f) || {}).reqd;
-		if (activating) frm.toggle_reqd(f, true);
+		if (activating && docs[f]) frm.toggle_reqd(f, true);
 		else if (!base) frm.toggle_reqd(f, false);
 	});
 	if (frm.doc.status === 'Under Recruitment' && !frm.is_new()) {
-		const missing = Object.entries(ACTIVATION_DOCUMENTS).filter(([f]) => !frm.doc[f]).map(([, l]) => __(l));
+		const missing = Object.entries(docs).filter(([f]) => !frm.doc[f]).map(([, l]) => __(l));
 		frm.dashboard.set_headline(missing.length
 			? __('To activate this employee, add: {0}', [missing.join(', ')])
 			: __('All documents are in. Change the status to Active to activate this employee.'));
@@ -250,4 +260,5 @@ frappe.ui.form.on('Employee', {
 		toggle_under_recruitment_reqd(frm);
 		toggle_activation_documents(frm);
 	},
+	nationality: toggle_activation_documents,
 });

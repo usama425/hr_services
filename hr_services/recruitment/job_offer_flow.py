@@ -425,15 +425,23 @@ def relax_mandatory_while_under_recruitment(doc, method=None):
 		doc.flags.ignore_mandatory = True
 
 
-# Documents an employee needs before HR can activate them (Under Recruitment -> Active).
+# Documents an employee needs before HR can activate them (Under Recruitment -> Active),
+# plus Passport (non-Saudi) or National ID (Saudi).
 ACTIVATION_DOCUMENTS = (
 	("iban", "IBAN"),
 	("custom_iban_certificate", "IBAN Certificate"),
 	("custom_certificate_diploma", "Certificate / Diploma"),
-	("custom_passport", "Passport"),
 	("custom_cv", "CV/Resume"),
 	("custom_jo", "Job Offer"),
 )
+
+
+# Saudis give their National ID instead of a passport.
+SAUDI_RESIDENT = "Resident(Have ID/Iqama No)"
+SAUDI_ID_DOCUMENTS = [
+	("iqama_national_id", "National ID Number"),
+	("custom_muqeem_pdf", "National ID Copy (Muqeem / ID)"),
+]
 
 
 def require_documents_to_activate(doc, method=None):
@@ -444,7 +452,10 @@ def require_documents_to_activate(doc, method=None):
 	before = None if doc.is_new() else doc.get_doc_before_save()
 	if before and before.status != UNDER_RECRUITMENT:
 		return
-	missing = [_(label) for field, label in ACTIVATION_DOCUMENTS if not doc.get(field)]
+	required = list(ACTIVATION_DOCUMENTS) + (SAUDI_ID_DOCUMENTS if doc.nationality == "Saudi Arabia" else [("custom_passport", "Passport")])
+	missing = [_(label) for field, label in required if not doc.get(field)]
+	if doc.nationality == "Saudi Arabia" and not doc.get("custom_muqeem_pdf") and doc.get("custom_residence_type") != SAUDI_RESIDENT:
+		missing.append(_("(set Residence Type to {0} to show the ID copy field)").format(SAUDI_RESIDENT))
 	if missing:
 		frappe.throw(
 			_("Before activating this employee, add:") + "<br>• " + "<br>• ".join(missing),
