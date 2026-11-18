@@ -46,6 +46,30 @@ frappe.ui.form.on('Contract',{
     custom_posting_date(frm){
         convert_into_hijri(frm);
     },
+    // Picking the Job Offer fills the contract from it (candidate, project, customer,
+    // visa, ID and salary). Everything stays editable afterwards.
+    custom_job_offer(frm){
+        if (!frm.doc.custom_job_offer || frm.doc.docstatus !== 0) return;
+        frappe.call({
+            method: "hr_services.custompy.job_offer.contract_values_from_offer",
+            args: { job_offer: frm.doc.custom_job_offer },
+            freeze: true,
+            callback: async (r) => {
+                const values = r.message || {};
+                const salary = values.salary_detail || [];
+                delete values.salary_detail;
+                // party_type first, so party_name links to the right doctype
+                if (values.party_type) await frm.set_value("party_type", values.party_type);
+                delete values.party_type;
+                await frm.set_value(values);
+                if (salary.length) {
+                    frm.clear_table("salary_detail");
+                    salary.forEach((row) => frm.add_child("salary_detail", row));
+                    frm.refresh_field("salary_detail");
+                }
+            },
+        });
+    },
     is_signed(frm){
         if(frm.doc.is_signed == 1){
             frm.set_value("custom_status", "Signed");

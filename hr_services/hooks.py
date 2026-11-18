@@ -180,6 +180,7 @@ permission_query_conditions = {
 override_doctype_class = {
     "Employee": "hr_services.overrides.employee_master.CustomEmployeeMaster",
     "Payroll Entry": "hr_services.overrides.payroll_entry.CustomPayrollEntry",
+    "Contract": "hr_services.overrides.contract.CustomContract",
 }
 
 # Document Events

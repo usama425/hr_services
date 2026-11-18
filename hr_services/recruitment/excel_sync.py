@@ -24,6 +24,7 @@ from hr_services.teams_excel_notify.tasks import graph_client
 
 SETTINGS = "Recruitment Tracker Settings"
 CHUNK = 100
+DATE_FORMAT = "[$-en-US]d/mmm/yy;@"  # exactly as the sheet's "Offer Sign DT" column (English months)
 
 
 def _settings():
@@ -190,13 +191,16 @@ class Sheet:
 				return
 
 	def write_row(self, row):
-		cells = {}
-		for header, fieldname, *_ in COLUMNS:
+		cells, date_cols = {}, set()
+		for header, fieldname, ftype, *_ in COLUMNS:
 			col = self.col_of.get(_norm(header))
 			if col is not None:
 				cells[col] = excel_value(row.get(fieldname))
+				if ftype == "Date":
+					date_cols.add(col)
 		if not cells:
 			return
+		first, last = min(cells), max(cells)
 		row_no = self.row_of.get(row["job_offer"])
 		if not row_no:
 			self.last_row += 1
@@ -206,10 +210,17 @@ class Sheet:
 				self._call("POST", f"{self.base}/tables('{quote(self.table)}')/rows/add", json={"values": values})
 				self.table_end += 1
 				self.last_row = self.table_end
-				self.row_of[row["job_offer"]] = self.last_row
-				return
-			row_no = self.row_of[row["job_offer"]] = self.last_row
-		first, last = min(cells), max(cells)
-		values = [[cells.get(c) for c in range(first, last + 1)]]  # None = leave the cell as it is
+				row_no = self.row_of[row["job_offer"]] = self.last_row
+			else:
+				row_no = self.row_of[row["job_offer"]] = self.last_row
+				self._patch_row(row_no, first, last, values=[[cells.get(c) for c in range(first, last + 1)]])
+		else:
+			self._patch_row(row_no, first, last, values=[[cells.get(c) for c in range(first, last + 1)]])
+		# Dates are written as Excel serial numbers; show them as dates like the sheet's own.
+		for col in date_cols:
+			self._patch_row(row_no, col, col, numberFormat=[[DATE_FORMAT]])
+
+	def _patch_row(self, row_no, first, last, **body):
+		# None in "values" = leave that cell as it is
 		address = f"{_col_letter(first)}{row_no}:{_col_letter(last)}{row_no}"
-		self._call("PATCH", f"{self.base}/range(address='{address}')", json={"values": values})
+		self._call("PATCH", f"{self.base}/range(address='{address}')", json=body)
