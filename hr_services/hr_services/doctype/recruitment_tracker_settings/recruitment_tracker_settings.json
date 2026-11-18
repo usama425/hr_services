@@ -1,0 +1,133 @@
+{
+ "actions": [],
+ "creation": "2026-11-17 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "enabled",
+  "column_break_1",
+  "last_synced_on",
+  "last_error",
+  "workbook_section",
+  "workbook_link",
+  "worksheet_name",
+  "header_row",
+  "file_name",
+  "drive_id",
+  "item_id",
+  "help_section",
+  "help_html"
+ ],
+ "fields": [
+  {
+   "default": "0",
+   "description": "Update the recruitment Excel sheet in Microsoft 365 whenever a new Job Offer changes. Old offers (Legacy) and their rows in the sheet are never touched. Uses the Microsoft app set up in Teams Notify Settings.",
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Enabled"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "last_synced_on",
+   "fieldtype": "Datetime",
+   "label": "Last Synced On",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_error",
+   "fieldtype": "Small Text",
+   "label": "Last Error",
+   "read_only": 1
+  },
+  {
+   "fieldname": "workbook_section",
+   "fieldtype": "Section Break",
+   "label": "Excel File"
+  },
+  {
+   "description": "Link to the recruitment Excel file in SharePoint / OneDrive / Teams.",
+   "fieldname": "workbook_link",
+   "fieldtype": "Small Text",
+   "label": "Workbook Link",
+   "mandatory_depends_on": "enabled"
+  },
+  {
+   "default": "Sheet1",
+   "fieldname": "worksheet_name",
+   "fieldtype": "Data",
+   "label": "Worksheet Name",
+   "mandatory_depends_on": "enabled"
+  },
+  {
+   "default": "1",
+   "description": "Row that holds the column headers.",
+   "fieldname": "header_row",
+   "fieldtype": "Int",
+   "label": "Header Row",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "file_name",
+   "fieldtype": "Data",
+   "label": "Connected File",
+   "read_only": 1
+  },
+  {
+   "fieldname": "drive_id",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Drive ID",
+   "read_only": 1
+  },
+  {
+   "fieldname": "item_id",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Item ID",
+   "read_only": 1
+  },
+  {
+   "fieldname": "help_section",
+   "fieldtype": "Section Break",
+   "label": "How it works",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "help_html",
+   "fieldtype": "HTML",
+   "options": "<p>Each Job Offer is one row, found by the <b>Job Offer</b> column (add that column to the sheet). Columns are matched by their header text, so their order in the sheet does not matter; columns the system doesn't know are left untouched. New offers are added below the last row.</p><p>The system is the source: edits made by hand in these columns will be overwritten the next time the offer changes.</p>"
+  }
+ ],
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-11-18 10:30:00.000000",
+ "modified_by": "Administrator",
+ "module": "HR Services",
+ "name": "Recruitment Tracker Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "read": 1,
+   "role": "HR Manager",
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

@@ -117,6 +117,12 @@ def _set_baseline(state, snapshot: dict, ctag: str, now) -> None:
 	state.session_editors = None
 
 
+def _saved_by_app(item: dict) -> bool:
+	"""True when the last save came from an application (Graph API) rather than a user."""
+	modified_by = item.get("lastModifiedBy") or {}
+	return bool(modified_by.get("application")) and not modified_by.get("user")
+
+
 def _is_due(state, settings, now) -> bool:
 	quiet = max(1, cint(settings.quiet_minutes) or 5) * 60
 	longest = max(quiet, (cint(settings.max_wait_minutes) or 30) * 60)
@@ -181,6 +187,13 @@ def process_watch(name: str, settings, force_send: bool = False, client: GraphCl
 				item.get("name")
 			),
 		)
+	elif ctag != state.last_ctag and _saved_by_app(item) and not state.session_data:
+		# Saved by an application (the ERP's own Recruitment Tracker sync), not a person:
+		# take the new content as the starting point without posting to Teams.
+		snapshot = read_snapshot(client, watch, settings, item)
+		_set_baseline(state, snapshot, ctag, now)
+		state.last_ctag = ctag
+		result.update(outcome="system", message=_("The file was updated by the system; nothing was sent."))
 	elif ctag != state.last_ctag:
 		snapshot = read_snapshot(client, watch, settings, item)
 		baseline = unpack(state.baseline_data)

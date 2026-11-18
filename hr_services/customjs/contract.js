@@ -40,12 +40,7 @@ frappe.ui.form.on('Contract',{
             }).addClass('btn-primary');
         }
         if(frm.doc.is_signed == 1 && frm.doc.docstatus == 1){
-            frm.add_custom_button(__('Create Employee'), function(){
-                frappe.model.open_mapped_doc({
-                    method: "hr_services.custompy.contract.make_employee",
-                    frm: frm
-                });
-            }).addClass('btn-primary');
+            add_employee_button(frm);
         }
     },
     custom_posting_date(frm){
@@ -108,6 +103,26 @@ function convert_into_hijri(frm){
             if(r.message){
                 frm.set_value("custom_date_in_hijri",r.message);
             }
+        }
+    });
+}
+// Offers in the recruitment workflow get their employee created automatically when the
+// contract is signed, so only old (Legacy) offers keep the manual Create Employee button.
+function add_employee_button(frm) {
+    const offer = frm.doc.custom_job_offer;
+    const manual = () => frm.add_custom_button(__('Create Employee'), function(){
+        frappe.model.open_mapped_doc({
+            method: "hr_services.custompy.contract.make_employee",
+            frm: frm
+        });
+    }).addClass('btn-primary');
+    if (!offer) return manual();
+    frappe.db.get_value('Job Offer', offer, ['workflow_state', 'custom_employee']).then((r) => {
+        const o = r.message || {};
+        if (o.custom_employee) {
+            frm.add_custom_button(__('Show Employee'), () => frappe.set_route('Form', 'Employee', o.custom_employee));
+        } else if (!o.workflow_state || o.workflow_state.startsWith('Legacy')) {
+            manual();
         }
     });
 }

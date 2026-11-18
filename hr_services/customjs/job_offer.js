@@ -28,7 +28,11 @@ frappe.ui.form.on('Job Offer', {
 		}
 	},
 	refresh: function (frm) {
-		if ((!frm.doc.__islocal) && (frm.doc.status == 'Accepted') && (frm.doc.docstatus === 1) && (!frm.doc.__onload || !frm.doc.__onload.employee)) {
+		const in_flow = frm.doc.workflow_state && !frm.doc.workflow_state.startsWith('Legacy');
+		if (in_flow) {
+			add_recruitment_buttons(frm);
+		}
+		if (!in_flow && (!frm.doc.__islocal) && (frm.doc.status == 'Accepted') && (frm.doc.docstatus === 1) && (!frm.doc.__onload || !frm.doc.__onload.employee)) {
 			if(frm.doc.custom_nationality == "Saudi"){
 				if((frm.doc.custom_qiwa_status == 'Accepted by Candidate' || frm.doc.custom_qiwa_status == 'Accepted by His/Her Sponsor') 
 					&& (frm.doc.custom_gosi_status == 'Accepted')){
@@ -50,7 +54,7 @@ frappe.ui.form.on('Job Offer', {
 				}
 			}
 		}
-		if ((!frm.doc.__islocal) && (frm.doc.status == 'Accepted') && (frm.doc.custom_job_title_on_visa)
+		if (!in_flow && (!frm.doc.__islocal) && (frm.doc.status == 'Accepted') && (frm.doc.custom_job_title_on_visa)
 			&& (frm.doc.docstatus === 1) && (!frm.doc.__onload || !frm.doc.__onload.employee)) {
 			frm.add_custom_button(__('Create Contract'),
 				function () {
@@ -82,6 +86,27 @@ frappe.ui.form.on('Job Offer', {
 			}
 		}
 
+	},
+	custom_candidate_category: function(frm) {
+		// Applicant Type / Nationality are derived from this on save; set Country now.
+		if (frm.doc.custom_candidate_category == 'Saudi') {
+			frm.set_value("custom_country", "Saudi Arabia");
+		} else if (frm.doc.custom_candidate_category && frm.doc.job_applicant
+			&& (!frm.doc.custom_country || frm.doc.custom_country == "Saudi Arabia")) {
+			frappe.db.get_value('Job Applicant', frm.doc.job_applicant, 'custom_nationality').then((r) => {
+				const country = r.message && r.message.custom_nationality;
+				frm.set_value("custom_country", country && country != "Saudi Arabia" ? country : "");
+			});
+		}
+	},
+	custom_recruitment_agency: function(frm) {
+		if (!frm.doc.custom_recruitment_agency) return;
+		frappe.db.get_value('Supplier', frm.doc.custom_recruitment_agency, ['email_id', 'mobile_no', 'country']).then((r) => {
+			const s = r.message || {};
+			if (s.email_id) frm.set_value("custom_agency_email", s.email_id);
+			if (s.mobile_no) frm.set_value("custom_agency_contact_no", s.mobile_no);
+			if (s.country && !frm.doc.custom_agency_country) frm.set_value("custom_agency_country", s.country);
+		});
 	},
 	custom_nationality: function(frm) {
 		if(frm.doc.custom_nationality == 'Saudi'){
@@ -204,4 +229,26 @@ function convert_into_hijri(frm){
             }
         }
     });
+}
+// Recruitment flow (workflow "Job Offer Recruitment"): the stage buttons come from the
+// workflow; these add the contract / employee shortcuts at the right stages.
+function add_recruitment_buttons(frm) {
+	// The employee is created automatically when the contract is signed.
+	frm.remove_custom_button(__('Create Employee'));
+	const ready_for_contract = ['Visa Issued', 'Transfer Completed'].includes(frm.doc.workflow_state);
+	if (ready_for_contract && frm.doc.docstatus === 1) {
+		frm.add_custom_button(__('Create Contract'), function () {
+			erpnext.job_offer.make_contract(frm);
+		}).addClass('btn-primary');
+	}
+	if (frm.doc.custom_employee) {
+		frm.add_custom_button(__('Show Employee'), function () {
+			frappe.set_route("Form", "Employee", frm.doc.custom_employee);
+		});
+	}
+	if (frm.doc.workflow_state == 'Contract Sent') {
+		frm.dashboard.set_headline(
+			__('Waiting for the contract to be signed. Tick "Is Signed" on the contract and attach the signed copy; the employee is then created automatically (Under Recruitment).')
+		);
+	}
 }

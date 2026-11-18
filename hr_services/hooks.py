@@ -194,7 +194,16 @@ doc_events = {
 	# }
     "Employee": {
         "on_update": "hr_services.custompy.employee.update_salary",
-        "before_insert": "hr_services.custompy.employee.check_id"
+        "before_insert": "hr_services.custompy.employee.check_id",
+        # Personal details become required only once the employee leaves Under Recruitment.
+        "validate": "hr_services.recruitment.job_offer_flow.relax_mandatory_while_under_recruitment"
+    },
+    # Recruitment flow (workflow "Job Offer Recruitment"): stage checks, update log,
+    # and the recruitment Excel sheet sync.
+    "Job Offer": {
+        "validate": "hr_services.recruitment.job_offer_flow.validate",
+        "before_update_after_submit": "hr_services.recruitment.job_offer_flow.validate",
+        "on_change": "hr_services.recruitment.job_offer_flow.on_change"
     },
     "Journal Entry": {
         "on_update_after_submit": "hr_services.custompy.journal_entry.repost_if_references_changed"
@@ -216,8 +225,14 @@ doc_events = {
         "before_insert": "hr_services.custompy.purchase_invoice.check_inv"
     },
     "Contract": {
-        "before_insert": "hr_services.custompy.contract.check_job_offer",
-        "on_update": "hr_services.custompy.contract.validate_after_save"
+        "before_insert": [
+            "hr_services.custompy.contract.check_job_offer",
+            "hr_services.recruitment.job_offer_flow.contract_before_insert"
+        ],
+        "on_update": "hr_services.custompy.contract.validate_after_save",
+        # Submitted -> offer "Contract Sent"; marked signed -> Under Recruitment employee.
+        "on_submit": "hr_services.recruitment.job_offer_flow.contract_on_submit",
+        "on_update_after_submit": "hr_services.recruitment.job_offer_flow.contract_on_update_after_submit"
     },
     "Payroll Entry": {
         # NOTE: do NOT hook on_submit to create salary slips — the HRMS core

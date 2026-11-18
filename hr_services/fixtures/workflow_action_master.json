@@ -65,8 +65,148 @@
  {
   "docstatus": 0,
   "doctype": "Workflow Action Master",
-  "modified": "2024-04-18 11:07:53.040772",
+  "modified": "2026-11-17 12:00:00",
+  "name": "Candidate Rejected",
+  "workflow_action_name": "Candidate Rejected"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2026-11-17 12:00:00",
+  "name": "Candidate Signed",
+  "workflow_action_name": "Candidate Signed"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2026-11-17 12:00:00",
+  "name": "Send to Agency",
+  "workflow_action_name": "Send to Agency"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2026-11-17 12:00:00",
+  "name": "Send to Candidate",
+  "workflow_action_name": "Send to Candidate"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2026-11-17 12:00:00",
+  "name": "Start Transfer",
+  "workflow_action_name": "Start Transfer"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2026-11-17 12:00:00",
+  "name": "Transfer Completed",
+  "workflow_action_name": "Transfer Completed"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2026-11-17 12:00:00",
+  "name": "Visa Issued",
+  "workflow_action_name": "Visa Issued"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2026-11-17 12:00:00",
+  "name": "Withdraw",
+  "workflow_action_name": "Withdraw"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2026-11-17 12:00:00",
+  "name": "Move to New Flow",
+  "workflow_action_name": "Move to New Flow"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2026-11-18 09:32:29.237421",
+  "name": "Parse File",
+  "workflow_action_name": "Parse File"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2026-11-18 09:32:29.246042",
+  "name": "Auto: Parsed",
+  "workflow_action_name": "Auto: Parsed"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2026-11-18 09:32:29.255488",
+  "name": "Mark Reconciled",
+  "workflow_action_name": "Mark Reconciled"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2026-11-18 09:32:29.264170",
+  "name": "Generate Outputs",
+  "workflow_action_name": "Generate Outputs"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2026-11-18 09:32:29.272931",
+  "name": "Submit (Close)",
+  "workflow_action_name": "Submit (Close)"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2026-11-18 09:32:29.281765",
   "name": "Cancel",
   "workflow_action_name": "Cancel"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2025-06-27 16:13:36.773584",
+  "name": "Initiate",
+  "workflow_action_name": "Initiate"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2025-06-27 16:28:02.106474",
+  "name": "Complete KYC",
+  "workflow_action_name": "Complete KYC"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2026-02-20 09:40:06.848521",
+  "name": "Run Basic Rules",
+  "workflow_action_name": "Run Basic Rules"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2026-02-20 09:40:06.861739",
+  "name": "Run Pre-Qualification Rules",
+  "workflow_action_name": "Run Pre-Qualification Rules"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2026-02-20 09:40:06.864394",
+  "name": "Run Knockout Rules",
+  "workflow_action_name": "Run Knockout Rules"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2026-02-20 09:40:06.867583",
+  "name": "Converted to Application",
+  "workflow_action_name": "Converted to Application"
  }
 ]

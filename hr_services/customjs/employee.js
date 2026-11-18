@@ -205,3 +205,21 @@ function calculate_probation_end_date(frm){
         frm.set_value("custom_probation_end_date", frappe.datetime.add_days(frm.doc.date_of_joining, frm.doc.custom_probation_period - 1));
     }   
 }
+// Under Recruitment employees are created automatically from the Job Offer when the
+// contract is signed. Personal details (date of birth, gender, Iqama, ...) are filled in
+// later, so they are optional until HR changes the status to Active.
+const ALWAYS_REQUIRED = ['first_name', 'company', 'status', 'naming_series'];
+
+function toggle_under_recruitment_reqd(frm) {
+	const relax = frm.doc.status === 'Under Recruitment';
+	(frm.meta.fields || []).forEach((df) => {
+		if (df.reqd && !ALWAYS_REQUIRED.includes(df.fieldname)) {
+			frm.toggle_reqd(df.fieldname, !relax);
+		}
+	});
+}
+
+frappe.ui.form.on('Employee', {
+	refresh: toggle_under_recruitment_reqd,
+	status: toggle_under_recruitment_reqd,
+});
