@@ -112,7 +112,8 @@ after_migrate = [
 	"hr_services.lending_compat.convert_v15_accruals_to_demands",
 	"hr_services.lending_compat.sync_advance_type_field",
 	"hr_services.upgrade_compat.after_migrate",
-	"hr_services.recruitment.dashboard.sync_status_board",
+	# Recruitment Status Board + HRMS "Job Offer Status" chart showing the recruitment stages
+	"hr_services.recruitment.dashboard.after_migrate",
 ]
 
 # Uninstallation

@@ -104,3 +104,33 @@ def sync_status_board():
 	else:
 		block.save(ignore_permissions=True)
 	return block.name
+
+
+# HRMS's own "Job Offer Status" chart (Recruitment dashboard) groups by the old Status field
+# (Awaiting Response / Accepted / Rejected). Show the recruitment stages instead. Re-applied
+# after every migrate, because HRMS may restore its standard chart.
+HRMS_STATUS_CHART = "Job Offer Status"
+
+
+def use_stages_in_hrms_chart():
+	if not frappe.db.exists("Dashboard Chart", HRMS_STATUS_CHART):
+		return
+	frappe.db.set_value(
+		"Dashboard Chart",
+		HRMS_STATUS_CHART,
+		{
+			"group_by_based_on": "workflow_state",
+			"filters_json": frappe.as_json([["Job Offer", "workflow_state", "not like", "Legacy%", False]]),
+			"type": "Donut",
+			"number_of_groups": 0,
+			"last_synced_on": None,
+		},
+		update_modified=False,
+	)
+	frappe.cache.delete_key(f"chart-data:{HRMS_STATUS_CHART}")
+	frappe.clear_cache(doctype="Dashboard Chart")
+
+
+def after_migrate():
+	sync_status_board()
+	use_stages_in_hrms_chart()
