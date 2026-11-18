@@ -904,7 +904,7 @@
   "doctype": "Workflow",
   "document_type": "Job Offer",
   "is_active": 1,
-  "modified": "2026-11-18 11:00:00.000000",
+  "modified": "2026-11-18 12:30:00.000000",
   "name": "Job Offer Recruitment",
   "override_status": 0,
   "send_email_alert": 0,
@@ -1071,7 +1071,7 @@
     "parent": "Job Offer Recruitment",
     "parentfield": "states",
     "parenttype": "Workflow",
-    "state": "Contract Sent",
+    "state": "Employee Created",
     "update_field": null,
     "update_value": null,
     "idx": 11
@@ -1086,25 +1086,10 @@
     "parent": "Job Offer Recruitment",
     "parentfield": "states",
     "parenttype": "Workflow",
-    "state": "Employee Created",
-    "update_field": null,
-    "update_value": null,
-    "idx": 12
-   },
-   {
-    "allow_edit": "HR REC User",
-    "avoid_status_override": 0,
-    "doc_status": "1",
-    "is_optional_state": 0,
-    "message": null,
-    "next_action_email_template": null,
-    "parent": "Job Offer Recruitment",
-    "parentfield": "states",
-    "parenttype": "Workflow",
     "state": "Rejected by Candidate",
     "update_field": "status",
     "update_value": "Rejected",
-    "idx": 13
+    "idx": 12
    },
    {
     "allow_edit": "HR Manager",
@@ -1119,7 +1104,7 @@
     "state": "Withdrawn",
     "update_field": "status",
     "update_value": "Cancelled",
-    "idx": 14
+    "idx": 13
    }
   ],
   "transitions": [
@@ -1208,6 +1193,18 @@
     "idx": 7
    },
    {
+    "action": "Create Employee",
+    "allow_self_approval": 1,
+    "allowed": "HR REC User",
+    "condition": "doc.custom_candidate_category == \"Overseas\"",
+    "next_state": "Employee Created",
+    "parent": "Job Offer Recruitment",
+    "parentfield": "transitions",
+    "parenttype": "Workflow",
+    "state": "Visa Issued",
+    "idx": 8
+   },
+   {
     "action": "Start Transfer",
     "allow_self_approval": 1,
     "allowed": "HR REC User",
@@ -1217,7 +1214,7 @@
     "parentfield": "transitions",
     "parenttype": "Workflow",
     "state": "Offer Signed",
-    "idx": 8
+    "idx": 9
    },
    {
     "action": "Transfer Completed",
@@ -1229,30 +1226,18 @@
     "parentfield": "transitions",
     "parenttype": "Workflow",
     "state": "Transfer in Process",
-    "idx": 9
-   },
-   {
-    "action": "Candidate Rejected",
-    "allow_self_approval": 1,
-    "allowed": "HR REC User",
-    "condition": null,
-    "next_state": "Rejected by Candidate",
-    "parent": "Job Offer Recruitment",
-    "parentfield": "transitions",
-    "parenttype": "Workflow",
-    "state": "Offer Signed",
     "idx": 10
    },
    {
-    "action": "Candidate Rejected",
+    "action": "Create Employee",
     "allow_self_approval": 1,
     "allowed": "HR REC User",
-    "condition": null,
-    "next_state": "Rejected by Candidate",
+    "condition": "doc.custom_candidate_category in (\"Local\", \"Saudi\")",
+    "next_state": "Employee Created",
     "parent": "Job Offer Recruitment",
     "parentfield": "transitions",
     "parenttype": "Workflow",
-    "state": "Pending with Agency",
+    "state": "Transfer Completed",
     "idx": 11
    },
    {
@@ -1264,7 +1249,7 @@
     "parent": "Job Offer Recruitment",
     "parentfield": "transitions",
     "parenttype": "Workflow",
-    "state": "Visa Issued",
+    "state": "Offer Signed",
     "idx": 12
    },
    {
@@ -1276,7 +1261,7 @@
     "parent": "Job Offer Recruitment",
     "parentfield": "transitions",
     "parenttype": "Workflow",
-    "state": "Transfer in Process",
+    "state": "Pending with Agency",
     "idx": 13
    },
    {
@@ -1288,31 +1273,31 @@
     "parent": "Job Offer Recruitment",
     "parentfield": "transitions",
     "parenttype": "Workflow",
-    "state": "Transfer Completed",
+    "state": "Visa Issued",
     "idx": 14
    },
    {
-    "action": "Withdraw",
+    "action": "Candidate Rejected",
     "allow_self_approval": 1,
-    "allowed": "HR Manager",
+    "allowed": "HR REC User",
     "condition": null,
-    "next_state": "Withdrawn",
+    "next_state": "Rejected by Candidate",
     "parent": "Job Offer Recruitment",
     "parentfield": "transitions",
     "parenttype": "Workflow",
-    "state": "Pending Candidate Signature",
+    "state": "Transfer in Process",
     "idx": 15
    },
    {
-    "action": "Withdraw",
+    "action": "Candidate Rejected",
     "allow_self_approval": 1,
-    "allowed": "HR Manager",
+    "allowed": "HR REC User",
     "condition": null,
-    "next_state": "Withdrawn",
+    "next_state": "Rejected by Candidate",
     "parent": "Job Offer Recruitment",
     "parentfield": "transitions",
     "parenttype": "Workflow",
-    "state": "Offer Signed",
+    "state": "Transfer Completed",
     "idx": 16
    },
    {
@@ -1324,7 +1309,7 @@
     "parent": "Job Offer Recruitment",
     "parentfield": "transitions",
     "parenttype": "Workflow",
-    "state": "Pending with Agency",
+    "state": "Pending Candidate Signature",
     "idx": 17
    },
    {
@@ -1336,7 +1321,7 @@
     "parent": "Job Offer Recruitment",
     "parentfield": "transitions",
     "parenttype": "Workflow",
-    "state": "Visa Issued",
+    "state": "Offer Signed",
     "idx": 18
    },
    {
@@ -1348,7 +1333,7 @@
     "parent": "Job Offer Recruitment",
     "parentfield": "transitions",
     "parenttype": "Workflow",
-    "state": "Transfer in Process",
+    "state": "Pending with Agency",
     "idx": 19
    },
    {
@@ -1360,7 +1345,7 @@
     "parent": "Job Offer Recruitment",
     "parentfield": "transitions",
     "parenttype": "Workflow",
-    "state": "Transfer Completed",
+    "state": "Visa Issued",
     "idx": 20
    },
    {
@@ -1372,8 +1357,20 @@
     "parent": "Job Offer Recruitment",
     "parentfield": "transitions",
     "parenttype": "Workflow",
-    "state": "Contract Sent",
+    "state": "Transfer in Process",
     "idx": 21
+   },
+   {
+    "action": "Withdraw",
+    "allow_self_approval": 1,
+    "allowed": "HR Manager",
+    "condition": null,
+    "next_state": "Withdrawn",
+    "parent": "Job Offer Recruitment",
+    "parentfield": "transitions",
+    "parenttype": "Workflow",
+    "state": "Transfer Completed",
+    "idx": 22
    }
   ],
   "workflow_name": "Job Offer Recruitment",

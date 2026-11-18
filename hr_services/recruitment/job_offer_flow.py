@@ -7,8 +7,8 @@ Stages are driven by the "Job Offer Recruitment" workflow. This module:
 - checks the fields each stage needs before an offer can enter it,
 - keeps the old Applicant Type / Nationality fields in sync with Candidate Category,
 - stamps the offer sign date and logs every "Latest Update" with user and date,
-- moves the offer to "Contract Sent" when its contract is submitted, and
-- creates the Employee (status Under Recruitment) when that contract is signed.
+- creates the Employee (status Under Recruitment) when HR clicks "Create Employee"
+  at Visa Issued / Transfer Completed.
 """
 
 import frappe
@@ -23,12 +23,11 @@ LEGACY = "Legacy"  # old offers: Legacy Draft / Legacy / Legacy Cancelled
 
 def is_legacy(state):
 	return (state or "").startswith(LEGACY)
-CONTRACT_SENT = "Contract Sent"
 EMPLOYEE_CREATED = "Employee Created"
 OFFER_SIGNED = "Offer Signed"
 
-# States after which a contract may be created.
-READY_FOR_CONTRACT = ("Visa Issued", "Transfer Completed")
+# HR clicks "Create Employee" at these stages.
+READY_FOR_EMPLOYEE = ("Visa Issued", "Transfer Completed")
 
 OVERSEAS, LOCAL, SAUDI = "Overseas", "Local", "Saudi"
 QIWA_ACCEPTED = ("Accepted by Candidate", "Accepted by His/Her Sponsor")
@@ -42,8 +41,7 @@ STAGE_RANK = {
 	"Transfer in Process": 3,
 	"Visa Issued": 4,
 	"Transfer Completed": 4,
-	CONTRACT_SENT: 5,
-	EMPLOYEE_CREATED: 6,
+	EMPLOYEE_CREATED: 5,
 }
 
 
@@ -108,6 +106,7 @@ def validate(doc, method=None):
 	set_defaults(doc)
 	check_stage_requirements(doc)
 	stamp_dates(doc)
+	create_employee_at_stage(doc)
 	log_latest_update(doc)
 
 
@@ -157,6 +156,22 @@ def check_stage_requirements(doc):
 			),
 			title=_("Missing information"),
 		)
+
+
+def create_employee_at_stage(doc):
+	"""HR clicked "Create Employee": make the Under Recruitment employee from this offer.
+	Runs after the stage checks, so the offer has everything the employee needs."""
+	if doc.get(WORKFLOW_FIELD) != EMPLOYEE_CREATED or doc.get("custom_employee"):
+		return
+	employee = create_employee_from_offer(doc)
+	doc.custom_employee = employee  # the save that follows must keep the link
+	frappe.msgprint(
+		_("Employee {0} created with status {1}.").format(
+			frappe.utils.get_link_to_form("Employee", employee), UNDER_RECRUITMENT
+		),
+		alert=True,
+		indicator="green",
+	)
 
 
 def stamp_dates(doc):
@@ -233,58 +248,12 @@ def _entry_state(doc):
 	return "Pending Candidate Signature"
 
 
-# --------------------------------------------------------------------------- Contract hooks
-
-
-def _offer_in_flow(offer_name):
-	"""The offer's workflow state, or None for offers outside the new flow (Legacy* / none)."""
-	if not offer_name:
-		return None
-	state = frappe.db.get_value("Job Offer", offer_name, WORKFLOW_FIELD)
-	return None if not state or is_legacy(state) else state
-
-
-def contract_before_insert(doc, method=None):
-	state = _offer_in_flow(doc.get("custom_job_offer"))
-	if state and state not in READY_FOR_CONTRACT:
-		frappe.throw(
-			_("A contract can be created only after the offer reaches {0}. Job Offer {1} is at <b>{2}</b>.").format(
-				_(" or ").join(_(s) for s in READY_FOR_CONTRACT), doc.custom_job_offer, _(state)
-			),
-			title=_("Offer not ready"),
-		)
-
-
-def contract_on_submit(doc, method=None):
-	if _offer_in_flow(doc.get("custom_job_offer")) in READY_FOR_CONTRACT:
-		_set_offer_state(doc.custom_job_offer, CONTRACT_SENT, _("Contract {0} submitted").format(doc.name))
-	if cint(doc.is_signed):
-		contract_on_update_after_submit(doc)
-
-
-def contract_on_update_after_submit(doc, method=None):
-	"""Contract marked signed -> create the Under Recruitment employee."""
-	offer = doc.get("custom_job_offer")
-	if not cint(doc.is_signed) or _offer_in_flow(offer) not in (CONTRACT_SENT, *READY_FOR_CONTRACT):
-		return
-	if not doc.get("custom_signed_contract"):
-		frappe.throw(_("Attach the Signed Contract before marking the contract as signed."), title=_("Signed copy missing"))
-
-	employee = create_employee_from_offer(offer, contract=doc)
-	_set_offer_state(offer, EMPLOYEE_CREATED, _("Employee {0} created (Under Recruitment)").format(employee))
-	frappe.msgprint(
-		_("Employee {0} created with status {1}.").format(
-			frappe.utils.get_link_to_form("Employee", employee), UNDER_RECRUITMENT
-		),
-		alert=True,
-		indicator="green",
-	)
+# --------------------------------------------------------------------------- Stage changes by the system
 
 
 def _set_offer_state(offer_name, state, note):
-	"""System-driven stage change. "Contract Sent" and "Employee Created" have no user
-	transitions (users can't click them), so the state is written directly instead of
-	going through workflow validation."""
+	"""System-driven stage change (an old offer joining the flow, a cancel): the state is
+	written directly instead of going through workflow validation."""
 	frappe.db.set_value("Job Offer", offer_name, WORKFLOW_FIELD, state)
 	idx = (frappe.db.count("Job Offer Update", {"parent": offer_name, "parenttype": "Job Offer"}) or 0) + 1
 	frappe.get_doc(
@@ -317,9 +286,11 @@ SALARY_MAP = {
 }
 
 
-def create_employee_from_offer(offer_name, contract=None):
-	"""Create (once) the Under Recruitment employee for this offer. Returns the Employee name."""
-	offer = frappe.get_doc("Job Offer", offer_name)
+def create_employee_from_offer(offer):
+	"""Create (once) the Under Recruitment employee for this offer (a Job Offer doc or name).
+	Returns the Employee name."""
+	if isinstance(offer, str):
+		offer = frappe.get_doc("Job Offer", offer)
 
 	existing = offer.get("custom_employee") or frappe.db.get_value(
 		"Employee", {"job_offer": offer.name}, "name"
@@ -363,11 +334,7 @@ def create_employee_from_offer(offer_name, contract=None):
 		emp.passport_number = id_number
 	elif id_type in ("Iqama", "National ID"):
 		emp.iqama_national_id = id_number
-	if contract and contract.get("custom_passport_no"):
-		emp.passport_number = contract.custom_passport_no
-
-	# Salary: the signed contract wins over the offer.
-	rows = (contract.get("salary_detail") if contract else None) or offer.get("custom_salary_details") or []
+	rows = offer.get("custom_salary_details") or []
 	other = 0
 	for row in rows:
 		field = SALARY_MAP.get(row.salary_components)
@@ -376,7 +343,7 @@ def create_employee_from_offer(offer_name, contract=None):
 		else:
 			other += flt(row.amount)
 	emp.food_allowance = other
-	emp.ctc = flt(contract.get("custom_total_salary") if contract else 0) or flt(offer.get("custom_total_salary"))
+	emp.ctc = flt(offer.get("custom_total_salary"))
 
 	# Personal details (date of birth, gender, ...) are collected later; they become
 	# required when HR changes the status from Under Recruitment to Active.
