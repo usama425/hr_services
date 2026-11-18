@@ -13,7 +13,7 @@ Stages are driven by the "Job Offer Recruitment" workflow. This module:
 
 import frappe
 from frappe import _
-from frappe.utils import cint, flt, now_datetime, today
+from frappe.utils import cint, date_diff, flt, getdate, now_datetime, today
 
 from hr_services.custompy.under_recruitment import UNDER_RECRUITMENT
 
@@ -159,9 +159,36 @@ def check_stage_requirements(doc):
 		)
 
 
+# Date stamped the first time an offer reaches each stage (shown under "Stage Dates").
+STAGE_DATE_FIELD = {
+	"Pending Candidate Signature": "custom_sent_to_candidate_on",
+	OFFER_SIGNED: "custom_offer_signed_on",
+	"Pending with Agency": "custom_process_started_on",
+	"Transfer in Process": "custom_process_started_on",
+	"Visa Issued": "custom_visa_transfer_done_on",
+	"Transfer Completed": "custom_visa_transfer_done_on",
+	CONTRACT_SENT: "custom_contract_sent_on",
+	EMPLOYEE_CREATED: "custom_completed_on",
+}
+
+
+def stage_date_values(doc, state, when=None):
+	"""Field values to set when `doc` enters `state` (only what isn't set yet)."""
+	when = getdate(when or today())
+	values = {"custom_stage_since": when}
+	field = STAGE_DATE_FIELD.get(state)
+	if field and not doc.get(field):
+		values[field] = when
+	if state == EMPLOYEE_CREATED and not doc.get("custom_days_to_complete"):
+		values["custom_days_to_complete"] = max(date_diff(when, getdate(doc.get("creation") or when)), 0)
+	return values
+
+
 def stamp_dates(doc):
-	if STAGE_RANK.get(doc.get(WORKFLOW_FIELD), 0) >= STAGE_RANK[OFFER_SIGNED] and not doc.get("custom_offer_signed_on"):
-		doc.custom_offer_signed_on = today()
+	state = doc.get(WORKFLOW_FIELD)
+	before = doc.get_doc_before_save()
+	if doc.is_new() or not before or before.get(WORKFLOW_FIELD) != state or not doc.get("custom_stage_since"):
+		doc.update(stage_date_values(doc, state))
 
 
 def log_latest_update(doc):
@@ -285,7 +312,8 @@ def _set_offer_state(offer_name, state, note):
 	"""System-driven stage change. "Contract Sent" and "Employee Created" have no user
 	transitions (users can't click them), so the state is written directly instead of
 	going through workflow validation."""
-	frappe.db.set_value("Job Offer", offer_name, WORKFLOW_FIELD, state)
+	offer = frappe.db.get_value("Job Offer", offer_name, ["creation", *set(STAGE_DATE_FIELD.values()), "custom_days_to_complete"], as_dict=True)
+	frappe.db.set_value("Job Offer", offer_name, {WORKFLOW_FIELD: state, **stage_date_values(offer, state)})
 	idx = (frappe.db.count("Job Offer Update", {"parent": offer_name, "parenttype": "Job Offer"}) or 0) + 1
 	frappe.get_doc(
 		{

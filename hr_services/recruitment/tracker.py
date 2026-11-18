@@ -47,6 +47,13 @@ COLUMNS = [
 	("Agency Number", "agency_number", "Data", 120, ("Overseas",)),
 	("Agency Email", "agency_email", "Data", 160, ("Overseas",)),
 	("Country", "agency_country", "Data", 100, ("Overseas",)),
+	# Stage dates (in the report; the Excel sheet only gets them if it has these headers)
+	("Sent to Candidate On", "sent_to_candidate_on", "Date", 120, None),
+	("Visa Issued / Transfer Completed On", "visa_transfer_done_on", "Date", 150, None),
+	("Contract Sent On", "contract_sent_on", "Date", 120, None),
+	("Completed On", "completed_on", "Date", 110, None),
+	("Days to Complete", "days_to_complete", "Int", 110, None),
+	("In Stage Since", "stage_since", "Date", 110, None),
 ]
 
 KEY_HEADER = "Job request"
@@ -60,6 +67,8 @@ OFFER_FIELDS = [
 	"custom_iqama_profession_ar", "custom_job_title_on_visa", "custom_job_title_on_visa_ar",
 	"custom_visa_number", "custom_e_wakala", "custom_hiring_route", "custom_recruitment_agency",
 	"custom_agency_contact_no", "custom_agency_email", "custom_agency_country",
+	"custom_sent_to_candidate_on", "custom_visa_transfer_done_on", "custom_contract_sent_on",
+	"custom_completed_on", "custom_days_to_complete", "custom_stage_since",
 ]
 
 
@@ -134,6 +143,12 @@ def build_rows(offers):
 			"agency_number": o.custom_agency_contact_no,
 			"agency_email": o.custom_agency_email,
 			"agency_country": o.custom_agency_country,
+			"sent_to_candidate_on": o.custom_sent_to_candidate_on,
+			"visa_transfer_done_on": o.custom_visa_transfer_done_on,
+			"contract_sent_on": o.custom_contract_sent_on,
+			"completed_on": o.custom_completed_on,
+			"days_to_complete": o.custom_days_to_complete,
+			"stage_since": o.custom_stage_since,
 		}
 		# Columns that don't apply to this candidate show "No need with <category>", as in the sheet.
 		no_need = NO_NEED.get(o.custom_candidate_category)
