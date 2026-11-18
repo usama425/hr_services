@@ -61,14 +61,18 @@ def _required_fields(doc):
 		(1, "custom_id_type", _("ID Type"), filled),
 		(1, "custom_id_number", _("ID Number"), filled),
 		(2, "custom_signed_job_offer", _("Signed Job Offer"), filled),
+		# These sit in the Qiwa section, which shows once the offer is signed (Accepted).
+		(3, "custom_country", _("Country (Nationality)"), filled),
+		(3, "custom_current_city", _("Current City"), filled),
 	]
 	if category == OVERSEAS:
 		rules += [
 			(3, "custom_recruitment_agency", _("Agency Name"), filled),
-			(3, "custom_agency_country", _("Country"), filled),
+			(3, "custom_agency_country", _("Agency Country"), filled),
 			(4, "custom_job_title_on_visa", _("Visa Name"), filled),
 			(4, "custom_job_title_on_visa_ar", _("Visa Name (Arabic)"), filled),
 			(4, "custom_visa_number", _("Visa Number"), filled),
+			(4, "custom_visa_authorization", _("Visa Authorization"), filled),
 		]
 	elif category in (LOCAL, SAUDI):
 		if category == LOCAL:
