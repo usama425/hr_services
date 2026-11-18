@@ -1,6 +1,190 @@
 [
  {
-  "component_in_arabic": "\u0628\u062f\u0644 \u0637\u0639\u0627\u0645",
+  "component_in_arabic": "بدل آخر",
+  "docstatus": 0,
+  "doctype": "Salary Items",
+  "modified": "2024-08-18 16:04:17.850464",
+  "name": "Other Allowance",
+  "salary_item": "Other Allowance"
+ },
+ {
+  "component_in_arabic": "بدل الطبيعة",
+  "docstatus": 0,
+  "doctype": "Salary Items",
+  "modified": "2024-11-25 13:31:40.313535",
+  "name": "Nature Allowance",
+  "salary_item": "Nature Allowance"
+ },
+ {
+  "component_in_arabic": "بدل التذاكر",
+  "docstatus": 0,
+  "doctype": "Salary Items",
+  "modified": "2025-01-08 16:41:57.670432",
+  "name": "Ticket Allowance",
+  "salary_item": "Ticket Allowance"
+ },
+ {
+  "component_in_arabic": "بدل الأمن",
+  "docstatus": 0,
+  "doctype": "Salary Items",
+  "modified": "2025-04-13 14:05:30.726660",
+  "name": "Security Allowance",
+  "salary_item": "Security Allowance"
+ },
+ {
+  "component_in_arabic": "بدل العمل الطبيعي",
+  "docstatus": 0,
+  "doctype": "Salary Items",
+  "modified": "2025-06-25 09:11:56.184709",
+  "name": "Work Natural allowance",
+  "salary_item": "Work Natural allowance"
+ },
+ {
+  "component_in_arabic": "تعليم",
+  "docstatus": 0,
+  "doctype": "Salary Items",
+  "modified": "2025-07-14 16:39:52.140918",
+  "name": "Schooling",
+  "salary_item": "Schooling"
+ },
+ {
+  "component_in_arabic": "بدلات أخرى",
+  "docstatus": 0,
+  "doctype": "Salary Items",
+  "modified": "2025-11-23 16:11:43.897575",
+  "name": "Other allowances",
+  "salary_item": "Other allowances"
+ },
+ {
+  "component_in_arabic": "التعليم/رعاية الأطفال",
+  "docstatus": 0,
+  "doctype": "Salary Items",
+  "modified": "2025-12-09 16:24:22.073839",
+  "name": "Schooling/childcare",
+  "salary_item": "Schooling/childcare"
+ },
+ {
+  "component_in_arabic": "المكافأة السنوية",
+  "docstatus": 0,
+  "doctype": "Salary Items",
+  "modified": "2025-12-09 16:25:42.530520",
+  "name": "Yearly bonus",
+  "salary_item": "Yearly bonus"
+ },
+ {
+  "component_in_arabic": "وقود",
+  "docstatus": 0,
+  "doctype": "Salary Items",
+  "modified": "2025-12-21 13:07:00.244557",
+  "name": "Fuel",
+  "salary_item": "Fuel"
+ },
+ {
+  "component_in_arabic": "HRW",
+  "docstatus": 0,
+  "doctype": "Salary Items",
+  "modified": "2025-12-30 16:53:44.092621",
+  "name": "HRW",
+  "salary_item": "HRW"
+ },
+ {
+  "component_in_arabic": "TRA",
+  "docstatus": 0,
+  "doctype": "Salary Items",
+  "modified": "2025-12-30 16:54:54.668499",
+  "name": "TRA.",
+  "salary_item": "TRA."
+ },
+ {
+  "component_in_arabic": "نوع العقد",
+  "docstatus": 0,
+  "doctype": "Salary Items",
+  "modified": "2026-01-21 08:26:34.233711",
+  "name": "contract type",
+  "salary_item": "contract type"
+ },
+ {
+  "component_in_arabic": "تحقيق أهداف المبيعات",
+  "docstatus": 0,
+  "doctype": "Salary Items",
+  "modified": "2026-03-03 13:11:21.289601",
+  "name": "Sales Target Achievements",
+  "salary_item": "Sales Target Achievements"
+ },
+ {
+  "component_in_arabic": "المدير المباشر",
+  "docstatus": 0,
+  "doctype": "Salary Items",
+  "modified": "2026-03-31 16:51:14.325285",
+  "name": "Line manager.",
+  "salary_item": "Line manager."
+ },
+ {
+  "component_in_arabic": "المدير المباشر :",
+  "docstatus": 0,
+  "doctype": "Salary Items",
+  "modified": "2026-05-10 16:49:16.809881",
+  "name": "Reporting line:",
+  "salary_item": "Reporting line:"
+ },
+ {
+  "component_in_arabic": "الموقع",
+  "docstatus": 0,
+  "doctype": "Salary Items",
+  "modified": "2026-05-10 16:50:54.112643",
+  "name": "Location",
+  "salary_item": "Location"
+ },
+ {
+  "component_in_arabic": "الإقامة",
+  "docstatus": 0,
+  "doctype": "Salary Items",
+  "modified": "2026-06-24 10:56:51.886045",
+  "name": "Iqama",
+  "salary_item": "Iqama"
+ },
+ {
+  "component_in_arabic": "جواز السفر",
+  "docstatus": 0,
+  "doctype": "Salary Items",
+  "modified": "2026-06-24 10:57:13.756877",
+  "name": "Passport",
+  "salary_item": "Passport"
+ },
+ {
+  "component_in_arabic": "العمل الإضافي مشمول (48 ساعة)",
+  "docstatus": 0,
+  "doctype": "Salary Items",
+  "modified": "2026-08-16 14:18:58.504624",
+  "name": "Included Overtime (48 hours)",
+  "salary_item": "Included Overtime (48 hours)"
+ },
+ {
+  "component_in_arabic": "فترة التجربة",
+  "docstatus": 0,
+  "doctype": "Salary Items",
+  "modified": "2026-10-18 11:14:28.572019",
+  "name": "Probationary Period",
+  "salary_item": "Probationary Period"
+ },
+ {
+  "component_in_arabic": "Overtime",
+  "docstatus": 0,
+  "doctype": "Salary Items",
+  "modified": "2026-11-10 11:53:28.678398",
+  "name": "Overtime",
+  "salary_item": "Overtime"
+ },
+ {
+  "component_in_arabic": "بدل التضخم",
+  "docstatus": 0,
+  "doctype": "Salary Items",
+  "modified": "2026-11-17 15:52:07.067618",
+  "name": "Inflation allowance",
+  "salary_item": "Inflation allowance"
+ },
+ {
+  "component_in_arabic": "بدل طعام",
   "docstatus": 0,
   "doctype": "Salary Items",
   "modified": "2024-07-04 16:41:18.413513",
@@ -8,7 +192,7 @@
   "salary_item": "Food allowance"
  },
  {
-  "component_in_arabic": "\u0627\u0644\u0631\u0627\u062a\u0628 \u0627\u0644\u0623\u0633\u0627\u0633\u064a",
+  "component_in_arabic": "الراتب الأساسي",
   "docstatus": 0,
   "doctype": "Salary Items",
   "modified": "2024-08-08 16:13:57.233669",
@@ -16,7 +200,7 @@
   "salary_item": "Basic Salary"
  },
  {
-  "component_in_arabic": "\u0628\u062f\u0644 \u0627\u0644\u0633\u0643\u0646",
+  "component_in_arabic": "بدل السكن",
   "docstatus": 0,
   "doctype": "Salary Items",
   "modified": "2024-05-15 17:30:54.909246",
@@ -24,7 +208,7 @@
   "salary_item": "Housing Allowance"
  },
  {
-  "component_in_arabic": "\u0628\u062f\u0644 \u0627\u0644\u0646\u0642\u0644",
+  "component_in_arabic": "بدل النقل",
   "docstatus": 0,
   "doctype": "Salary Items",
   "modified": "2024-08-08 16:14:19.483448",
@@ -32,7 +216,7 @@
   "salary_item": "Transportations Allowance"
  },
  {
-  "component_in_arabic": "\u0628\u062f\u0644 \u0625\u062c\u0627\u0632\u0629 \u0633\u0641\u0631",
+  "component_in_arabic": "بدل إجازة سفر",
   "docstatus": 0,
   "doctype": "Salary Items",
   "modified": "2024-05-16 14:30:19.424334",
@@ -40,7 +224,7 @@
   "salary_item": "Vacation Travel Allowance"
  },
  {
-  "component_in_arabic": "\u0627\u0644\u0645\u0643\u0627\u0641\u0623\u0629 \u0627\u0644\u0633\u0646\u0648\u064a\u0629",
+  "component_in_arabic": "المكافأة السنوية",
   "docstatus": 0,
   "doctype": "Salary Items",
   "modified": "2024-07-04 11:35:01.596563",
@@ -48,7 +232,7 @@
   "salary_item": "Annual Bonus"
  },
  {
-  "component_in_arabic": "\u0628\u062f\u0644 \u0627\u0644\u062a\u0646\u0642\u0644",
+  "component_in_arabic": "بدل التنقل",
   "docstatus": 0,
   "doctype": "Salary Items",
   "modified": "2024-07-04 11:35:01.632761",
@@ -56,7 +240,7 @@
   "salary_item": "Relocation Allowance"
  },
  {
-  "component_in_arabic": "\u0628\u062f\u0644 \u0627\u0644\u0637\u064a\u0631\u0627\u0646",
+  "component_in_arabic": "بدل الطيران",
   "docstatus": 0,
   "doctype": "Salary Items",
   "modified": "2024-07-04 11:35:01.647602",
@@ -64,7 +248,7 @@
   "salary_item": "Flight Allowance"
  },
  {
-  "component_in_arabic": "\u0628\u062f\u0644 \u0647\u0627\u062a\u0641",
+  "component_in_arabic": "بدل هاتف",
   "docstatus": 0,
   "doctype": "Salary Items",
   "modified": "2024-07-04 11:35:01.657081",
@@ -72,7 +256,7 @@
   "salary_item": "Telephone Allowance"
  },
  {
-  "component_in_arabic": "\u0628\u062f\u0644 \u0627\u0644\u0645\u0646\u0627\u0648\u0628\u0629",
+  "component_in_arabic": "بدل المناوبة",
   "docstatus": 0,
   "doctype": "Salary Items",
   "modified": "2024-07-04 11:35:01.666431",
@@ -80,11 +264,115 @@
   "salary_item": "Shift Allowance"
  },
  {
-  "component_in_arabic": "\u0628\u062f\u0644 \u0627\u0644\u0633\u0641\u0631 \u0627\u0644\u0633\u0646\u0648\u064a",
+  "component_in_arabic": "بدل السفر السنوي",
   "docstatus": 0,
   "doctype": "Salary Items",
   "modified": "2024-07-04 11:35:01.678548",
   "name": "Annual Travel Allowance",
   "salary_item": "Annual Travel Allowance"
+ },
+ {
+  "component_in_arabic": "بدل قائد",
+  "docstatus": 0,
+  "doctype": "Salary Items",
+  "modified": "2025-02-22 02:54:20.296697",
+  "name": "Leadership Allowance",
+  "salary_item": "Leadership Allowance"
+ },
+ {
+  "component_in_arabic": "بدل التعليم",
+  "docstatus": 0,
+  "doctype": "Salary Items",
+  "modified": "2026-01-21 16:59:41.297470",
+  "name": "Education Allowance",
+  "salary_item": "Education Allowance"
+ },
+ {
+  "component_in_arabic": "بدل إدارة",
+  "docstatus": 0,
+  "doctype": "Salary Items",
+  "modified": "2024-09-01 11:51:49.394411",
+  "name": "Management Allowance",
+  "salary_item": "Management Allowance"
+ },
+ {
+  "component_in_arabic": "تذكرة الطيارة",
+  "docstatus": 0,
+  "doctype": "Salary Items",
+  "modified": "2026-03-01 14:17:13.488746",
+  "name": "Flight Ticket",
+  "salary_item": "Flight Ticket"
+ },
+ {
+  "component_in_arabic": "ساعات العمل ",
+  "docstatus": 0,
+  "doctype": "Salary Items",
+  "modified": "2026-02-25 10:39:24.255307",
+  "name": "working hours",
+  "salary_item": "working hours"
+ },
+ {
+  "component_in_arabic": "التأمين الطبي",
+  "docstatus": 0,
+  "doctype": "Salary Items",
+  "modified": "2026-03-01 14:22:29.252258",
+  "name": "Medical Insurance",
+  "salary_item": "Medical Insurance"
+ },
+ {
+  "component_in_arabic": "بدل السفر",
+  "docstatus": 0,
+  "doctype": "Salary Items",
+  "modified": "2024-09-12 09:53:31.871050",
+  "name": "Travel Allowance",
+  "salary_item": "Travel Allowance"
+ },
+ {
+  "component_in_arabic": "مدير الخط",
+  "docstatus": 0,
+  "doctype": "Salary Items",
+  "modified": "2026-03-31 16:39:23.262749",
+  "name": "Line manager",
+  "salary_item": "Line manager"
+ },
+ {
+  "component_in_arabic": "الراتب كامل",
+  "docstatus": 0,
+  "doctype": "Salary Items",
+  "modified": "2025-12-11 15:49:00.715104",
+  "name": "total salary",
+  "salary_item": "total salary"
+ },
+ {
+  "component_in_arabic": "بدل المحمول ",
+  "docstatus": 0,
+  "doctype": "Salary Items",
+  "modified": "2024-11-13 16:14:46.421313",
+  "name": "Mobile Allowance",
+  "salary_item": "Mobile Allowance"
+ },
+ {
+  "component_in_arabic": "مدة العقد ",
+  "docstatus": 0,
+  "doctype": "Salary Items",
+  "modified": "2026-01-21 08:27:48.972348",
+  "name": "Contract Duration",
+  "salary_item": "Contract Duration"
+ },
+ {
+  "component_in_arabic": "الإجازة السنوية",
+  "docstatus": 0,
+  "doctype": "Salary Items",
+  "modified": "2025-11-17 16:59:22.257161",
+  "name": "Annual leave",
+  "salary_item": "Annual leave"
+ },
+ {
+  "component_in_arabic": "ايام العمل ",
+  "docstatus": 0,
+  "doctype": "Salary Items",
+  "modified": "2025-12-29 08:03:05.253826",
+  "name": "Working days",
+  "salary_item": "Working days"
  }
 ]
