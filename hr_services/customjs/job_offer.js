@@ -3,28 +3,8 @@
 
 frappe.provide("erpnext.job_offer");
 
-// New offers go to Elite HQ for now. The Project field copies the applicant's
-// project (blank when the applicant has none), so it is filled whenever it is empty.
-const DEFAULT_PROJECT = { project: 'PROJ-0018', project_name: 'Elite HQ' };
-
-function set_default_project(frm) {
-	const new_flow = !(frm.doc.workflow_state || '').startsWith('Legacy');
-	if (frm.doc.docstatus === 0 && new_flow && !frm.doc.custom_project) {
-		frm.set_value('custom_project', DEFAULT_PROJECT.project);
-		frm.set_value('custom_project_name', DEFAULT_PROJECT.project_name);
-	}
-}
-
 frappe.ui.form.on('Job Offer', {
-	job_applicant: function (frm) {
-		// wait for the applicant's fields to be copied in first
-		setTimeout(() => set_default_project(frm), 800);
-	},
-	custom_project: function (frm) {
-		set_default_project(frm);
-	},
 	onload: function (frm) {
-		if (frm.doc.__islocal) set_default_project(frm);
 		frm.set_query("select_terms", function() {
 			return { filters: { custom_for_job_offer: 1 } };
 		});
