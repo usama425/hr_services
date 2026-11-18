@@ -18,12 +18,13 @@ def execute(filters=None):
 		conditions["offer_date"] = ["<=", to_date]
 	for key, field in (
 		("category", "custom_candidate_category"),
-		("recruiter", "custom_recruiter"),
 		("stage", "workflow_state"),
 		("project", "custom_project"),
 	):
 		if filters.get(key):
 			conditions[field] = filters[key]
+	if filters.get("recruiter"):
+		conditions["custom_recruiter"] = ["like", f"%{filters['recruiter']}%"]
 	if not filters.get("include_legacy") and not filters.get("stage"):
 		conditions["workflow_state"] = ["not like", "Legacy%"]
 

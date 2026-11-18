@@ -118,7 +118,8 @@ def sync_legacy_fields(doc):
 
 def set_defaults(doc):
 	if not doc.get("custom_recruiter"):
-		doc.custom_recruiter = doc.owner or frappe.session.user
+		# Free text; start with the creator's name, HR can type any name.
+		doc.custom_recruiter = frappe.utils.get_fullname(doc.owner or frappe.session.user)
 	if not doc.get("custom_hiring_route"):
 		doc.custom_hiring_route = {OVERSEAS: "MOFA", LOCAL: "Sponsorship Transfer", SAUDI: "Saudi Hire"}.get(
 			doc.get("custom_candidate_category")

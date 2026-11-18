@@ -6,7 +6,7 @@ frappe.query_reports["Recruitment Tracker"] = {
 		{ fieldname: "from_date", label: __("Offer Date From"), fieldtype: "Date" },
 		{ fieldname: "to_date", label: __("Offer Date To"), fieldtype: "Date" },
 		{ fieldname: "category", label: __("Candidate Category"), fieldtype: "Select", options: "\nOverseas\nLocal\nSaudi" },
-		{ fieldname: "recruiter", label: __("Recruiter"), fieldtype: "Link", options: "User" },
+		{ fieldname: "recruiter", label: __("Recruiter"), fieldtype: "Data" },
 		{ fieldname: "stage", label: __("Stage"), fieldtype: "Link", options: "Workflow State" },
 		{ fieldname: "project", label: __("Project"), fieldtype: "Link", options: "Project" },
 		{ fieldname: "include_legacy", label: __("Include old offers (Legacy)"), fieldtype: "Check" },
